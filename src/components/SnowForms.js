@@ -4,7 +4,7 @@ import { TouchableOpacity, TextInput, Text, View, ScrollView } from 'react-nativ
 import { scale, percentage } from '../utils/scalling'
 
 export const GradientBackground = styled(LinearGradient).attrs({
-    colors: ['#5DD39E', '#348EAC'],
+    colors: ['#348EAC', '#5DD39E'],
 })`
     flex: 1;
 `
