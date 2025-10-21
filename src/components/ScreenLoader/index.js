@@ -1,52 +1,36 @@
-import React from 'react'
-import { SafeAreaView, ActivityIndicator, View, Image, Text } from 'react-native'
+import { ActivityIndicator, View, Image, Text } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { Screen } from './styles'
-import { scale } from '../../utils/scalling'
+import { Screen,styles } from './styles'
+
+const verde = '#77bfad'
+const azul = '#2E97BE'
 
 const ScreenLoader = () => {
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: '#348EAC' }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: azul }}>
             <LinearGradient
-                colors={['#5DD39E', '#348EAC']}
+                colors={[azul, verde]}
                 style={{ flex: 1 }}
             >
                 <Screen>
                     {/* Logo GDS */}
                     <Image 
                         source={require('../../../assets/gds_splash.png')}
-                        style={{
-                            width: scale(265),
-                            height: scale(265),
-                            marginBottom: scale(40),
-                            resizeMode: 'contain'
-                        }}
+                        style={styles.img}
                     />
                     
                     {/* Loading text */}
-                    <Text style={{
-                        color: '#ffffff',
-                        fontSize: scale(16),
-                        marginBottom: scale(20),
-                        fontFamily: 'System',
-                        fontWeight: '500'
-                    }}>
+                    <Text style={styles.loadingText}>
                         Carregando...
                     </Text>
                     
                     {/* Loading spinner */}
-                    <View style={{
-                        width: scale(72),
-                        height: scale(72),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        backgroundColor: '#f4f4f4',
-                        borderRadius: scale(36),
-                    }}>
+                    <View style={styles.loadingSpinner}>
                         <ActivityIndicator 
                             size="large" 
-                            color="#348EAC" 
+                            color="azul" 
                         />
                     </View>
                 </Screen>

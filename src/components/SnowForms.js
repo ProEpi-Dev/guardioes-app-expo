@@ -1,10 +1,13 @@
 import styled from 'styled-components'
 import { LinearGradient } from 'expo-linear-gradient'
-import { TouchableOpacity, TextInput, Text, View, ScrollView } from 'react-native'
+import { TouchableOpacity, TextInput, View, ScrollView } from 'react-native'
 import { scale, percentage } from '../utils/scalling'
 
+const verde = '#77bfad'
+const azul = '#2E97BE'
+
 export const GradientBackground = styled(LinearGradient).attrs({
-    colors: ['#5DD39E', '#348EAC'],
+    colors: [azul, verde],
 })`
     flex: 1;
 `

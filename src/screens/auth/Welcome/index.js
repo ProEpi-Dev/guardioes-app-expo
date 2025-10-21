@@ -1,5 +1,5 @@
 import React from 'react'
-import { Alert, SafeAreaView, StatusBar } from 'react-native'
+import { Alert, StatusBar } from 'react-native'
 
 import {
     GradientBackground,
@@ -11,10 +11,13 @@ import { Container, Logo, WelcomeText } from './styles'
 
 import translate from '../../../locales/i18n'
 import { terms } from '../../../utils/consts'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 // Logos
 const GDSLogoBR = require('../../../../assets/gds-pt-branca.png')
 const GDSLogoES = require('../../../../assets/gds-es-branca.png')
+const verde = '#77bfad'
+const azul = '#2E97BE'
 
 const Welcome = ({ navigation }) => {
     const showTerms = () => {
@@ -44,8 +47,8 @@ const Welcome = ({ navigation }) => {
 
     return (
         <>
-            <SafeAreaView style={{ flex: 0, backgroundColor: '#5DD39E' }} />
-            <StatusBar backgroundColor='#5DD39E' barStyle='light-content' />
+            <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
+            <StatusBar backgroundColor={verde} barStyle='light-content' />
             <GradientBackground>
                 <Container>
                     <Logo source={LogoType} />

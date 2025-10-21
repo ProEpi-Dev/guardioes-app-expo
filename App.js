@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import Welcome from './src/screens/auth/Welcome'
 import Login from './src/screens/auth/Login'
 import Home from './src/screens/Home'
-import CameraScreen from './src/screens/cameraScreen'
+import CameraScreen from './src/screens/cameraScreen/cameraScreen'
 import ScreenLoader from './src/components/ScreenLoader'
 
 const Stack = createNativeStackNavigator()
@@ -37,7 +37,6 @@ export default function App() {
         <Stack.Screen name="Welcome" component={Welcome} />
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Home" component={Home} />
-        {/* Tela da Câmera adicionada à pilha de navegação */}
         <Stack.Screen name="Camera" component={CameraScreen} />
       </Stack.Navigator>
     </NavigationContainer>
