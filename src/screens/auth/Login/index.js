@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Alert, Keyboard, SafeAreaView, StatusBar } from 'react-native'
+import { Alert, Keyboard, StatusBar } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import {
     GradientBackground,
@@ -15,10 +15,14 @@ import {
 import { Logo, PageTitle, LabelVisible } from './styles'
 import translate from '../../../locales/i18n'
 import { scale } from '../../../utils/scalling'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 // Logos
 const GDSLogoBR = require('../../../../assets/gds-pt-branca.png')
 const GDSLogoES = require('../../../../assets/gds-es-branca.png')
+const verde = '#77bfad'
+const azul = '#2E97BE'
+const branco = '#ffffff'
 
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState('')
@@ -53,8 +57,8 @@ const Login = ({ navigation }) => {
 
     return (
         <>
-            <SafeAreaView style={{ flex: 0, backgroundColor: '#5DD39E' }} />
-            <StatusBar backgroundColor='#5DD39E' barStyle='light-content' />
+            <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
+            <StatusBar backgroundColor={verde} barStyle='light-content' />
             <GradientBackground>
                 <KeyboardScrollView>
                     <Logo source={LogoType} />
@@ -103,7 +107,7 @@ const Login = ({ navigation }) => {
                         <Feather
                             name='chevron-left'
                             size={scale(40)}
-                            color='#ffffff'
+                            color={branco}
                         />
                     </ButtonBack>
                 </KeyboardScrollView>
