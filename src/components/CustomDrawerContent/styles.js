@@ -1,13 +1,13 @@
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
-  drawerItemHome: {
-    backgroundColor: '#003CB3',
-    marginVertical: 30,
+  drawerItemBlue: {
+    backgroundColor: '#348eac',
+    marginBottom: 30,
   },
-  drawerItemQuiz: {
-    backgroundColor: '#4bbd4bff',
-    marginVertical: 30,
+  drawerItemGreen: {
+    backgroundColor: '#5DD39E',
+    marginBottom: 13,
   },
   drawerLabel: {
     color: '#FFFFFF',
