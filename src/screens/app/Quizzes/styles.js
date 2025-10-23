@@ -4,7 +4,7 @@ import { scale, percentage } from '../../../utils/scalling'
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f4f4f4'
+    backgroundColor: '#F3EBE2'
   },
   box: {
     width: '100%',
@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    backgroundColor: '#f4f4f4',
+    backgroundColor: '#F3EBE2',
     paddingTop: 30,
     paddingHorizontal: 20
   },
