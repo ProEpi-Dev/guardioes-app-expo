@@ -418,6 +418,7 @@ export default {
         delete: 'Apagar',
         save: 'Salvar',
         add: 'Adicionar',
+        select: 'Selecione a vacina'
     },
     drawer: {
         reportEvent: 'Reportar Evento',

@@ -414,6 +414,7 @@ export default {
         delete: 'Delete',
         save: 'Save',
         add: 'Add',
+        select: 'Elige la vacuna'
     },
     drawer: {
         reportEvent: 'Report Event',

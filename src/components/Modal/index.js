@@ -3,7 +3,7 @@ import { Text, View, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { styles } from './styles';
 
-export function PrivacyModal({ visible, onClose, title, children }) {
+export function AppModal({ visible, onClose, title, children }) {
   return (
     <Modal
       animationType="slide"

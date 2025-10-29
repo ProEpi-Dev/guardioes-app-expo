@@ -420,6 +420,7 @@ export default {
         delete: 'Eliminar',
         save: 'Agregar',
         add: 'Adicionar',
+        select: 'Choose the vaccine'
     },
     drawer: {
         reportEvent: 'Informar Evento',

@@ -3,7 +3,7 @@ import { Text, View, ScrollView, TextInput, TouchableOpacity } from 'react-nativ
 import Feather from '@expo/vector-icons/Feather';
 
 import { styles } from './styles';
-import { PrivacyModal } from '../../../components/Modal';
+import { AppModal } from '../../../components/Modal';
 import translate from '../../../locales/i18n'
 
 export function Vigilancia() {
@@ -50,7 +50,7 @@ export function Vigilancia() {
         </TouchableOpacity>
       </ScrollView>
 
-      <PrivacyModal 
+      <AppModal 
         visible={isModalVisible} 
         onClose={() => setModalVisible(false)}
         title={translate('vigilanceTerms.title')}
@@ -67,7 +67,7 @@ export function Vigilancia() {
             </Text>
           );
         })}
-      </PrivacyModal>
+      </AppModal>
     </View>
   );
 }
