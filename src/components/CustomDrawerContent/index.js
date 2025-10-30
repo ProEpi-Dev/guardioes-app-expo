@@ -1,34 +1,79 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Share, Linking, TouchableOpacity } from 'react-native';
 import { 
   DrawerContentScrollView,
   DrawerItem
 } from '@react-navigation/drawer';
 import Feather from '@expo/vector-icons/Feather';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { styles } from './styles';
+import translate from '../../locales/i18n';
+
+const onShare = async () => {
+  try {
+    const shareOptions = {
+      message: translate('drawer.shareLink'),
+      title: translate('drawer.share'), 
+    };
+    await Share.share(shareOptions);
+
+  } catch (error) {
+    Alert.alert(error.message);
+  }
+};
 
 export default function CustomDrawerContent(props) {
   const { navigation } = props;
 
   return (
     <DrawerContentScrollView {...props}>
-      <DrawerItem
-        label="Início"
-        icon={({ size }) => (
-          <Feather name="home" size={size} color={'white'} />
-        )}
-        onPress={() => navigation.navigate('Inicio')}
-        style={styles.drawerItemBlue}
-        labelStyle={styles.drawerLabel}
-      />
+      <View style={styles.header}>
+        <DrawerItem
+          label="Início"
+          icon={({ size }) => (
+            <Feather name="home" size={size} color={'white'} />
+          )}
+          onPress={() => navigation.navigate('Inicio')}
+          style={styles.drawerItemBlue}
+          labelStyle={styles.drawerLabel}
+        />
+        <DrawerItem
+          label={translate('drawer.profiles')}
+          icon={({ size }) => (
+            <Feather name="settings" size={size} color={'white'} />
+          )}
+          onPress={() => navigation.navigate(translate('drawer.profiles'))}
+          style={styles.drawerItemBlue}
+          labelStyle={styles.drawerLabel}
+        />
+        <DrawerItem
+          label="Alterar Senha"
+          icon={({ size }) => (
+            <Feather name="key" size={size} color={'white'} />
+          )}
+          onPress={() => navigation.navigate('Alterar Senha')}
+          style={styles.drawerItemBlue}
+          labelStyle={styles.drawerLabel}
+        />
+        <DrawerItem
+          label={translate('drawer.logout')}
+          icon={({ size }) => (
+            <Feather name="log-out" size={size} color={'white'} />
+          )}
+          onPress={onShare}
+          style={styles.drawerItemBlue}
+          labelStyle={styles.drawerLabel}
+        />
+      </View>
+
 
       <View style={styles.titleSection}>
-        <Text style={styles.titleText}>Aplicativo</Text>
+        <Text style={styles.titleText}>{translate('drawer.app')}</Text>
       </View>
 
       <DrawerItem
-        label="Vigilância Ativa"
+        label={translate('drawer.toSurveillance')}
         icon={({ size }) => (
           <Feather name="shield" size={size} color={'white'} />
         )}
@@ -48,7 +93,7 @@ export default function CustomDrawerContent(props) {
       />
 
       <DrawerItem
-        label="Vacinação"
+        label={translate('drawer.toVaccination')}
         icon={({ size }) => (
           <FontAwesome5 name="syringe" size={size} color="white" />
         )}
@@ -58,7 +103,7 @@ export default function CustomDrawerContent(props) {
       />
 
       <DrawerItem
-        label="Ajuda"
+        label={translate('drawer.toHelp')}
         icon={({ size }) => (
           <Feather name="help-circle" size={size} color={'white'} />
         )}
@@ -68,14 +113,29 @@ export default function CustomDrawerContent(props) {
       />
 
       <DrawerItem
-        label="Compartilhar"
+        label={translate('drawer.share')}
         icon={({ size }) => (
           <Feather name="share-2" size={size} color={'white'} />
         )}
-        onPress={() => navigation.navigate('Ajuda')}
+        onPress={onShare}
         style={styles.drawerItemGreen}
         labelStyle={styles.drawerLabel}
       />
+
+      <View style={styles.socialContainer}>
+        <TouchableOpacity
+          style={styles.redeSocial}
+          onPress={() => Linking.openURL('https://twitter.com/proepi_')}
+        >
+          <FontAwesome6 name="x-twitter" size={24} color="white" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.redeSocial}
+          onPress={() => Linking.openURL('https://www.instagram.com/redeproepi')}
+        >
+          <FontAwesome5 name="instagram" size={24} color='white' />
+        </TouchableOpacity>
+      </View>
     </DrawerContentScrollView>
   );
 }
