@@ -6,6 +6,7 @@ import { Screen,styles } from './styles'
 
 const verde = '#77bfad'
 const azul = '#2E97BE'
+const splashImage = require('../../../assets/gds_splash.png')
 
 const ScreenLoader = () => {
     return (
@@ -17,7 +18,7 @@ const ScreenLoader = () => {
                 <Screen>
                     {/* Logo GDS */}
                     <Image 
-                        source={require('../../../assets/gds_splash.png')}
+                        source={splashImage}
                         style={styles.img}
                     />
                     

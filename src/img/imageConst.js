@@ -1,5 +1,5 @@
 import React from 'react'
-import Emoji from 'react-native-emoji'
+// import Emoji from 'react-native-emoji'
 
 import { scale } from '../utils/scalling'
 
@@ -56,7 +56,7 @@ export { default as WashIcon } from './advices/wash.svg'
 export { default as AccountIcon } from './icons/account.svg'
 
 // Emojis
-export const Emojis = {
+/* export const Emojis = {
     cloud: (
         <Emoji // Emoji cloud
             name='cloud'
@@ -100,3 +100,4 @@ export const Emojis = {
         />
     ),
 }
+ */
