@@ -433,6 +433,7 @@ export default {
         shareLink:
             'Guardianes de la Salud\nhttps://linktr.ee/guardioesdasaude\n',
         toHelp: 'Ayuda',
+        cluster: 'Cluster',
     },
     map: {
         people: 'Reports: ',

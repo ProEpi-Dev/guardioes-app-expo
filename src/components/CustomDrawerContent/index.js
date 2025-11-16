@@ -113,6 +113,16 @@ export default function CustomDrawerContent(props) {
       />
 
       <DrawerItem
+        label={translate('drawer.cluster')}
+        icon={({ size }) => (
+          <Feather name="map" size={size} color={'white'} />
+        )}
+        onPress={() => navigation.navigate('Cluster')}
+        style={styles.drawerItemGreen}
+        labelStyle={styles.drawerLabel}
+      />
+
+      <DrawerItem
         label={translate('drawer.share')}
         icon={({ size }) => (
           <Feather name="share-2" size={size} color={'white'} />

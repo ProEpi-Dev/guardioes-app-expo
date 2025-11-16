@@ -430,6 +430,7 @@ export default {
         share: 'Compartilhar',
         shareLink: 'Guardiões da Saúde\nhttps://linktr.ee/guardioesdasaude\n',
         toHelp: 'Ajuda',
+        cluster: 'Cluster',
     },
     map: {
         people: 'Reports: ',

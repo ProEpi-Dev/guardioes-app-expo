@@ -9,6 +9,7 @@ import { Vacinacao } from '../screens/app/Vacinacao';
 import { Ajuda } from '../screens/app/Ajuda';
 import { PerfilEditar } from '../screens/app/PerfilEditar'
 import { ContaSenha } from '../screens/app/ContaSenha'
+import { ClusterMap } from '../screens/app/ClusterMap';
 import translate from '../locales/i18n';
 
 const Drawer = createDrawerNavigator();
@@ -114,6 +115,22 @@ export default function DrawerNavigator() {
         component={Ajuda} 
         options={{
           headerTitle: 'Ajuda',
+          headerShown: true,
+          headerTransparent: false,
+          headerStyle: {
+            backgroundColor: '#348eac',
+            borderBottomLeftRadius: 20,
+            borderBottomRightRadius: 20,
+          },
+          headerTitleAlign: 'center',
+          headerRight: () => <View />,
+        }}
+      />
+      <Drawer.Screen 
+        name="Cluster" 
+        component={ClusterMap} 
+        options={{
+          headerTitle: translate('drawer.cluster'),
           headerShown: true,
           headerTransparent: false,
           headerStyle: {
