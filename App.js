@@ -1,26 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
+import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 
-export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, []);
+// Componente interno que usa o AuthContext
+function AppContent() {
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return <ScreenLoader />;
   }
 
+  return <RootNavigator />;
+}
+
+export default function App() {
   return (
-    <NavigationContainer>
-      <RootNavigator />
-    </NavigationContainer>
+    <AuthProvider>
+      <NavigationContainer>
+        <AppContent />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }

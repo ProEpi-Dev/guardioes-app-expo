@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { Alert, Keyboard, StatusBar } from 'react-native'
+import { Alert, Keyboard, StatusBar, ActivityIndicator } from 'react-native'
 import Feather from '@expo/vector-icons/Feather'
 import {
     GradientBackground,
@@ -16,6 +16,7 @@ import { Logo, PageTitle, LabelVisible } from './styles'
 import translate from '../../../locales/i18n'
 import { scale } from '../../../utils/scalling'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { useAuth } from '../../../contexts/AuthContext'
 
 // Logos
 const GDSLogoBR = require('../../../../assets/gds-pt-branca.png')
@@ -28,6 +29,7 @@ const Login = ({ navigation }) => {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showProgressBar, setShowProgressBar] = useState(false)
+    const { login } = useAuth()
 
     const passwordInput = useRef()
 
@@ -41,12 +43,22 @@ const Login = ({ navigation }) => {
 
         setShowProgressBar(true)
 
-        // Simulate API call
-        setTimeout(() => {
+        try {
+            const result = await login(email, password)
+            
+            if (result.success) {
+                // Login bem-sucedido - a navegação será gerenciada automaticamente
+                // pelo RootNavigator baseado no estado de autenticação
+                // Não precisa fazer navigation.navigate manualmente
+            } else {
+                Alert.alert('Erro', result.error || 'Erro ao fazer login')
+                setShowProgressBar(false)
+            }
+        } catch (error) {
+            Alert.alert('Erro', 'Erro inesperado ao fazer login')
+            console.error('Erro no login:', error)
             setShowProgressBar(false)
-            Alert.alert('Sucesso', 'Login realizado com sucesso!')
-            navigation.navigate('Home')
-        }, 2000)
+        }
     }
 
     let LogoType = GDSLogoBR
@@ -88,9 +100,13 @@ const Login = ({ navigation }) => {
                     </FormSeparator>
 
                     <FormSeparator>
-                        <Touch onPress={() => handleLogin()}>
+                        <Touch onPress={() => handleLogin()} disabled={showProgressBar}>
                             <SnowButton>
-                                <Label>{translate('login.loginbutton')}</Label>
+                                {showProgressBar ? (
+                                    <ActivityIndicator size="small" color="#32323b" />
+                                ) : (
+                                    <Label>{translate('login.loginbutton')}</Label>
+                                )}
                             </SnowButton>
                         </Touch>
                     </FormSeparator>

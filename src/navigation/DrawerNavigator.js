@@ -10,6 +10,7 @@ import { Ajuda } from '../screens/app/Ajuda';
 import { PerfilEditar } from '../screens/app/PerfilEditar'
 import { ContaSenha } from '../screens/app/ContaSenha'
 import { ClusterMap } from '../screens/app/ClusterMap';
+import { MapaSentimento } from '../screens/app/MapaSentimento';
 import translate from '../locales/i18n';
 
 const Drawer = createDrawerNavigator();
@@ -140,6 +141,17 @@ export default function DrawerNavigator() {
           },
           headerTitleAlign: 'center',
           headerRight: () => <View />,
+        }}
+      />
+      <Drawer.Screen 
+        name="Mapa Sentimento" 
+        component={MapaSentimento} 
+        options={{
+          headerTitle: 'Como você se sente?',
+          headerShown: true,
+          headerTransparent: true,
+          headerTintColor: '#fff',
+          headerTitleAlign: 'center',
         }}
       />
     </Drawer.Navigator>

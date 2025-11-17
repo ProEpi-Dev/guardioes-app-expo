@@ -6,6 +6,7 @@ import { store } from '../../app/store'
 import CounterComponent from '../../components/CounterComponent/CounterComponent'
 import { styles } from './Styles'
 import translate from '../../locales/i18n'
+import { useAuth } from '../../contexts/AuthContext'
 
 const verde = '#77bfad'
 const azul = '#2E97BE'
@@ -14,6 +15,27 @@ const Card = ({ children, style }) => {
 };
 
 const Home = () => {
+    const { user } = useAuth();
+    
+    // Obter o nome do usuário ou usar o email como fallback
+    const getUserName = () => {
+        if (user?.name) {
+            // Capitalizar primeira letra de cada palavra
+            return user.name
+                .split(' ')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                .join(' ');
+        }
+        if (user?.email) {
+            // Usar a parte antes do @ do email e capitalizar
+            const emailName = user.email.split('@')[0];
+            return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+        }
+        return 'Usuário';
+    };
+    
+    const userName = getUserName();
+    
     return (
     <View style={styles.container}>
       <StatusBar backgroundColor={azul} barStyle="light-content" />
@@ -30,7 +52,7 @@ const Home = () => {
             <View style={styles.inLine}>
                 <View style={styles.headerContent}>
                     <Text style={styles.headerTitle}>
-                      {translate('home.hello') + 'Vinícius'}
+                      {translate('home.hello') + userName}
                     </Text>
                     <Text style={styles.headerSubtitle}>{translate('home.nowAGuardian')}</Text>
                 </View>
