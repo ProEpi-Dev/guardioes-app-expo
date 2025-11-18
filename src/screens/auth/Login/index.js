@@ -50,6 +50,7 @@ const Login = ({ navigation }) => {
                 // Login bem-sucedido - a navegação será gerenciada automaticamente
                 // pelo RootNavigator baseado no estado de autenticação
                 // Não precisa fazer navigation.navigate manualmente
+                navigation.navigate('Home')
             } else {
                 Alert.alert('Erro', result.error || 'Erro ao fazer login')
                 setShowProgressBar(false)

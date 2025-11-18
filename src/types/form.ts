@@ -56,5 +56,6 @@ export interface FormVersion {
   active?: boolean;
   createdAt?: string;
   updatedAt?: string;
+  participationId: number;
 }
 

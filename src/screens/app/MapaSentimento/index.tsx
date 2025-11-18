@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
-import { StatusBar, Alert, View, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, Alert, View, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapWithFeeling } from '../../../components/MapWithFeeling';
 import { FormRenderer } from '../../../components/FormRenderer';
 import { useAuth } from '../../../contexts/AuthContext';
 import { authenticatedApiClient } from '../../../utils/api';
-import { FormVersion } from '../../../types/form';
 import Feather from '@expo/vector-icons/Feather';
+import * as Location from 'expo-location';
 
 const azul = '#2E97BE';
 
@@ -16,6 +16,32 @@ export function MapaSentimento() {
   const [formDefinition, setFormDefinition] = useState<any>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   const [loadingForm, setLoadingForm] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [currentFormVersionId, setCurrentFormVersionId] = useState<number | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') return;
+
+        let currentLocation = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.Balanced
+        });
+        setLocation(currentLocation);
+      } catch (error) {
+      }
+    })();
+  }, []);
+
+  const getParticipationId = () => {
+    if (!form) return null;
+    if (form.participationId) return form.participationId;
+    if (form.participation_id) return form.participation_id;
+    if (form.id) return form.id;
+    return null;
+  };
 
   const fetchFormVersion = async () => {
     if (!form || !token) {
@@ -25,41 +51,92 @@ export function MapaSentimento() {
 
     setLoadingForm(true);
     try {
-      // Buscar versões do form
+      const formIdParaBusca = form.id;
+
       const response = await authenticatedApiClient(
-        `/v1/forms/${form.id}/versions?page=1&pageSize=1&active=true`,
+        `/v1/forms/${formIdParaBusca}/versions?page=1&pageSize=1&active=true`, 
         token,
         { method: 'GET' }
       ) as any;
 
       if (response.data && response.data.length > 0) {
-        const formVersion: FormVersion = response.data[0];
-        if (formVersion.definition) {
-          setFormDefinition(formVersion.definition);
+        const latestVersion = response.data[0];
+
+        if (latestVersion.definition) {
+          setFormDefinition(latestVersion.definition);
+          setCurrentFormVersionId(latestVersion.id); 
           setShowForm(true);
         } else {
-          Alert.alert('Erro', 'Definição do formulário não encontrada');
+          Alert.alert('Erro', 'Definição do formulário não encontrada.');
         }
       } else {
-        Alert.alert('Erro', 'Nenhuma versão do formulário disponível');
+        Alert.alert('Aviso', 'Nenhuma versão ativa deste formulário está disponível.');
       }
     } catch (error: any) {
-      console.error('Erro ao buscar versão do form:', error);
-      Alert.alert('Erro', 'Não foi possível carregar o formulário');
+      console.error('Erro ao buscar formulário:', error);
+      Alert.alert('Erro', 'Falha ao carregar o formulário.');
     } finally {
       setLoadingForm(false);
     }
   };
 
   const handleFeelingSelected = async (feeling: 'good' | 'bad') => {
+    let currentLocation = location;
+    if (!currentLocation) {
+      try {
+        currentLocation = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+        setLocation(currentLocation);
+      } catch (e) {
+      }
+    }
+
+    const pId = getParticipationId();
+    
+    if (!pId) {
+        Alert.alert('Erro', 'Não foi possível identificar sua participação.');
+        return;
+    }
+
     if (feeling === 'good') {
-      // Se selecionou BEM, apenas registra
-      Alert.alert(
-        'Sentimento registrado',
-        'Você selecionou: BEM',
-        [{ text: 'OK' }]
-      );
-      // TODO: Implementar chamada à API para salvar o sentimento
+      try {
+        const formIdParaBusca = form?.formId || form?.id;
+        
+        const resp = await authenticatedApiClient(
+          `/v1/forms/${formIdParaBusca}/versions?page=1&pageSize=1&active=true`,
+          token,
+          { method: 'GET' }
+        ) as any;
+
+        if (!resp.data || resp.data.length === 0) {
+          Alert.alert('Erro', 'Configuração não encontrada.');
+          return;
+        }
+
+        const versionId = resp.data[0].id;
+
+        const payload = {
+          participationId: pId,
+          formVersionId: versionId,
+          reportType: 'POSITIVE',
+          formResponse: {},
+          occurrenceLocation: currentLocation ? {
+            latitude: currentLocation.coords.latitude,
+            longitude: currentLocation.coords.longitude
+          } : null 
+        };
+
+        await authenticatedApiClient('/v1/reports', token, {
+          method: 'POST',
+          body: JSON.stringify(payload),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        Alert.alert('Registrado', 'Que bom que você está se sentindo bem!');
+
+      } catch (error) {
+        console.error('Erro envio positivo:', error);
+        Alert.alert('Erro', 'Não foi possível registrar seu sentimento.');
+      }
     } else {
       // Se selecionou MAL, busca e mostra o formulário
       await fetchFormVersion();
@@ -72,35 +149,60 @@ export function MapaSentimento() {
 
   const handleSubmitForm = async () => {
     if (!formValues._isValid) {
-      Alert.alert('Atenção', 'Preencha todos os campos obrigatórios');
+      Alert.alert('Atenção', 'Preencha todos os campos obrigatórios.');
       return;
     }
 
-    if (!token || !form) {
-      Alert.alert('Erro', 'Não foi possível enviar o formulário');
+    const pId = getParticipationId();
+
+    if (!token || !currentFormVersionId || !pId) {
+      Alert.alert('Erro Técnico', 'Dados incompletos para envio.');
       return;
     }
+
+    let finalLocation = location;
+    if (!finalLocation) {
+       try {
+         finalLocation = await Location.getCurrentPositionAsync({});
+         setLocation(finalLocation);
+       } catch (e) {
+       }
+    }
+
+    setSending(true);
 
     try {
       const { _isValid, ...cleanFormResponse } = formValues;
       
-      // TODO: Implementar chamada à API para criar o report
-      // await authenticatedApiClient('/v1/reports', token, {
-      //   method: 'POST',
-      //   body: JSON.stringify({
-      //     formVersionId: formVersionId,
-      //     formResponse: cleanFormResponse,
-      //     reportType: 'POSITIVE',
-      //   }),
-      // });
+      const payload = {
+        participationId: pId,
+        formVersionId: currentFormVersionId,
+        reportType: 'NEGATIVE',
+        formResponse: cleanFormResponse,
+        occurrenceLocation: finalLocation ? {
+            latitude: finalLocation.coords.latitude,
+            longitude: finalLocation.coords.longitude
+        } : null
+      };
+
+      await authenticatedApiClient('/v1/reports', token, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' }
+      });
 
       Alert.alert('Sucesso', 'Formulário enviado com sucesso!');
+      
       setShowForm(false);
       setFormValues({});
       setFormDefinition(null);
+      setCurrentFormVersionId(null);
+
     } catch (error: any) {
-      console.error('Erro ao enviar formulário:', error);
-      Alert.alert('Erro', 'Não foi possível enviar o formulário');
+      console.error('Erro envio formulário:', error);
+      Alert.alert('Erro', 'Não foi possível enviar o formulário.');
+    } finally {
+        setSending(false);
     }
   };
 
@@ -109,10 +211,7 @@ export function MapaSentimento() {
     return (
       <SafeAreaView style={styles.formContainer}>
         <StatusBar backgroundColor={azul} barStyle="light-content" />
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardView}
-        >
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.keyboardView}>
           <View style={styles.formHeader}>
             <View style={styles.placeholder} />
             <TouchableOpacity
@@ -129,32 +228,28 @@ export function MapaSentimento() {
 
           {loadingForm ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Carregando formulário...</Text>
+              <ActivityIndicator size="large" color={azul} />
+              <Text style={styles.loadingText}>Carregando...</Text>
             </View>
           ) : formDefinition ? (
             <>
               <View style={styles.formContent}>
-                <FormRenderer
-                  definition={formDefinition}
-                  onChange={handleFormChange}
-                />
+                <FormRenderer definition={formDefinition} onChange={handleFormChange} />
               </View>
               <View style={styles.formFooter}>
                 <TouchableOpacity
                   style={[styles.footerButton, styles.cancelButton]}
-                  onPress={() => {
-                    setShowForm(false);
-                    setFormValues({});
-                    setFormDefinition(null);
-                  }}
+                  onPress={() => setShowForm(false)}
+                  disabled={sending}
                 >
                   <Text style={styles.footerButtonText}>Cancelar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[styles.footerButton, styles.submitButton]}
                   onPress={handleSubmitForm}
+                  disabled={sending}
                 >
-                  <Text style={styles.footerButtonText}>Enviar</Text>
+                  {sending ? <ActivityIndicator color="#fff" /> : <Text style={styles.footerButtonText}>Enviar</Text>}
                 </TouchableOpacity>
               </View>
             </>
