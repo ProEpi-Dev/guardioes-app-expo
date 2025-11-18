@@ -11,7 +11,7 @@ import * as Location from 'expo-location';
 const azul = '#2E97BE';
 
 export function MapaSentimento() {
-  const { form, token } = useAuth();
+  const { form, token, user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [formDefinition, setFormDefinition] = useState<any>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
@@ -19,6 +19,7 @@ export function MapaSentimento() {
   const [sending, setSending] = useState(false);
   const [currentFormVersionId, setCurrentFormVersionId] = useState<number | null>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [participationId, setParticipationId] = useState<number | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -35,13 +36,48 @@ export function MapaSentimento() {
     })();
   }, []);
 
-  const getParticipationId = () => {
-    if (!form) return null;
-    if (form.participationId) return form.participationId;
-    if (form.participation_id) return form.participation_id;
-    if (form.id) return form.id;
-    return null;
-  };
+
+  useEffect(() => {
+    const fetchIds = async () => {
+      if (!token || !user?.email) return;
+
+      try {
+        const usersResponse = await authenticatedApiClient(
+          '/v1/users?page=1&pageSize=100',
+          token, { method: 'GET' }
+        ) as any;
+
+        const usersList = usersResponse.data || usersResponse;
+        const loggedUser = usersList.find((u: any) => u.email === user.email);
+
+        if (!loggedUser) {
+          console.warn(`Usuário com email ${user.email} não encontrado na lista.`);
+          return;
+        }
+
+        const myUserId = loggedUser.id;
+
+        const participationsResponse = await authenticatedApiClient(
+          '/v1/participations?page=1&pageSize=100',
+          token, { method: 'GET' }
+        ) as any;
+
+        const participationsList = participationsResponse.data || participationsResponse;
+        const myParticipation = participationsList.find((p: any) => p.userId === myUserId && p.active === true);
+
+        if (myParticipation) {
+          setParticipationId(myParticipation.id);
+        } else {
+          console.warn(`Nenhuma participação ativa encontrada para o UserID ${myUserId}`);
+        }
+
+      } catch (error) {
+        console.error('Erro ao vincular usuário/participação:', error);
+      }
+    };
+
+    fetchIds();
+  }, [token, user?.email]);
 
   const fetchFormVersion = async () => {
     if (!form || !token) {
@@ -89,11 +125,9 @@ export function MapaSentimento() {
       } catch (e) {
       }
     }
-
-    const pId = getParticipationId();
     
-    if (!pId) {
-        Alert.alert('Erro', 'Não foi possível identificar sua participação.');
+    if (!participationId) {
+        Alert.alert('Aguarde', 'Identificando usuário...');
         return;
     }
 
@@ -115,7 +149,7 @@ export function MapaSentimento() {
         const versionId = resp.data[0].id;
 
         const payload = {
-          participationId: pId,
+          participationId: participationId,
           formVersionId: versionId,
           reportType: 'POSITIVE',
           formResponse: {},
@@ -153,10 +187,8 @@ export function MapaSentimento() {
       return;
     }
 
-    const pId = getParticipationId();
-
-    if (!token || !currentFormVersionId || !pId) {
-      Alert.alert('Erro Técnico', 'Dados incompletos para envio.');
+    if (!token || !currentFormVersionId || !participationId) {
+      Alert.alert('Erro', 'ID do usuário não identificado.');
       return;
     }
 
@@ -175,7 +207,7 @@ export function MapaSentimento() {
       const { _isValid, ...cleanFormResponse } = formValues;
       
       const payload = {
-        participationId: pId,
+        participationId: participationId,
         formVersionId: currentFormVersionId,
         reportType: 'NEGATIVE',
         formResponse: cleanFormResponse,
