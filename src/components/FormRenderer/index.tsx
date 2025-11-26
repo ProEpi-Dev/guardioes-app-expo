@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
 import { FormBuilderDefinition, FormField, FieldCondition } from '../../types/form';
-import { Picker } from '@react-native-picker/picker';
 import { CustomDatePicker } from '../CustomDatePicker';
+import { CustomSelector, Option } from '../CustomSelector';
 
 interface FormRendererProps {
   definition: FormBuilderDefinition;
@@ -265,25 +265,56 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
 
   // Renderizar campo select
   const renderSelectField = (field: FormField) => {
+    const selectedOption = field.options?.find(opt => opt.value === values[field.name]);
+    
+    const displayLabel = selectedOption ? selectedOption.label : (field.placeholder || 'Selecione...');
+
+    const selectorData: Option[] = field.options?.map(opt => ({
+      label: opt.label,
+      value: opt.value,
+      key: String(opt.value)
+    })) || [];
+
     return (
       <View key={field.id} style={styles.fieldContainer}>
         <Text style={styles.label}>
           {field.label}
           {field.required && <Text style={styles.required}> *</Text>}
         </Text>
-        <View style={[styles.pickerContainer, errors[field.id] && styles.inputError]}>
-          <Picker
-            selectedValue={values[field.name] || ''}
-            onValueChange={(value) => updateValue(field.name, value)}
-            enabled={!readOnly}
-            style={styles.picker}
-          >
-            <Picker.Item label={field.placeholder || 'Selecione...'} value="" />
-            {field.options?.map((option) => (
-              <Picker.Item key={String(option.value)} label={option.label} value={option.value} />
-            ))}
-          </Picker>
-        </View>
+        
+        <CustomSelector
+          key={`${field.id}-${values[field.name]}`}
+          
+          data={selectorData}
+          initValue={displayLabel}
+          disabled={readOnly}
+          onChange={(option) => updateValue(field.name, option.value)}
+          
+          selectStyle={[
+            styles.input, 
+            errors[field.id] ? styles.inputError : null,
+            { justifyContent: 'center' }
+          ]}
+          
+          selectTextStyle={{
+            fontSize: 16,
+            color: '#32323b'
+          }}
+          initValueTextStyle={{
+            fontSize: 16,
+            color: selectedOption ? '#32323b' : '#C7C7CD'
+          }}
+
+          overlayStyle={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}
+          optionContainerStyle={{ backgroundColor: 'white', borderRadius: 12, maxHeight: '50%', overflow: 'hidden' }}
+          optionStyle={{ padding: 16, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' }}
+          optionTextStyle={{ fontSize: 16, color: '#32323b', textAlign: 'center' }}
+          
+          cancelContainerStyle={{ marginTop: 12, backgroundColor: 'white', borderRadius: 12 }}
+          cancelStyle={{ padding: 16, alignItems: 'center' }}
+          cancelTextStyle={{ color: '#e74c3c', fontSize: 16, fontWeight: '600' }}
+        />
+
         {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
       </View>
     );
@@ -308,15 +339,15 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
         </Text>
         {field.options?.map((option) => (
           <TouchableOpacity
-            key={String(option.value)}
+            key={String(option.label)}
             style={styles.checkboxContainer}
-            onPress={() => !readOnly && toggleOption(option.value)}
+            onPress={() => !readOnly && toggleOption(option.label)}
             disabled={readOnly}
           >
-            <View style={[styles.checkbox, selectedValues.includes(option.value) && styles.checkboxChecked]}>
-              {selectedValues.includes(option.value) && <Text style={styles.checkboxMark}>✓</Text>}
+            <View style={[styles.checkbox, selectedValues.includes(option.label) && styles.checkboxChecked]}>
+              {selectedValues.includes(option.label) && <Text style={styles.checkboxMark}>✓</Text>}
             </View>
-            <Text style={styles.checkboxLabel}>{option.label}</Text>
+            <Text style={styles.checkboxLabel}>{option.value}</Text>
           </TouchableOpacity>
         ))}
         {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
@@ -447,15 +478,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    backgroundColor: '#fff',
-  },
-  picker: {
-    height: 50,
   },
   checkboxContainer: {
     flexDirection: 'row',
