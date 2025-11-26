@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { FormBuilderDefinition, FormField, FieldCondition, ConditionOperator } from '../../types/form';
+import { FormBuilderDefinition, FormField, FieldCondition } from '../../types/form';
 import { Picker } from '@react-native-picker/picker';
+import { CustomDatePicker } from '../CustomDatePicker';
 
 interface FormRendererProps {
   definition: FormBuilderDefinition;
@@ -47,6 +48,9 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
             break;
           case 'multiselect':
             newValues[field.name] = [];
+            break;
+          case 'date':
+            newValues[field.name] = null;
             break;
         }
       }
@@ -320,6 +324,46 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
     );
   };
 
+  // Renderizar campo de data
+  const renderDateField = (field: FormField) => {
+    const rawValue = values[field.name];
+    
+    const dateValue = rawValue instanceof Date 
+      ? rawValue 
+      : (rawValue ? new Date(rawValue) : null);
+
+    return (
+      <View key={field.id} style={styles.fieldContainer}>
+        <Text style={styles.label}>
+          {field.label}
+          {field.required && <Text style={styles.required}> *</Text>}
+        </Text>
+
+        <View 
+          pointerEvents={readOnly ? 'none' : 'auto'} 
+          style={{ opacity: readOnly ? 0.6 : 1 }}
+        >
+          <CustomDatePicker
+            date={dateValue}
+            placeholder={field.placeholder}
+            onDateChange={(newDate) => updateValue(field.name, newDate)}
+            style={[
+              styles.input, 
+              errors[field.id] && styles.inputError,
+              { justifyContent: 'center' }
+            ]}
+            customStyles={{
+              dateText: { fontSize: 16, color: '#000' },
+              placeholderText: { fontSize: 16, color: '#C7C7CD' }
+            }}
+          />
+        </View>
+
+        {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
+      </View>
+    );
+  };
+
   // Renderizar campo baseado no tipo
   const renderField = (field: FormField) => {
     switch (field.type) {
@@ -333,6 +377,8 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
         return renderSelectField(field);
       case 'multiselect':
         return renderMultiselectField(field);
+      case 'date':
+        return renderDateField(field);
       default:
         return null;
     }
