@@ -67,7 +67,10 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
     }
 
     return field.conditions.every((condition) => {
-      const fieldValue = values[condition.fieldId];
+      const targetFieldDefinition = definition.fields.find(f => f.id === condition.fieldId);
+      if (!targetFieldDefinition) return false;
+      const fieldValue = values[targetFieldDefinition.name];
+      
       return evaluateCondition(condition, fieldValue);
     });
   };
@@ -75,21 +78,32 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
   // Avaliar uma condição individual
   const evaluateCondition = (condition: FieldCondition, fieldValue: any): boolean => {
     const { operator, value } = condition;
+    
+    let comparisonValue = value;
+
+    if (typeof fieldValue === 'boolean') {
+        if (String(value).toLowerCase() === 'true') comparisonValue = true;
+        if (String(value).toLowerCase() === 'false') comparisonValue = false;
+    }
+
+    else if (typeof fieldValue === 'number') {
+        comparisonValue = Number(value);
+    }
 
     switch (operator) {
       case 'equals':
-        return fieldValue === value;
+        return fieldValue === comparisonValue;
       case 'notEquals':
-        return fieldValue !== value;
+        return fieldValue !== comparisonValue;
       case 'contains':
         if (Array.isArray(fieldValue)) {
-          return fieldValue.includes(value);
+          return fieldValue.includes(comparisonValue);
         }
-        return String(fieldValue).includes(String(value));
+        return String(fieldValue).includes(String(comparisonValue));
       case 'greaterThan':
-        return Number(fieldValue) > Number(value);
+        return Number(fieldValue) > Number(comparisonValue);
       case 'lessThan':
-        return Number(fieldValue) < Number(value);
+        return Number(fieldValue) < Number(comparisonValue);
       case 'isEmpty':
         return !fieldValue || fieldValue === '' || (Array.isArray(fieldValue) && fieldValue.length === 0);
       case 'isNotEmpty':
