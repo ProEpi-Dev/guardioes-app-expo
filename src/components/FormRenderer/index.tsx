@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { FormBuilderDefinition, FormField, FieldCondition } from '../../types/form';
 import { CustomDatePicker } from '../CustomDatePicker';
 import { CustomSelector, Option } from '../CustomSelector';
@@ -430,15 +430,18 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={true}
-    >
-      {definition.title && <Text style={styles.title}>{definition.title}</Text>}
-      {definition.description && <Text style={styles.description}>{definition.description}</Text>}
-      {visibleFields.map((field) => renderField(field))}
-    </ScrollView>
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={true}
+      >
+        {definition.title && <Text style={styles.title}>{definition.title}</Text>}
+        {definition.description && <Text style={styles.description}>{definition.description}</Text>}
+        {visibleFields.map((field) => renderField(field))}
+      </ScrollView>
+    </>
   );
 };
 

@@ -323,7 +323,7 @@ export function MapaSentimento() {
                 setFormDefinition(null);
               }}
             >
-              <Feather name="x" size={28} color="#fff" />
+              <Feather name="x" size={28} color="#000" />
             </TouchableOpacity>
           </View>
 
@@ -362,14 +362,14 @@ export function MapaSentimento() {
 
       // Tela normal com mapa
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: azul }}>
-      <StatusBar backgroundColor={azul} barStyle="light-content" />
-      <MapWithFeeling 
-        onFeelingSelected={handleFeelingSelected} 
-        points={mapPoints}
-        loading={loadingPoints}
-      />
-    </SafeAreaView>
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+        <MapWithFeeling 
+          onFeelingSelected={handleFeelingSelected} 
+          points={mapPoints}
+          loading={loadingPoints}
+        />
+    </>
   );
 }
 

@@ -3,8 +3,7 @@ import { createDrawerNavigator } from '@react-navigation/drawer';
 import { View, useWindowDimensions } from 'react-native';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import { ClusterMap } from '../screens/app/ClusterMap';
-import { MapaSentimento } from '../screens/app/MapaSentimento';
-import translate from '../locales/i18n';
+import { BottomNavigation } from './BottomNavigator'
 
 const Drawer = createDrawerNavigator();
 
@@ -13,6 +12,7 @@ export default function DrawerNavigator() {
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
+        headerShown: false,
         headerTitle: '',
         headerTransparent: true,
         drawerType: 'front',
@@ -22,20 +22,15 @@ export default function DrawerNavigator() {
     >
       <Drawer.Screen 
         name="Inicio" 
-        component={MapaSentimento} 
+        component={BottomNavigation}
       />
       <Drawer.Screen 
         name="Cluster" 
         component={ClusterMap} 
         options={{
-          headerTitle: translate('drawer.cluster'),
+          headerTitle: '',
           headerShown: true,
-          headerTransparent: false,
-          headerStyle: {
-            backgroundColor: '#348eac',
-            borderBottomLeftRadius: 20,
-            borderBottomRightRadius: 20,
-          },
+          headerTransparent: true,
           headerTitleAlign: 'center',
           headerRight: () => <View />,
         }}
