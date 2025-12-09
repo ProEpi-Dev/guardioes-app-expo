@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StatusBar, Alert, View, TouchableOpacity, Text, StyleSheet, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MapWithFeeling } from '../../../components/MapWithFeeling';
 import { FormRenderer } from '../../../components/FormRenderer';
 import { useAuth } from '../../../contexts/AuthContext';
-import { authenticatedApiClient } from '../../../utils/api';
+import { apiClient } from '../../../utils/api';
 import Feather from '@expo/vector-icons/Feather';
 import * as Location from 'expo-location';
 
 const azul = '#2E97BE';
 
 export function MapaSentimento() {
-  const { form, token, user } = useAuth();
+  const { form, user } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [formDefinition, setFormDefinition] = useState<any>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
@@ -20,6 +20,8 @@ export function MapaSentimento() {
   const [currentFormVersionId, setCurrentFormVersionId] = useState<number | null>(null);
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [participationId, setParticipationId] = useState<number | null>(null);
+  const [mapPoints, setMapPoints] = useState<any[]>([]);
+  const [loadingPoints, setLoadingPoints] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -39,12 +41,13 @@ export function MapaSentimento() {
 
   useEffect(() => {
     const fetchIds = async () => {
-      if (!token || !user?.email) return;
+      if (!user?.email) return;
 
       try {
-        const usersResponse = await authenticatedApiClient(
+        // O token será adicionado automaticamente pelo interceptor do axios
+        const usersResponse = await apiClient(
           '/v1/users?page=1&pageSize=100',
-          token, { method: 'GET' }
+          { method: 'GET' }
         ) as any;
 
         const usersList = usersResponse.data || usersResponse;
@@ -57,9 +60,10 @@ export function MapaSentimento() {
 
         const myUserId = loggedUser.id;
 
-        const participationsResponse = await authenticatedApiClient(
+        // O token será adicionado automaticamente pelo interceptor do axios
+        const participationsResponse = await apiClient(
           '/v1/participations?page=1&pageSize=100',
-          token, { method: 'GET' }
+          { method: 'GET' }
         ) as any;
 
         const participationsList = participationsResponse.data || participationsResponse;
@@ -77,10 +81,63 @@ export function MapaSentimento() {
     };
 
     fetchIds();
-  }, [token, user?.email]);
+  }, [user?.email]);
+
+  // Função para buscar pontos do mapa
+  const fetchMapPoints = useCallback(async () => {
+    setLoadingPoints(true);
+    try {
+      // Calcular datas: hoje e 30 dias atrás
+      const today = new Date();
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(today.getDate() - 30);
+
+      // Formatar datas no formato YYYY-MM-DD
+      const formatDate = (date: Date): string => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const startDate = formatDate(thirtyDaysAgo);
+      const endDate = formatDate(today);
+
+      // Buscar pontos com período de datas (o token identifica o usuário automaticamente)
+      const response = await apiClient(
+        `/v1/reports/points?startDate=${startDate}&endDate=${endDate}`,
+        { method: 'GET' }
+      ) as any;
+
+      // A resposta é um array direto de pontos: [{ latitude, longitude, reportType }, ...]
+      const points = Array.isArray(response) ? response : (response.data || []);
+      
+      console.log('📍 [MapaSentimento] Pontos recebidos da API:', {
+        total: points.length,
+        pontos: points.slice(0, 5), // Primeiros 5 para não poluir o log
+        exemplo: points[0],
+        tipos: {
+          positive: points.filter((p: any) => p.reportType === 'POSITIVE').length,
+          negative: points.filter((p: any) => p.reportType === 'NEGATIVE').length,
+        }
+      });
+      
+      setMapPoints(points);
+    } catch (error) {
+      console.error('Erro ao buscar pontos do mapa:', error);
+      setMapPoints([]);
+    } finally {
+      setLoadingPoints(false);
+    }
+  }, []);
+
+  // Buscar pontos do mapa quando o componente carregar
+  useEffect(() => {
+    fetchMapPoints();
+  }, [fetchMapPoints]);
 
   const fetchFormVersion = async () => {
-    if (!form || !token) {
+    if (!form) {
       Alert.alert('Erro', 'Formulário não disponível');
       return;
     }
@@ -89,9 +146,9 @@ export function MapaSentimento() {
     try {
       const formIdParaBusca = form.id;
 
-      const response = await authenticatedApiClient(
+      // O token será adicionado automaticamente pelo interceptor do axios
+      const response = await apiClient(
         `/v1/forms/${formIdParaBusca}/versions?page=1&pageSize=1&active=true`, 
-        token,
         { method: 'GET' }
       ) as any;
 
@@ -135,9 +192,9 @@ export function MapaSentimento() {
       try {
         const formIdParaBusca = form?.formId || form?.id;
         
-        const resp = await authenticatedApiClient(
+        // O token será adicionado automaticamente pelo interceptor do axios
+        const resp = await apiClient(
           `/v1/forms/${formIdParaBusca}/versions?page=1&pageSize=1&active=true`,
-          token,
           { method: 'GET' }
         ) as any;
 
@@ -151,7 +208,7 @@ export function MapaSentimento() {
         const payload = {
           participationId: participationId,
           formVersionId: versionId,
-          reportType: 'POSITIVE',
+          reportType: 'NEGATIVE',
           formResponse: {},
           occurrenceLocation: currentLocation ? {
             latitude: currentLocation.coords.latitude,
@@ -159,13 +216,19 @@ export function MapaSentimento() {
           } : null 
         };
 
-        await authenticatedApiClient('/v1/reports', token, {
+        // O token será adicionado automaticamente pelo interceptor do axios
+        await apiClient('/v1/reports', {
           method: 'POST',
           body: JSON.stringify(payload),
           headers: { 'Content-Type': 'application/json' }
         });
 
         Alert.alert('Registrado', 'Que bom que você está se sentindo bem!');
+        
+        // Aguardar um pouco para garantir que o servidor processou antes de atualizar
+        setTimeout(async () => {
+          await fetchMapPoints();
+        }, 500);
 
       } catch (error) {
         console.error('Erro envio positivo:', error);
@@ -187,7 +250,7 @@ export function MapaSentimento() {
       return;
     }
 
-    if (!token || !currentFormVersionId || !participationId) {
+    if (!currentFormVersionId || !participationId) {
       Alert.alert('Erro', 'ID do usuário não identificado.');
       return;
     }
@@ -209,7 +272,7 @@ export function MapaSentimento() {
       const payload = {
         participationId: participationId,
         formVersionId: currentFormVersionId,
-        reportType: 'NEGATIVE',
+        reportType: 'POSITIVE',
         formResponse: cleanFormResponse,
         occurrenceLocation: finalLocation ? {
             latitude: finalLocation.coords.latitude,
@@ -217,7 +280,8 @@ export function MapaSentimento() {
         } : null
       };
 
-      await authenticatedApiClient('/v1/reports', token, {
+      // O token será adicionado automaticamente pelo interceptor do axios
+      await apiClient('/v1/reports', {
         method: 'POST',
         body: JSON.stringify(payload),
         headers: { 'Content-Type': 'application/json' }
@@ -229,6 +293,11 @@ export function MapaSentimento() {
       setFormValues({});
       setFormDefinition(null);
       setCurrentFormVersionId(null);
+      
+      // Aguardar um pouco para garantir que o servidor processou antes de atualizar
+      setTimeout(async () => {
+        await fetchMapPoints();
+      }, 500);
 
     } catch (error: any) {
       console.error('Erro envio formulário:', error);
@@ -254,7 +323,7 @@ export function MapaSentimento() {
                 setFormDefinition(null);
               }}
             >
-              <Feather name="x" size={28} color="#fff" />
+              <Feather name="x" size={28} color="#000" />
             </TouchableOpacity>
           </View>
 
@@ -291,12 +360,16 @@ export function MapaSentimento() {
     );
   }
 
-  // Tela normal com mapa
+      // Tela normal com mapa
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: azul }}>
-      <StatusBar backgroundColor={azul} barStyle="light-content" />
-      <MapWithFeeling onFeelingSelected={handleFeelingSelected} />
-    </SafeAreaView>
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+        <MapWithFeeling 
+          onFeelingSelected={handleFeelingSelected} 
+          points={mapPoints}
+          loading={loadingPoints}
+        />
+    </>
   );
 }
 

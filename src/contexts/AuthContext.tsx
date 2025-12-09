@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { apiClient, authenticatedApiClient } from '../utils/api';
+import { apiClient, updateAuthToken, initializeAuthToken } from '../utils/api';
 import * as authStorage from '../services/authStorage';
 import { User, LoginResponse, LoginResult, AuthContextType, ApiError, Form, PaginatedResponse } from '../types/auth';
 
@@ -31,18 +31,39 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const checkAuthState = async (): Promise<void> => {
     try {
-      const storedToken = await authStorage.getToken();
+      // Inicializar token no axios (busca do storage e atualiza defaults)
+      const storedToken = await initializeAuthToken();
       const storedUser = await authStorage.getUser();
 
       if (storedToken && storedUser) {
+        // Verificar se o token tem mais de 5 minutos de validade
+        const isValid = authStorage.isTokenValid(storedToken, 5);
+        
+        if (!isValid) {
+          console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
+          // Token está expirando em menos de 5 minutos, fazer logout
+          await logout();
+          return;
+        }
+
+        // Token válido, manter autenticação
         setToken(storedToken);
         setUser(storedUser);
         setIsAuthenticated(true);
         // Buscar forms se já estiver autenticado
-        await fetchForms(storedToken);
+        await fetchForms();
+      } else {
+        // Não há token ou usuário salvo, garantir que está deslogado
+        setIsAuthenticated(false);
+        setToken(null);
+        setUser(null);
       }
     } catch (error) {
       console.error('Erro ao verificar estado de autenticação:', error);
+      // Em caso de erro, garantir que está deslogado
+      setIsAuthenticated(false);
+      setToken(null);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -56,7 +77,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email,
           password,
         }),
-      }) as LoginResponse;
+      }) as unknown as LoginResponse;
 
       // A API pode retornar o token e dados do usuário em diferentes formatos
       // Ajuste conforme a estrutura real da resposta da API
@@ -88,6 +109,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Armazenar token e dados do usuário
       await authStorage.storeToken(authToken);
       await authStorage.storeUser(finalUserData);
+      
+      // Atualizar token no axios interceptor
+      await updateAuthToken(authToken);
 
       // Atualizar estado
       setToken(authToken);
@@ -95,7 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setIsAuthenticated(true);
 
       // Buscar forms após login bem-sucedido
-      await fetchForms(authToken);
+      await fetchForms();
 
       return { success: true, data: response };
     } catch (error) {
@@ -119,6 +143,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = async (): Promise<void> => {
     try {
       await authStorage.clearAuthData();
+      // Remover token do axios interceptor
+      await updateAuthToken(null);
       setToken(null);
       setUser(null);
       setForm(null);
@@ -137,11 +163,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const fetchForms = async (authToken: string): Promise<void> => {
+  const fetchForms = async (): Promise<void> => {
     try {
-      const response = await authenticatedApiClient('/v1/forms?page=1&pageSize=10&active=true', authToken, {
+      // O token será adicionado automaticamente pelo interceptor do axios
+      const response = await apiClient('/v1/forms?page=1&pageSize=10&active=true', {
         method: 'GET',
-      }) as PaginatedResponse<Form>;
+      }) as unknown as PaginatedResponse<Form>;
 
       // Verificar se há itens e guardar o primeiro
       if (response.data && response.data.length > 0) {

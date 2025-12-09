@@ -17,6 +17,9 @@
       "bundleIdentifier": "com.meuapp.demo",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyBPNdP6xgjfTHiJ94e8cH7uLd8ZEm8AASw"
       }
     },
     "android": {
@@ -24,7 +27,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyBPNdP6xgjfTHiJ94e8cH7uLd8ZEm8AASw"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"

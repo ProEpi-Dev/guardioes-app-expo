@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Switch, TouchableOpacity, ScrollView, StatusBar } from 'react-native';
 import { FormBuilderDefinition, FormField, FieldCondition } from '../../types/form';
 import { CustomDatePicker } from '../CustomDatePicker';
 import { CustomSelector, Option } from '../CustomSelector';
@@ -351,17 +351,18 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
           {field.label}
           {field.required && <Text style={styles.required}> *</Text>}
         </Text>
+        <Text>{JSON.stringify(field.options)}</Text>
         {field.options?.map((option) => (
           <TouchableOpacity
             key={String(option.label)}
             style={styles.checkboxContainer}
-            onPress={() => !readOnly && toggleOption(option.label)}
+            onPress={() => !readOnly && toggleOption(option.value)}
             disabled={readOnly}
           >
-            <View style={[styles.checkbox, selectedValues.includes(option.label) && styles.checkboxChecked]}>
-              {selectedValues.includes(option.label) && <Text style={styles.checkboxMark}>✓</Text>}
+            <View style={[styles.checkbox, selectedValues.includes(option.value) && styles.checkboxChecked]}>
+              {selectedValues.includes(option.value) && <Text style={styles.checkboxMark}>✓</Text>}
             </View>
-            <Text style={styles.checkboxLabel}>{option.value}</Text>
+            <Text style={styles.checkboxLabel}>{option.label}</Text>
           </TouchableOpacity>
         ))}
         {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
@@ -430,15 +431,18 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
   };
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={true}
-    >
-      {definition.title && <Text style={styles.title}>{definition.title}</Text>}
-      {definition.description && <Text style={styles.description}>{definition.description}</Text>}
-      {visibleFields.map((field) => renderField(field))}
-    </ScrollView>
+    <>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+      <ScrollView 
+        style={styles.container}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={true}
+      >
+        {definition.title && <Text style={styles.title}>{definition.title}</Text>}
+        {definition.description && <Text style={styles.description}>{definition.description}</Text>}
+        {visibleFields.map((field) => renderField(field))}
+      </ScrollView>
+    </>
   );
 };
 

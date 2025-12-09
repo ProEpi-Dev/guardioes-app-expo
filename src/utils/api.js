@@ -1,52 +1,109 @@
+import axios from 'axios';
+import * as authStorage from '../services/authStorage';
+
 // Configuração da API
 export const API_BASE_URL = 'https://devapi.gds.proepi.org.br';
 
-// Cliente HTTP básico
-export const apiClient = async (endpoint, options = {}) => {
-  const url = `${API_BASE_URL}${endpoint}`;
-  
-  const config = {
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    ...options,
-  };
+// Token em memória (evita buscar do storage a cada requisição)
+let currentToken = null;
 
-  try {
-    const response = await fetch(url, config);
-    
-    const data = await response.json().catch(() => ({}));
-    
-    if (!response.ok) {
+// Criar instância do axios
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Interceptor para tratamento de erros
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response.data;
+  },
+  (error) => {
+    // Se for erro de resposta da API
+    if (error.response) {
+      const { status, data } = error.response;
       throw {
-        status: response.status,
-        message: data.message || 'Erro na requisição',
-        data,
+        status,
+        message: data?.message || 'Erro na requisição',
+        data: data || null,
       };
     }
     
-    return data;
-  } catch (error) {
-    if (error.status) {
-      throw error;
+    // Se for erro de rede/conexão
+    if (error.request) {
+      throw {
+        status: 0,
+        message: 'Erro de conexão. Verifique sua internet.',
+        data: null,
+      };
     }
+    
+    // Outros erros
     throw {
       status: 0,
-      message: 'Erro de conexão. Verifique sua internet.',
+      message: error.message || 'Erro desconhecido',
       data: null,
     };
   }
+);
+
+// Função para atualizar o token nos defaults do axios
+export const updateAuthToken = async (token) => {
+  // Atualizar token em memória
+  currentToken = token;
+  
+  // Atualizar defaults do axios
+  if (token) {
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    // Garantir que está salvo no storage também
+    await authStorage.storeToken(token);
+  } else {
+    // Remover token dos defaults
+    delete axiosInstance.defaults.headers.common['Authorization'];
+    // Remover do storage
+    await authStorage.removeToken();
+  }
 };
 
-// Cliente HTTP autenticado
+// Função para inicializar o token do storage (chamada uma vez na inicialização)
+export const initializeAuthToken = async () => {
+  const token = await authStorage.getToken();
+  if (token) {
+    currentToken = token;
+    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+  }
+  return token;
+};
+
+// Cliente HTTP básico (compatível com a API anterior)
+export const apiClient = async (endpoint, options = {}) => {
+  const { method = 'GET', headers = {}, body, ...restOptions } = options;
+  
+  try {
+    const response = await axiosInstance({
+      url: endpoint,
+      method,
+      headers,
+      data: body ? (typeof body === 'string' ? JSON.parse(body) : body) : undefined,
+      ...restOptions,
+    });
+    
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Cliente HTTP autenticado (mantido para compatibilidade, mas agora usa os defaults do axios)
 export const authenticatedApiClient = async (endpoint, token, options = {}) => {
-  return apiClient(endpoint, {
-    ...options,
-    headers: {
-      ...options.headers,
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  // Se um token for fornecido, atualizar nos defaults do axios
+  if (token) {
+    await updateAuthToken(token);
+  }
+  
+  // O token já está nos defaults do axios
+  return apiClient(endpoint, options);
 };
 
