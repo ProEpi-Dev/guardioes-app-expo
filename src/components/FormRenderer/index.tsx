@@ -262,7 +262,7 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
     return (
       <View key={field.id} style={styles.fieldContainer}>
         <View style={styles.switchContainer}>
-          <Text style={styles.label}>
+          <Text style={[styles.label, {flex: 1, paddingRight: 10, marginBottom: 0}]}>
             {field.label}
             {field.required && <Text style={styles.required}> *</Text>}
           </Text>
@@ -351,7 +351,6 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
           {field.label}
           {field.required && <Text style={styles.required}> *</Text>}
         </Text>
-        <Text>{JSON.stringify(field.options)}</Text>
         {field.options?.map((option) => (
           <TouchableOpacity
             key={String(option.label)}
