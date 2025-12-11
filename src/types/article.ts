@@ -8,4 +8,5 @@ export interface Article {
 export type RootStackParamList = {
   Home: undefined;
   Article: { article: Article };
+  Artigo: { article: Article };
 };
