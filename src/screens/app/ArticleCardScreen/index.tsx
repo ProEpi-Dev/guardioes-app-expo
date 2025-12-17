@@ -4,7 +4,6 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ArticleCard from '../../../components/ArticleCard';
 import { Article } from '../../../types/article';
 import { RootStackParamList } from '../../../types/article';
-import { Artigo } from '../Artigo';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -12,7 +11,7 @@ export default function ArticleCardScreen({ navigation }: Props) {
   const articles: Article[] = [
     {
       id: 1,
-      title: 'O que é React Native?',
+      title: 'Youtube Integrado',
       image: 'https://picsum.photos/200',
       content: `
         <h1>Guia Completo de Desenvolvimento Mobile em 2025</h1>
