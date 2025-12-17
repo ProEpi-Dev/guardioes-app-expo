@@ -12,8 +12,6 @@ export default function ArticleScreen({ route }: Props) {
   return (
     <>
       <ArticleWebView
-        title={article.title}
-        image={article.image}
         content={article.content}
       />
       <YoutubePlayer

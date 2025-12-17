@@ -3,15 +3,12 @@ import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
 
 interface Props {
   title: string;
-  image: string;
   onPress: () => void;
 }
 
-export default function ArticleCard({ title, image, onPress }: Props) {
+export default function ArticleCard({ title, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
-      <Image source={{ uri: image }} style={styles.image} />
-
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{title}</Text>
       </View>

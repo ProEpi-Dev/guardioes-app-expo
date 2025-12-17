@@ -3,14 +3,10 @@ import { StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 
 type ArticleWebViewProps = {
-  title: string;
-  image: string;
   content: string;
 };
 
 export function ArticleWebView({
-  title,
-  image,
   content,
 }: ArticleWebViewProps) {
 
@@ -47,20 +43,10 @@ export function ArticleWebView({
         </style>
       </head>
       <body>
-        <img 
-          src="${image}" 
-          alt="imagem artigo" 
-          style="width: 100%; height: 200px; object-fit: cover; border-radius: 10px; margin-bottom: 20px;"
-        />
-
-        <p style="font-size: 24px; font-weight: bold; margin-bottom: 16px;">
-          ${title}
-        </p>
-
         ${content}
       </body>
     </html>
-  `, [title, image, content]);
+  `, [content]);
 
   return (
     <WebView
