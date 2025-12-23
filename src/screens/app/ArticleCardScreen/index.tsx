@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FlatList } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ArticleCard from '../../../components/ArticleCard';
@@ -10,15 +10,25 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function ArticleCardScreen({ navigation }: Props) {
   const [content, setContent] = useState<Article[]>([]);
-  useEffect(() => {
-    const card = async() => {
-      const usersResponse = await apiClient(
-        '/v1/contents',
-        { method: 'GET' }
-      ) as any;
+  const [refreshing, setRefreshing] = useState(false);
+
+  const card = async () => {
+    try {
+      const usersResponse = await apiClient('/v1/contents', { method: 'GET' }) as any;
       setContent(usersResponse);
-    };
+    } catch (error) {
+      console.error("Erro ao buscar artigos", error);
+    }
+  };
+
+  useEffect(() => {
     card()
+  }, []);
+
+  const handleRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await card();
+    setRefreshing(false);
   }, []);
 
   return (
@@ -37,6 +47,8 @@ export default function ArticleCardScreen({ navigation }: Props) {
         padding: 20,
         paddingBottom: 0
       }}
+      refreshing={refreshing}
+      onRefresh={handleRefresh}
       showsVerticalScrollIndicator={false}
       initialNumToRender={6}
     />
