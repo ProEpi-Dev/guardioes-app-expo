@@ -326,6 +326,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="standard"
+        provider='google'
       >
         {/* {clusters.map((point: ClusterFeature<any> | PointFeature<any>) => {
           const isCluster = 'cluster' in point.properties && point.properties.cluster === true;

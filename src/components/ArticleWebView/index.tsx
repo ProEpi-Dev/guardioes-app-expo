@@ -127,6 +127,22 @@ export function ArticleWebView({
               text-align: left;
             }
 
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin: 16px 0;
+            }
+
+            th, td {
+              border: 1px solid #ccc;
+              padding: 8px;
+            }
+
+            table {
+              display: block;
+              overflow-x: auto;
+            }
+
             a {
               color: var(--primary-color);
               text-decoration: none;
