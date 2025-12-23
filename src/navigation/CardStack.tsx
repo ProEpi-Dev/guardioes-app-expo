@@ -1,7 +1,6 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import ArticleCardScreen from '../screens/app/ArticleCardScreen';
 import ArticleScreen from '../screens/app/ArticleScreen';
-import { Artigo } from '../screens/app/Artigo';
 import { RootStackParamList } from '../types/article';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -18,13 +17,9 @@ export default function CardStack() {
             <Stack.Screen 
             name="Article" 
             component={ArticleScreen}
-            options={{ title: 'Artigo'}}
-            />
-
-            <Stack.Screen 
-            name="Artigo" 
-            component={Artigo}
-            options={{ title: 'Artigo'}}
+            options={({ route }) => ({ 
+                title: route.params.article.title 
+            })}
             />
         </Stack.Navigator>
     );

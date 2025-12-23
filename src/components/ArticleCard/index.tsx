@@ -3,14 +3,16 @@ import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
 
 interface Props {
   title: string;
+  summary: string;
   onPress: () => void;
 }
 
-export default function ArticleCard({ title, onPress }: Props) {
+export default function ArticleCard({ title, summary, onPress }: Props) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={{ flex: 1 }}>
         <Text style={styles.title}>{title}</Text>
+        <Text style={styles.summary}>{summary}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -35,5 +37,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold'
+  },
+  summary: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'justify'
   }
 });
