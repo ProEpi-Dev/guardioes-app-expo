@@ -85,6 +85,16 @@ export default function CustomDrawerContent(props) {
         style={styles.drawerItemGreen}
         labelStyle={styles.drawerLabel}
       />
+
+      <DrawerItem 
+        label="Quizz"
+        icon={({size}) => (
+          <Feather name="book" size={size} color={'white'} />
+        )}
+        onPress={() => navigation.navigate('Quizz')}
+        style={styles.drawerItemGreen}
+        labelStyle={styles.drawerLabel}
+      />
     </DrawerContentScrollView>
   );
 }
