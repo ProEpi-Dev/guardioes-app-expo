@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
+import { ParticipationProvider } from './src/contexts/ParticipationContext';
 
 // Referência para navegação
 export const navigationRef = React.createRef();
@@ -45,9 +46,11 @@ function AppContent() {
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer ref={navigationRef}>
-        <AppContent />
-      </NavigationContainer>
+      <ParticipationProvider>
+        <NavigationContainer ref={navigationRef}>
+          <AppContent />
+        </NavigationContainer>
+      </ParticipationProvider>
     </AuthProvider>
   );
 }
