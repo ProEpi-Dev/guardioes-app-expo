@@ -19,7 +19,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
       if (!user?.email) return;
 
       setLoading(true);
-      console.log(`[ParticipationContext] Iniciando busca inteligente para: ${user.email}`);
 
       try {
         let foundUserId: number | null = null;
@@ -44,7 +43,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
 
             if (targetUser) {
               foundUserId = targetUser.id;
-              console.log(`[ParticipationContext] ✅ Usuário encontrado na página ${page}. ID: ${foundUserId}`);
             } else {
               if (usersList.length < PAGE_SIZE) {
                 hasMoreUsers = false;
@@ -59,7 +57,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
         }
 
         if (!foundUserId) {
-          console.warn('[ParticipationContext] ❌ Usuário não encontrado em nenhuma página.');
           return;
         }
 
@@ -67,9 +64,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
         page = 1;
         let hasMorePart = true;
 
-        while (hasMorePart && !foundParticipationId) {
-          console.log(`[ParticipationContext] Buscando participações - Página ${page}...`);
-          
+        while (hasMorePart && !foundParticipationId) {          
           try {
             const partRes: any = await apiClient(`/v1/participations?page=${page}&pageSize=${PAGE_SIZE}`, { method: 'GET' });
             const partList = partRes.data || partRes || [];
@@ -85,7 +80,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
 
             if (myParticipation) {
               foundParticipationId = myParticipation.id;
-              console.log(`[ParticipationContext] ✅ Participação encontrada na página ${page}. ID: ${foundParticipationId}`);
             } else {
               if (partList.length < PAGE_SIZE) {
                 hasMorePart = false;
@@ -94,7 +88,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
               }
             }
           } catch (err) {
-            console.error(`[ParticipationContext] Erro ao buscar página ${page} de participações`, err);
             hasMorePart = false;
           }
         }
@@ -102,7 +95,6 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
         if (foundParticipationId) {
           setParticipationId(foundParticipationId);
         } else {
-          console.warn(`[ParticipationContext] ❌ Nenhuma participação ATIVA encontrada para o UserID ${foundUserId}`);
         }
 
       } catch (error) {

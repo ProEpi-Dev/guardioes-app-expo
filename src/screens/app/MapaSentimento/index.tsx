@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { StatusBar, Alert } from 'react-native';
 import { MapWithFeeling } from '../../../components/MapWithFeeling';
-import { useAuth } from '../../../contexts/AuthContext';
 import { useParticipation } from '../../../contexts/ParticipationContext';
 import { useUserLocation } from '../../../hooks/useUserLocation';
 import { useSentimentMap } from '../../../hooks/useSentimentMap';
@@ -9,7 +8,6 @@ import { SentimentModal } from '../../../components/SentimentModal';
 import { apiClient } from '../../../utils/api';
 
 export function MapaSentimento() {
-  const { form } = useAuth();
   const { participationId } = useParticipation();
   const { location, refreshLocation } = useUserLocation();
   const { mapPoints, loadingPoints, refreshPoints } = useSentimentMap();
@@ -21,24 +19,39 @@ export function MapaSentimento() {
   const [loadingForm, setLoadingForm] = useState(false);
   const [sending, setSending] = useState(false);
 
+  const fetchLatestSignalForm = async () => {
+    const response: any = await apiClient(`/v1/forms?active=true&pageSize=50`, { method: 'GET' });
+    const forms = response.data || [];
+    const signalForms = forms
+      .filter((f: any) => f.type === 'signal')
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const latestForm = signalForms[0];
+
+    if (!latestForm || !latestForm.latestVersion) {
+      throw new Error('Nenhum formulário do tipo "signal" encontrado.');
+    }
+
+    return latestForm;
+  };
+
   const loadFormDefinition = async () => {
-    if (!form?.id) return Alert.alert('Erro', 'Formulário indisponível');
-    
     setLoadingForm(true);
     setShowForm(true);
     
     try {
-      const response: any = await apiClient(`/v1/forms/${form.id}/versions?page=1&pageSize=1&active=true`, { method: 'GET' });
-      const version = response.data?.[0];
-      
+      const latestForm = await fetchLatestSignalForm();
+      const version = latestForm.latestVersion;
+
       if (version?.definition) {
         setFormDefinition(version.definition);
         setCurrentFormVersionId(version.id);
       } else {
-        Alert.alert('Erro', 'Definição não encontrada.');
+        Alert.alert('Erro', 'Definição do formulário não encontrada.');
         setShowForm(false);
       }
     } catch (e) {
+      console.error(e);
       Alert.alert('Erro', 'Falha ao carregar formulário.');
       setShowForm(false);
     } finally {
@@ -66,14 +79,13 @@ export function MapaSentimento() {
     });
   };
 
-  // 5. Handlers de Eventos
   const handleFeelingSelected = async (feeling: 'good' | 'bad') => {
     if (!participationId) return Alert.alert('Aguarde', 'Carregando perfil...');
 
     if (feeling === 'good') {
       try {
-         const resp: any = await apiClient(`/v1/forms/${form?.id}/versions?page=1&pageSize=1&active=true`, { method: 'GET' });
-         const versionId = resp.data?.[0]?.id;
+         const latestForm = await fetchLatestSignalForm();
+         const versionId = latestForm.latestVersion?.id;
          
          if (versionId) {
             await sendReport('POSITIVE', {}, versionId); 
@@ -81,7 +93,7 @@ export function MapaSentimento() {
             setTimeout(refreshPoints, 500);
          }
       } catch (e) {
-        Alert.alert('Erro', 'Falha ao registrar.');
+        Alert.alert('Erro', 'Falha ao registrar sentimento.');
       }
     } else {
       await loadFormDefinition();
