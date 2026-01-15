@@ -14,6 +14,7 @@ export type ConditionOperator =
 export interface FieldOption {
   label: string;
   value: string | number;
+  feedback?: string;
 }
 
 export interface FieldCondition {
@@ -57,5 +58,6 @@ export interface FormVersion {
   createdAt?: string;
   updatedAt?: string;
   participationId: number;
+  passingScore?: number | null;
 }
 

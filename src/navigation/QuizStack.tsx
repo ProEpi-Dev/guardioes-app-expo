@@ -3,6 +3,7 @@ import { Quizz } from '../screens/app/QuizzCardScreen';
 import { QuizzInfoScreen } from '../screens/app/QuizInfoScreen';
 import { QuizStackParamList } from '../types/quizz';
 import  ArticleScreen  from '../screens/app/ArticleScreen'
+import { QuizzQuestionsScreen } from '../screens/app/QuizQuestionsScreen';
 
 const Stack = createNativeStackNavigator<QuizStackParamList>();
 
@@ -36,6 +37,12 @@ export default function QuizStack() {
             name="Article" 
             component={ArticleScreen} 
             options={{ title: 'Material de Estudo' }} 
+            />
+
+            <Stack.Screen 
+                name="QuizzQuestionsScreen" 
+                component={QuizzQuestionsScreen} 
+                options={{ headerShown: false }}
             />
         </Stack.Navigator>
     )

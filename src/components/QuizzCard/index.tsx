@@ -10,9 +10,11 @@ interface Props {
   onPress: () => void;
   isPassed?: boolean;
   attemptNumber?: number;
+  passingScore?: number | null;
+  maxAttempts?: number | null;
 }
 
-export default function QuizzCard({ title, active, score, attemptNumber, isPassed, onPress }: Props) {
+export default function QuizzCard({ title, active, score, attemptNumber, isPassed, passingScore,maxAttempts, onPress }: Props) {
   const isCompleted = score !== null && score !== undefined;
   const statusColor = isCompleted 
     ? (isPassed ? '#4CAF50' : '#F44336') 
@@ -49,9 +51,14 @@ export default function QuizzCard({ title, active, score, attemptNumber, isPasse
         <Text style={{ fontWeight: isCompleted ? 'bold' : 'normal', color: statusColor }}>
           {isCompleted ? `${score}/100` : ' - /100'}
         </Text>
+        {passingScore !== null && passingScore !== undefined && (
+           <Text style={styles.passingScoreText}>
+             Mín: {passingScore}
+           </Text>
+        )}
         {isCompleted && attemptNumber !== undefined && (
           <Text style={styles.attemptText}>
-            Tentativa: {attemptNumber}
+            Tentativa: {attemptNumber} {maxAttempts ? `/ ${maxAttempts}` : ''}
           </Text>
         )}
       </View>
@@ -80,5 +87,11 @@ const styles = StyleSheet.create({
     fontSize: scale(10),
     color: '#666',
     marginTop: 2
+  },
+  passingScoreText: {
+    fontSize: scale(10),
+    color: '#888',
+    marginTop: 2,
+    fontStyle: 'italic'
   }
 });

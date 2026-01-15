@@ -48,13 +48,22 @@ const loadData = useCallback(async () => {
 
       const mergedContent = quizzesData.map((quiz) => {
         const versionId = quiz.latestVersion?.id;
+
+        const passingScore = quiz.latestVersion?.passingScore;
+        const maxAttempts = quiz.latestVersion?.maxAttempts;
+        const timeLimitMinutes = quiz.latestVersion?.timeLimitMinutes;
+
         const userResult = submissionsData.find((res) => res.formVersionId === versionId);
+
         const linkedContentRelation = contentMappingData.find(
             (relation) => String(relation.formId) === String(quiz.id)
         );
 
         const quizWithContent = {
             ...quiz,
+            passingScore: passingScore,
+            maxAttempts: maxAttempts,
+            timeLimitMinutes: timeLimitMinutes,
             linkedArticle: linkedContentRelation ? linkedContentRelation.content : null
         };
 
@@ -104,7 +113,7 @@ const loadData = useCallback(async () => {
     );
   }
 
-  const handleCardPress = (item: Quizzes) => {
+const handleCardPress = (item: Quizzes) => {
   if (item.isPassed) {
     Alert.alert(
       'Parabéns!',
@@ -113,7 +122,7 @@ const loadData = useCallback(async () => {
     return;
   }
 
-  if (item.attemptNumber && item.attemptNumber >= 3) {
+  if (item.attemptNumber && item.attemptNumber >= item.maxAttempts!) {
     Alert.alert(
       'Tentativas Esgotadas',
       `Você atingiu o limite de tentativas.\n\nNota: ${item.score}\nSituação: Reprovado\nTentativas: 3/3`
@@ -125,7 +134,9 @@ const loadData = useCallback(async () => {
     quizId: item.id,
     title: item.title,
     currentAttempt: (item.attemptNumber || 0) + 1,
-    linkedArticle: item.linkedArticle
+    linkedArticle: item.linkedArticle,
+    maxAttempts: item.maxAttempts,
+    timeLimitMinutes: item.timeLimitMinutes
   });
 };
 
@@ -143,7 +154,9 @@ const loadData = useCallback(async () => {
           active={item.active}
           score={item.score}
           attemptNumber = {item.attemptNumber}
-          isPassed = {item.isPassed}          
+          isPassed = {item.isPassed} 
+          passingScore={item.passingScore}    
+          maxAttempts={item.maxAttempts}     
           onPress={() => handleCardPress(item)}
         />
       )}

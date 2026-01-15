@@ -7,11 +7,17 @@ export interface Quizzes {
   latestVersion?: {
     id: number;
     versionNumber: number;
+    passingScore?: number | null;
+    maxAttempts?: number | null; 
+    timeLimitMinutes?: number | null;
   };
   score?: number | null;
   isPassed?: boolean;    
   attemptNumber?: number;
   linkedArticle?: LinkedArticle | null; 
+  passingScore?: number | null;
+  maxAttempts?: number | null; 
+  timeLimitMinutes?: number | null;
 }
 
 export interface UserQuizzProgress {
@@ -33,6 +39,7 @@ export type QuizStackParamList = {
       currentAttempt: number; 
   };
   Article: { article: Article }; 
+  QuizzQuestionsScreen: { quizId: number; title: string; };
 };
 
 export interface LinkedArticle {

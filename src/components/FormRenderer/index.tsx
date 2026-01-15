@@ -329,6 +329,13 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
           cancelTextStyle={{ color: '#e74c3c', fontSize: 16, fontWeight: '600' }}
         />
 
+        {selectedOption && selectedOption.feedback && (
+          <View style={styles.feedbackContainer}>
+            <Text style={styles.feedbackLabel}>Feedback:</Text>
+            <Text style={styles.feedbackText}>{selectedOption.feedback}</Text>
+          </View>
+        )}
+
         {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
       </View>
     );
@@ -524,5 +531,24 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#32323b',
   },
+  feedbackContainer: {
+    marginTop: 8,
+    padding: 10,
+    backgroundColor: '#E3F2FD',
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#2196F3',
+  },
+  feedbackLabel: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1565C0',
+    marginBottom: 2,
+  },
+  feedbackText: {
+    fontSize: 14,
+    color: '#0D47A1',
+    fontStyle: 'italic',
+  }
 });
 

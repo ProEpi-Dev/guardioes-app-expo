@@ -12,17 +12,19 @@ interface RouteParams {
   title: string;
   currentAttempt: number;
   linkedArticle?: LinkedArticle | null;
+  maxAttempts?: number | null;
+  timeLimitMinutes?: number | null;
 }
 
 export function QuizzInfoScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute();
-  const { quizId, title, currentAttempt, linkedArticle } = route.params as RouteParams;
+  const { quizId, title, currentAttempt, linkedArticle, maxAttempts, timeLimitMinutes } = route.params as RouteParams;
 
   const [loadingContent, setLoadingContent] = useState(false);
 
   const handleStartQuiz = () => {
-    Alert.alert("Iniciar", "Navegando para as perguntas...");
+    navigation.navigate('QuizzQuestionsScreen', { quizId, title, timeLimitMinutes });
   };
 
   const handleGoToContent = async () => {
@@ -62,6 +64,7 @@ export function QuizzInfoScreen() {
           {'\n'}- O objetivo é testar seus conhecimentos sobre "{title}".
           {'\n'}- Leia atentamente cada questão antes de responder.
           {'\n'}- Ao finalizar, sua nota será calculada automaticamente.
+          {timeLimitMinutes ? `\n- Tempo limite: ${timeLimitMinutes} minutos.` : ''}
         </Text>
       </View>
 
@@ -69,7 +72,7 @@ export function QuizzInfoScreen() {
         <Feather name="alert-circle" size={40} color="#FFA000" />
         <Text style={styles.attemptLabel}>Você está iniciando a</Text>
         <Text style={styles.attemptNumber}>{currentAttempt}ª Tentativa</Text>
-        <Text style={styles.attemptSub}>de 3 tentativas permitidas</Text>
+        <Text style={styles.attemptSub}>{maxAttempts ? `de ${maxAttempts} tentativas permitidas` : 'Tentativas ilimitadas'}</Text>
       </View>
 
       <View style={styles.footer}>
