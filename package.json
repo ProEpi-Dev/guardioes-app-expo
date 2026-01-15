@@ -4,10 +4,14 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
-    "apk": "cd android && ./gradlew assembleRelease"
+    "apk": "cd android && ./gradlew assembleRelease",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean",
+    "prebuild:android": "expo prebuild --platform android",
+    "prebuild:ios": "expo prebuild --platform ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
