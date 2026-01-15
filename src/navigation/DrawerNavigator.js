@@ -4,7 +4,8 @@ import { View, useWindowDimensions } from 'react-native';
 import CustomDrawerContent from '../components/CustomDrawerContent';
 import { ClusterMap } from '../screens/app/ClusterMap';
 import { BottomNavigation } from './BottomNavigator'
-import { Quizz } from '../screens/app/QuizzCardScreen'
+import QuizStack from './QuizStack'
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 const Drawer = createDrawerNavigator();
 
@@ -39,12 +40,24 @@ export default function DrawerNavigator() {
       
       <Drawer.Screen 
         name="Quizz" 
-        component={Quizz} 
-        options={{
-          headerTitle: 'Quizzes',
-          headerShown: true,
-          headerTitleAlign: 'center',
-          headerRight: () => <View />,
+        component={QuizStack} 
+        options={({ route }) => {
+          // Pega o nome da rota atual dentro do Stack (ex: 'Home', 'QuizzIntroScreen')
+          // Se for undefined, assume que é a primeira tela ('Home')
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
+
+          // Lógica: Só mostra o Header do Drawer se estivermos na 'Home'
+          const shouldShowHeader = routeName === 'Home';
+
+          return {
+            headerTitle: 'Quizzes',
+            headerShown: shouldShowHeader, // Dinâmico: true na lista, false na intro
+            headerTitleAlign: 'center',
+            headerRight: () => <View />,
+            // Se estiver na Home, mantém transparente conforme seu design original
+            // Se quiser fundo branco, remova o headerTransparent ou controle aqui também
+             headerTransparent: true, 
+          };
         }}
       />
     </Drawer.Navigator>

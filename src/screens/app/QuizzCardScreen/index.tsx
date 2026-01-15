@@ -4,12 +4,14 @@ import { Quizzes, UserQuizzProgress } from '../../../types/quizz';
 import QuizzCard from '../../../components/QuizzCard';
 import { apiClient } from '../../../utils/api';
 import { useParticipation } from '../../../contexts/ParticipationContext';
+import { useNavigation } from '@react-navigation/native';
 
 export function Quizz() {
   const { participationId } = useParticipation();
   const [content, setContent] = useState<Quizzes[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation<any>();
 
   const fetchQuizzes = async (): Promise<Quizzes[]> => {
     const response: any = await apiClient(`/v1/forms?active=true&pageSize=50`, { method: 'GET' });
@@ -23,31 +25,49 @@ export function Quizz() {
     return responses.filter((f: any) => f.participationId === participationId);
   };
 
-  const loadData = useCallback(async () => {
+  const fetchContentQuiz = async (): Promise<any[]> => {
+  try {
+    const response: any = await apiClient(`/v1/content-quiz?pageSize=100`, { method: 'GET' });
+    const data = response.data || response || [];
+    return Array.isArray(data) ? data : (data.data || []); 
+  } catch (error) {
+    console.error("Erro content-quiz", error);
+    return []; 
+  }
+}
+
+const loadData = useCallback(async () => {
     try {
       if (!refreshing) setLoading(true);
 
-      const [quizzesData, submissionsData] = await Promise.all([
+      const [quizzesData, submissionsData, contentMappingData] = await Promise.all([
         fetchQuizzes(),
-        fetchResultQuiz()
+        fetchResultQuiz(),
+        fetchContentQuiz()
       ]);
 
       const mergedContent = quizzesData.map((quiz) => {
         const versionId = quiz.latestVersion?.id;
-        const userResult = submissionsData.find(
-          (res) => res.formVersionId === versionId
+        const userResult = submissionsData.find((res) => res.formVersionId === versionId);
+        const linkedContentRelation = contentMappingData.find(
+            (relation) => String(relation.formId) === String(quiz.id)
         );
+
+        const quizWithContent = {
+            ...quiz,
+            linkedArticle: linkedContentRelation ? linkedContentRelation.content : null
+        };
 
         if (userResult) {
           return { 
-            ...quiz, 
+            ...quizWithContent, 
             score: userResult.score,
             isPassed: userResult.isPassed,        
             attemptNumber: userResult.attemptNumber,
           };
         }
         
-        return quiz;
+        return quizWithContent;
       });
 
       setContent(mergedContent);
@@ -84,6 +104,31 @@ export function Quizz() {
     );
   }
 
+  const handleCardPress = (item: Quizzes) => {
+  if (item.isPassed) {
+    Alert.alert(
+      'Parabéns!',
+      `Você já foi aprovado neste quiz!\n\nNota: ${item.score}\nTentativas: ${item.attemptNumber}\nSituação: Aprovado`
+    );
+    return;
+  }
+
+  if (item.attemptNumber && item.attemptNumber >= 3) {
+    Alert.alert(
+      'Tentativas Esgotadas',
+      `Você atingiu o limite de tentativas.\n\nNota: ${item.score}\nSituação: Reprovado\nTentativas: 3/3`
+    );
+    return;
+  }
+
+  navigation.navigate('QuizzInfoScreen', { 
+    quizId: item.id,
+    title: item.title,
+    currentAttempt: (item.attemptNumber || 0) + 1,
+    linkedArticle: item.linkedArticle
+  });
+};
+
   return (
     <FlatList
       style={styles.list}
@@ -99,19 +144,7 @@ export function Quizz() {
           score={item.score}
           attemptNumber = {item.attemptNumber}
           isPassed = {item.isPassed}          
-          onPress={() => {
-            if (item.score !== null && item.score !== undefined) {
-              const status = item.isPassed ? "Aprovado" : "Reprovado";
-              const tentativas = item.attemptNumber ? `(Tentativa ${item.attemptNumber})` : "";
-              
-              Alert.alert(
-                'Resultado', 
-                `Nota: ${item.score}\nStatus: ${status}\n${tentativas}`
-              );
-            } else {
-              Alert.alert('Iniciar', `Abrindo ${item.title}...`);
-            }
-          }}
+          onPress={() => handleCardPress(item)}
         />
       )}
       contentContainerStyle={styles.contentContainer}

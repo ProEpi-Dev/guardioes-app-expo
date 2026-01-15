@@ -1,3 +1,5 @@
+import { Article } from './article';
+
 export interface Quizzes {
   id: number;
   active: boolean;
@@ -9,6 +11,7 @@ export interface Quizzes {
   score?: number | null;
   isPassed?: boolean;    
   attemptNumber?: number;
+  linkedArticle?: LinkedArticle | null; 
 }
 
 export interface UserQuizzProgress {
@@ -20,4 +23,20 @@ export interface UserQuizzProgress {
   isPassed: boolean;
   attemptNumber: number;
   active: boolean; 
+}
+
+export type QuizStackParamList = {
+  Home: undefined;
+  QuizzInfoScreen: { 
+      quizId: number; 
+      title: string; 
+      currentAttempt: number; 
+  };
+  Article: { article: Article }; 
+};
+
+export interface LinkedArticle {
+  id: number;
+  title: string;
+  reference: string;
 }
