@@ -30,19 +30,24 @@ export function QuizzQuestionsScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [allFields, setAllFields] = useState<FormField[]>([]);
   const [formVersionId, setFormVersionId] = useState<number | null>(null);
+  const formVersionIdRef = useRef<number | null>(null);
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [currentResponse, setCurrentResponse] = useState<Record<string, any>>({});
   
   const allAnswersRef = useRef<Record<string, any>>({});
-
+  const currentResponseRef = useRef<Record<string, any>>({}); 
   const startedAtRef = useRef<string>(new Date().toISOString());
 
   const [timeLeft, setTimeLeft] = useState<number | null>(
-    timeLimitMinutes ? timeLimitMinutes * 60 : null
+    timeLimitMinutes ? Number(timeLimitMinutes) * 60 : null
   );
 
   const [stepState, setStepState] = useState<'answering' | 'feedback'>('answering');
+
+  useEffect(() => {
+    currentResponseRef.current = currentResponse;
+  }, [currentResponse]);
 
   const fetchQuizDefinition = useCallback(async () => {
     try {
@@ -54,7 +59,10 @@ export function QuizzQuestionsScreen() {
 
       if (formData && formData.latestVersion) {
         setAllFields(formData.latestVersion.definition.fields || []);
+        
         setFormVersionId(formData.latestVersion.id);
+        formVersionIdRef.current = formData.latestVersion.id; 
+        
       } else {
         throw new Error("Definição do quiz não encontrada.");
       }
@@ -71,14 +79,89 @@ export function QuizzQuestionsScreen() {
     fetchQuizDefinition();
   }, []);
 
+  const handleSubmitQuiz = async () => {
+    try {
+      setSubmitting(true);
+
+      const finalVersionId = formVersionIdRef.current;
+
+      if (!finalVersionId) {
+        throw new Error("O Quiz ainda não foi carregado corretamente.");
+      }
+
+      const finalAnswers = {
+        ...allAnswersRef.current,
+        ...currentResponseRef.current 
+      };
+
+      const now = new Date();
+      let finalStartedAt = startedAtRef.current;
+      
+      if (timeLimitMinutes) {
+        const start = new Date(finalStartedAt);
+        const diffInMillis = now.getTime() - start.getTime();
+        const limitInMillis = timeLimitMinutes * 60 * 1000;
+
+        if (diffInMillis > limitInMillis) {
+           const adjustedStart = new Date(now.getTime() - limitInMillis);
+           finalStartedAt = adjustedStart.toISOString();
+        }
+      }
+
+      const payload = {
+        formVersionId: finalVersionId,
+        participationId: participationId,
+        startedAt: finalStartedAt,
+        completedAt: now.toISOString(), 
+        quizResponse: {
+          ...finalAnswers,
+          _isValid: true
+        }
+      };
+
+      console.log("Enviando Payload:", JSON.stringify(payload, null, 2));
+
+      await apiClient('/v1/quiz-submissions', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+
+      Alert.alert("Sucesso!", "Quiz concluído com sucesso!", [
+        { text: "OK", onPress: () => navigation.popToTop() }
+      ]);
+
+    } catch (error: any) {
+      console.error("Erro Raw:", error);
+
+      let msg = "Não foi possível enviar o quiz.";
+      const errorCode = error?.data?.error?.code;
+
+      if (errorCode === 'BadRequestException') {
+         const details = error?.data?.message;
+         if (String(details).includes("Tempo limite")) {
+            msg = "O tempo limite foi excedido, mas tentamos ajustar. Tente novamente.";
+         } else {
+            msg = Array.isArray(details) ? details[0] : "Verifique os dados enviados.";
+         }
+      } else if (error?.message) {
+         msg = error.message;
+      }
+
+      Alert.alert("Erro no Envio", msg);
+      
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
-    if (!timeLimitMinutes) return; 
+    if (loading || !timeLimitMinutes || Number(timeLimitMinutes) <= 0) return; 
 
     const interval = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev !== null && prev <= 1) {
           clearInterval(interval);
-          handleTimeExpired();
+          handleTimeExpired(); 
           return 0;
         }
         return prev !== null ? prev - 1 : null;
@@ -86,7 +169,7 @@ export function QuizzQuestionsScreen() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [timeLimitMinutes]);
+  }, [timeLimitMinutes, loading]);
 
   const handleTimeExpired = () => {
     Alert.alert(
@@ -129,56 +212,14 @@ export function QuizzQuestionsScreen() {
       }
       allAnswersRef.current = { ...allAnswersRef.current, ...currentResponse };
       setStepState('feedback');
-    }
+    } 
     else if (stepState === 'feedback' && !isLastQuestion) {
       setStepState('answering');
       setCurrentResponse({});
       setCurrentQuestionIndex((prev) => prev + 1);
-    }
+    } 
     else if (stepState === 'feedback' && isLastQuestion) {
       await handleSubmitQuiz();
-    }
-  };
-
-  const handleSubmitQuiz = async () => {
-    try {
-      setSubmitting(true);
-
-      if (!formVersionId) throw new Error("ID da versão do formulário inválido");
-
-      const payload = {
-        formVersionId: formVersionId,
-        participationId: participationId,
-        startedAt: startedAtRef.current,
-        completedAt: new Date().toISOString(),
-        quizResponse: {
-          ...allAnswersRef.current,
-          _isValid: true
-        }
-      };
-
-      console.log("Enviando Payload:", JSON.stringify(payload, null, 2));
-
-      await apiClient('/v1/quiz-submissions', {
-        method: 'POST',
-        body: JSON.stringify(payload)
-      });
-
-      Alert.alert("Sucesso!", "Quiz concluído com sucesso!", [
-        { text: "OK", onPress: () => navigation.popToTop() }
-      ]);
-
-    } catch (error: any) {
-      console.error("Erro no envio:", JSON.stringify(error, null, 2));
-      
-      const errorCode = error?.data?.error?.code;
-      if (errorCode === 'BadRequestException') {
-         Alert.alert("Erro de Validação", "Verifique se o formulário está ativo ou se os dados estão corretos.");
-      } else {
-         Alert.alert("Erro", "Não foi possível enviar o quiz. Tente novamente.");
-      }
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -199,7 +240,7 @@ export function QuizzQuestionsScreen() {
             size={24} 
             color={isCorrect ? "#2E7D32" : "#C62828"} 
           />
-          <View style={{flex: 1}}>
+          <View style={{flex: 1, marginLeft: 8}}>
             <Text style={[styles.resultText, { color: isCorrect ? "#2E7D32" : "#C62828" }]}>
               {isCorrect ? "Resposta Correta!" : "Resposta Incorreta"}
             </Text>
@@ -212,12 +253,15 @@ export function QuizzQuestionsScreen() {
         </View>
       );
     }
+
     return (
       <View style={[styles.resultBanner, { backgroundColor: '#E3F2FD' }]}>
         <Feather name="check" size={24} color="#1565C0" />
-        <Text style={[styles.resultText, { color: "#1565C0" }]}>
-          Resposta Registrada
-        </Text>
+        <View style={{flex: 1, marginLeft: 8}}>
+            <Text style={[styles.resultText, { color: "#1565C0" }]}>
+            Resposta Registrada
+            </Text>
+        </View>
       </View>
     );
   };
@@ -233,8 +277,6 @@ export function QuizzQuestionsScreen() {
 
   if (!currentQuestion) return null;
 
-  
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -242,10 +284,11 @@ export function QuizzQuestionsScreen() {
           <Text style={styles.progressText}>
             Questão {currentQuestionIndex + 1} de {allFields.length}
           </Text>
+          
           {timeLeft !== null && (
              <Text style={[
                styles.timerText, 
-               timeLeft < 60 && { color: '#F44336' }
+               timeLeft < 60 && { color: '#F44336' } 
              ]}>
                {formatTime(timeLeft)}
              </Text>
@@ -254,6 +297,7 @@ export function QuizzQuestionsScreen() {
 
         <View style={{ width: 24 }} /> 
       </View>
+      
       <View style={styles.progressBarBg}>
         <View 
           style={[
@@ -262,6 +306,7 @@ export function QuizzQuestionsScreen() {
           ]} 
         />
       </View>
+
       <View style={styles.contentContainer}>
         {renderResultIndicator()}
         
@@ -273,6 +318,7 @@ export function QuizzQuestionsScreen() {
           readOnly={stepState === 'feedback'} 
         />
       </View>
+
       <View style={styles.footer}>
         <TouchableOpacity 
           style={[styles.actionButton, submitting && styles.disabledButton]}
@@ -289,7 +335,6 @@ export function QuizzQuestionsScreen() {
           {!submitting && <Feather name="arrow-right" size={20} color="#FFF" />}
         </TouchableOpacity>
       </View>
-
     </SafeAreaView>
   );
 }
@@ -297,7 +342,6 @@ export function QuizzQuestionsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -307,33 +351,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0'
   },
-  progressText: {
-    fontSize: scale(14),
-    fontWeight: '600',
-    color: '#666',
-  },
-  timerText: {
-    fontSize: scale(14),
-    fontWeight: 'bold',
-    color: '#0000ff',
-    marginTop: 2
-  },
-  
+  progressText: { fontSize: scale(14), fontWeight: '600', color: '#666' },
+  timerText: { fontSize: scale(14), fontWeight: 'bold', color: '#0000ff', marginTop: 2 },
   progressBarBg: { height: 4, backgroundColor: '#E0E0E0', width: '100%' },
   progressBarFill: { height: '100%', backgroundColor: '#0000ff' },
-  
   contentContainer: { flex: 1, padding: 20 },
-  
   resultBanner: {
     flexDirection: 'row',
     alignItems: 'center',
     padding: 12,
     borderRadius: 8,
     marginBottom: 16,
-    gap: 10
   },
   resultText: { fontWeight: 'bold', fontSize: scale(16) },
-  
   footer: {
     padding: 20,
     borderTopWidth: 1,
