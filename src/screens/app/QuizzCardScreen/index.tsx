@@ -5,6 +5,7 @@ import QuizzCard from '../../../components/QuizzCard';
 import { apiClient } from '../../../utils/api';
 import { useParticipation } from '../../../contexts/ParticipationContext';
 import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 
 export function Quizz() {
   const { participationId } = useParticipation();
@@ -90,9 +91,11 @@ const loadData = useCallback(async () => {
     }
   }, [refreshing, participationId]);
 
-  useEffect(() => {
-    loadData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [participationId])
+  );
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -122,13 +125,13 @@ const handleCardPress = (item: Quizzes) => {
     return;
   }
 
-  if (item.attemptNumber && item.attemptNumber >= item.maxAttempts!) {
+  if (item.maxAttempts && item.attemptNumber && item.attemptNumber >= item.maxAttempts) {
     Alert.alert(
       'Tentativas Esgotadas',
-      `Você atingiu o limite de tentativas.\n\nNota: ${item.score}\nSituação: Reprovado\nTentativas: 3/3`
+      `Você atingiu o limite de tentativas.\n\nNota: ${item.score}\nSituação: Reprovado\nTentativas: ${item.attemptNumber}/${item.maxAttempts}`
     );
     return;
-  }
+}
 
   navigation.navigate('QuizzInfoScreen', { 
     quizId: item.id,

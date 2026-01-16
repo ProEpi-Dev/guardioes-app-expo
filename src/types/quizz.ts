@@ -1,4 +1,5 @@
 import { Article } from './article';
+import { FormField } from './form';
 
 export interface Quizzes {
   id: number;
@@ -40,6 +41,12 @@ export type QuizStackParamList = {
   };
   Article: { article: Article }; 
   QuizzQuestionsScreen: { quizId: number; title: string; };
+  QuizResultScreen: {
+    resultData: { score: number; isPassed: boolean };
+    userAnswers: Record<string, any>;
+    questions: FormField[];
+    title: string;
+  };
 };
 
 export interface LinkedArticle {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, BackHandler } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Feather } from '@expo/vector-icons';
 import { apiClient } from '../../../utils/api';
@@ -23,7 +23,7 @@ const normalizeAnswer = (val: any): string => {
 export function QuizzQuestionsScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute();
-  const { quizId, timeLimitMinutes } = route.params as RouteParams;
+  const { quizId, timeLimitMinutes, title } = route.params as RouteParams;
   const { participationId } = useParticipation();
 
   const [loading, setLoading] = useState(true);
@@ -48,6 +48,31 @@ export function QuizzQuestionsScreen() {
   useEffect(() => {
     currentResponseRef.current = currentResponse;
   }, [currentResponse]);
+
+  const handleBackPress = useCallback(() => {
+    // Exibe alerta informando que a saída está bloqueada
+    Alert.alert(
+      "Atenção",
+      "Você deve concluir o quiz para sair. Responda todas as questões ou aguarde o tempo acabar.",
+      [
+        { text: "Continuar Quiz", onPress: () => {} } // Apenas fecha o modal
+      ],
+      { cancelable: false }
+    );
+    
+    // Retorna true para impedir que o sistema execute a ação de voltar
+    return true; 
+  }, []);
+
+  // Ativa o bloqueio do botão físico (Android)
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener(
+      'hardwareBackPress',
+      handleBackPress
+    );
+
+    return () => subscription.remove();
+  }, [handleBackPress]);
 
   const fetchQuizDefinition = useCallback(async () => {
     try {
@@ -89,11 +114,13 @@ export function QuizzQuestionsScreen() {
         throw new Error("O Quiz ainda não foi carregado corretamente.");
       }
 
+      // Prepara as respostas finais
       const finalAnswers = {
         ...allAnswersRef.current,
         ...currentResponseRef.current 
       };
 
+      // Prepara os timestamps (com ajuste se estourou o tempo)
       const now = new Date();
       let finalStartedAt = startedAtRef.current;
       
@@ -119,19 +146,29 @@ export function QuizzQuestionsScreen() {
         }
       };
 
-      console.log("Enviando Payload:", JSON.stringify(payload, null, 2));
-
-      await apiClient('/v1/quiz-submissions', {
+      // 1. Envia para a API
+      const response: any = await apiClient('/v1/quiz-submissions', {
         method: 'POST',
         body: JSON.stringify(payload)
       });
 
-      Alert.alert("Sucesso!", "Quiz concluído com sucesso!", [
-        { text: "OK", onPress: () => navigation.popToTop() }
-      ]);
+      // 2. Pega os dados do resultado (Score, Passou/Não, etc)
+      // O formato depende da sua API. Geralmente vem em response.data ou direto no response
+      const resultData = response.data || response;
+
+      // 3. NAVEGA PARA A TELA DE RESULTADOS (Substitui a tela atual)
+      navigation.replace('QuizResultScreen', {
+        resultData: {
+          score: resultData.score,       // Certifique-se que o backend retorna 'score'
+          isPassed: resultData.isPassed, // Certifique-se que o backend retorna 'isPassed'
+        },
+        userAnswers: finalAnswers,
+        questions: allFields, // Passamos as perguntas para exibir os textos e feedbacks
+        title: title
+      });
 
     } catch (error: any) {
-      console.error("Erro Raw:", error);
+      console.error("Erro no envio:", error);
 
       let msg = "Não foi possível enviar o quiz.";
       const errorCode = error?.data?.error?.code;
@@ -139,7 +176,7 @@ export function QuizzQuestionsScreen() {
       if (errorCode === 'BadRequestException') {
          const details = error?.data?.message;
          if (String(details).includes("Tempo limite")) {
-            msg = "O tempo limite foi excedido, mas tentamos ajustar. Tente novamente.";
+            msg = "O tempo limite foi excedido. Tente novamente.";
          } else {
             msg = Array.isArray(details) ? details[0] : "Verifique os dados enviados.";
          }
@@ -174,8 +211,11 @@ export function QuizzQuestionsScreen() {
   const handleTimeExpired = () => {
     Alert.alert(
       "Tempo Esgotado!",
-      "O tempo acabou. Enviaremos suas respostas até aqui.",
-      [{ text: "OK", onPress: () => handleSubmitQuiz() }],
+      "O tempo acabou. Vamos calcular sua pontuação com o que foi respondido.",
+      [{ 
+        text: "Ver Resultado", 
+        onPress: () => handleSubmitQuiz() 
+      }],
       { cancelable: false }
     );
   };
@@ -230,38 +270,73 @@ export function QuizzQuestionsScreen() {
     const userAnswer = currentResponse[currentQuestion.name];
     const correctAnswer = qAny.correctAnswer;
 
-    if (correctAnswer !== undefined && correctAnswer !== null) {
-      const isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
-      
+    const selectedOption = qAny.options?.find((opt: any) => 
+      normalizeAnswer(opt.value) === normalizeAnswer(userAnswer)
+    );
+
+    let feedbackToShow = selectedOption?.feedback;
+
+    if (!feedbackToShow && qAny.feedback && qAny.feedback.incorrect) {
+       feedbackToShow = qAny.feedback.incorrect;
+    }
+
+    const hasCorrectAnswerConfigured = correctAnswer !== undefined && correctAnswer !== null;
+    let isCorrect = false;
+    
+    if (hasCorrectAnswerConfigured) {
+      isCorrect = normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
+    }
+
+    // --- RENDERIZAÇÃO DO BANNER ---
+    
+    // Se tiver gabarito configurado
+    if (hasCorrectAnswerConfigured) {
       return (
         <View style={[styles.resultBanner, { backgroundColor: isCorrect ? '#E8F5E9' : '#FFEBEE' }]}>
-          <Feather 
-            name={isCorrect ? "check-circle" : "x-circle"} 
-            size={24} 
-            color={isCorrect ? "#2E7D32" : "#C62828"} 
-          />
-          <View style={{flex: 1, marginLeft: 8}}>
-            <Text style={[styles.resultText, { color: isCorrect ? "#2E7D32" : "#C62828" }]}>
+          <View style={styles.bannerHeader}>
+            <Feather 
+              name={isCorrect ? "check-circle" : "x-circle"} 
+              size={24} 
+              color={isCorrect ? "#2E7D32" : "#C62828"} 
+            />
+            <Text style={[styles.resultTitle, { color: isCorrect ? "#2E7D32" : "#C62828" }]}>
               {isCorrect ? "Resposta Correta!" : "Resposta Incorreta"}
             </Text>
-            {!isCorrect && (
-              <Text style={{ fontSize: scale(12), color: '#666', marginTop: 4 }}>
-                Resposta esperada: {String(correctAnswer)}
-              </Text>
-            )}
           </View>
+
+          {/* Exibe o Feedback (Específico ou Geral) */}
+          {feedbackToShow && (
+            <Text style={styles.feedbackText}>
+              {feedbackToShow}
+            </Text>
+          )}
+
+          {/* Se errou, mostra qual era a esperada */}
+          {!isCorrect && (
+            <Text style={styles.correctAnswerText}>
+              Resposta esperada: {String(correctAnswer)}
+            </Text>
+          )}
         </View>
       );
     }
 
     return (
       <View style={[styles.resultBanner, { backgroundColor: '#E3F2FD' }]}>
-        <Feather name="check" size={24} color="#1565C0" />
-        <View style={{flex: 1, marginLeft: 8}}>
-            <Text style={[styles.resultText, { color: "#1565C0" }]}>
+        <View style={styles.bannerHeader}>
+          <Feather name="check" size={24} color="#1565C0" />
+          {/* Adicionado flex: 1 aqui também */}
+          <Text style={[styles.resultTitle, { color: "#1565C0", flex: 1 }]}>
             Resposta Registrada
-            </Text>
+          </Text>
         </View>
+        
+        {/* Mostra feedback se existir, senão não mostra nada extra */}
+        {feedbackToShow && (
+            <Text style={[styles.feedbackText, { color: "#1565C0" }]}>
+              {feedbackToShow}
+            </Text>
+        )}
       </View>
     );
   };
@@ -356,13 +431,6 @@ const styles = StyleSheet.create({
   progressBarBg: { height: 4, backgroundColor: '#E0E0E0', width: '100%' },
   progressBarFill: { height: '100%', backgroundColor: '#0000ff' },
   contentContainer: { flex: 1, padding: 20 },
-  resultBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
   resultText: { fontWeight: 'bold', fontSize: scale(16) },
   footer: {
     padding: 20,
@@ -381,5 +449,35 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   disabledButton: { backgroundColor: '#CCC' },
-  actionButtonText: { color: '#FFF', fontSize: scale(16), fontWeight: 'bold' }
+  actionButtonText: { color: '#FFF', fontSize: scale(16), fontWeight: 'bold' },
+  resultBanner: {
+    padding: 16,
+    borderRadius: 8,
+    marginBottom: 16,
+    marginTop: 5,
+  },
+  bannerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8, // Espaço entre o título e o texto do feedback
+    gap: 10,
+  },
+  resultTitle: { 
+    fontWeight: 'bold', 
+    fontSize: scale(16) 
+  },
+  feedbackText: {
+    fontSize: scale(14),
+    color: '#333',
+    fontStyle: 'italic',
+    marginBottom: 4,
+    marginLeft: 34, // Alinhado com o texto do título (ícone tem 24px + 10px gap)
+  },
+  correctAnswerText: {
+    fontSize: scale(12), 
+    color: '#666', 
+    marginTop: 4,
+    marginLeft: 34,
+    fontWeight: '600'
+  },
 });

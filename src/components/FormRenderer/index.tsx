@@ -328,14 +328,6 @@ export const FormRenderer: React.FC<FormRendererProps> = ({
           cancelStyle={{ padding: 16, alignItems: 'center' }}
           cancelTextStyle={{ color: '#e74c3c', fontSize: 16, fontWeight: '600' }}
         />
-
-        {selectedOption && selectedOption.feedback && (
-          <View style={styles.feedbackContainer}>
-            <Text style={styles.feedbackLabel}>Feedback:</Text>
-            <Text style={styles.feedbackText}>{selectedOption.feedback}</Text>
-          </View>
-        )}
-
         {errors[field.id] && <Text style={styles.errorText}>{errors[field.id]}</Text>}
       </View>
     );
