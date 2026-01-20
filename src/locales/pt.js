@@ -83,7 +83,7 @@ export default {
     },
     register: {
         title: 'Cadastre-se',
-        name: 'Nome:',
+        name: 'Nome',
         gender: 'Gênero:',
         race: 'Raça:',
         birth: 'Nascimento:',

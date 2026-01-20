@@ -61,7 +61,22 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   form: Form | null; // Primeiro form disponível
   login: (email: string, password: string) => Promise<LoginResult>;
+  register: (data: RegisterData) => Promise<LoginResult>;
   logout: () => Promise<void>;
   updateUser: (userData: User) => Promise<void>;
 }
 
+export type RootStackParamList = {
+  Welcome: undefined;
+  Login: undefined;
+  Register: undefined;
+  Home: undefined; // O DrawerNavigator é tratado como uma tela única aqui
+};
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  contextId: number;
+  acceptedLegalDocumentIds: number[];
+}

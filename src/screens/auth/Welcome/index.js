@@ -62,7 +62,7 @@ const Welcome = ({ navigation }) => {
                         </SnowButton>
                     </Touch>
 
-                    <Touch onPress={() => showTerms()}>
+                    <Touch onPress={() => navigation.navigate('Register')}>
                         <SnowButton>
                             <Label>{translate('initialscreen.signup')}</Label>
                         </SnowButton>

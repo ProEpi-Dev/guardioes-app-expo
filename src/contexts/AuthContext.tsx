@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { apiClient, updateAuthToken, initializeAuthToken } from '../utils/api';
 import * as authStorage from '../services/authStorage';
-import { User, LoginResponse, LoginResult, AuthContextType, ApiError, Form, PaginatedResponse } from '../types/auth';
+import { User, RegisterData, LoginResponse, LoginResult, AuthContextType, ApiError, Form, PaginatedResponse } from '../types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -140,6 +140,71 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const register = async (data: RegisterData): Promise<LoginResult> => {
+    try {
+      const response = await apiClient('/v1/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }) as unknown as LoginResponse;
+
+      // Lógica de Auto-Login: Tenta extrair token e user da resposta do registro
+      const authToken = 
+        response.token || 
+        response.accessToken || 
+        response.data?.token ||
+        response.data?.accessToken;
+
+      const userData = 
+        response.user || 
+        response.data?.user || 
+        (response.id ? {
+          id: response.id,
+          email: response.email || data.email,
+          name: response.name || data.name,
+        } : null);
+
+      // Se a API retornar o token, fazemos o login automático
+      if (authToken) {
+        const finalUserData: User = userData || {
+          email: data.email,
+          name: data.name
+        };
+
+        await authStorage.storeToken(authToken);
+        await authStorage.storeUser(finalUserData);
+        await updateAuthToken(authToken);
+
+        setToken(authToken);
+        setUser(finalUserData);
+        setIsAuthenticated(true);
+        
+        await fetchForms(); // Busca os dados iniciais
+
+        return { success: true, data: response };
+      }
+
+      // Caso a API crie o usuário mas NÃO retorne o token (ex: exige confirmação de email)
+      // Retornamos sucesso, mas não autenticamos no app
+      return { success: true, data: response };
+
+    } catch (error) {
+      console.error('Erro no registro:', error);
+      
+      const apiError = error as ApiError;
+      let errorMessage = 'Erro ao realizar cadastro.';
+
+      if (apiError.status === 409) {
+        errorMessage = 'Este email já está em uso.';
+      } else if (apiError.status === 400) {
+        errorMessage = 'Dados inválidos. Verifique as informações.';
+      } else if (apiError.message) {
+        errorMessage = apiError.message;
+      }
+
+      return { success: false, error: errorMessage };
+    }
+  };
+
   const logout = async (): Promise<void> => {
     try {
       await authStorage.clearAuthData();
@@ -192,6 +257,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     isAuthenticated,
     form,
     login,
+    register,
     logout,
     updateUser,
   };

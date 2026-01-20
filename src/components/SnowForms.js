@@ -1,7 +1,8 @@
 import styled from 'styled-components'
 import { LinearGradient } from 'expo-linear-gradient'
-import { TouchableOpacity, TextInput, View, ScrollView } from 'react-native'
+import { TouchableOpacity, TextInput, View, ScrollView, Modal, FlatList, TouchableWithoutFeedback, Text } from 'react-native'
 import { scale, percentage } from '../utils/scalling'
+import React, { useState } from 'react';
 
 const verde = '#77bfad'
 const azul = '#2E97BE'
@@ -89,3 +90,85 @@ export const TransparentButton = styled(TouchableOpacity).attrs({
     margin-top: ${scale(10)}px;
     height: ${scale(38)}px;
 `
+export const SnowSelectContainer = styled(TouchableOpacity)`
+    width: 80%;
+    height: ${scale(38)}px;
+    border-color: #ffffff;
+    border-width: 3px;
+    border-radius: ${scale(16)}px;
+    margin-top: ${percentage(4)}px;
+    align-items: center;
+    justify-content: center;
+`
+
+export const SnowSelectLabel = styled(Text)`
+    font-family: 'System';
+    font-weight: 500;
+    font-size: ${scale(15)}px;
+    color: #ffffff;
+    text-align: center;
+`
+
+export const CustomSelector = ({ data, initValue, onChange, placeholder }) => {
+    const [modalVisible, setModalVisible] = useState(false);
+    const [selectedLabel, setSelectedLabel] = useState(initValue);
+
+    const handleSelect = (item) => {
+        setSelectedLabel(item.label);
+        onChange(item);
+        setModalVisible(false);
+    };
+
+    return (
+        <>
+            <SnowSelectContainer onPress={() => setModalVisible(true)}>
+                <SnowSelectLabel numberOfLines={1}>
+                    {selectedLabel || placeholder || "Selecione..."}
+                </SnowSelectLabel>
+            </SnowSelectContainer>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' }}>
+                        <TouchableWithoutFeedback>
+                            <View style={{ 
+                                width: '80%', 
+                                maxHeight: '50%', 
+                                backgroundColor: '#FFF', 
+                                borderRadius: 12, 
+                                padding: 10,
+                                elevation: 5 
+                            }}>
+                                <FlatList
+                                    data={data}
+                                    keyExtractor={(item) => String(item.key || item.value)}
+                                    renderItem={({ item }) => (
+                                        <TouchableOpacity 
+                                            style={{ padding: 15, borderBottomWidth: 1, borderBottomColor: '#eee' }}
+                                            onPress={() => handleSelect(item)}
+                                        >
+                                            <Text style={{ fontSize: 16, color: '#32323b', textAlign: 'center' }}>
+                                                {item.label}
+                                            </Text>
+                                        </TouchableOpacity>
+                                    )}
+                                />
+                                <TouchableOpacity 
+                                    style={{ padding: 15, alignItems: 'center', marginTop: 5 }}
+                                    onPress={() => setModalVisible(false)}
+                                >
+                                    <Text style={{ color: '#e74c3c', fontWeight: 'bold' }}>Cancelar</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </TouchableWithoutFeedback>
+                    </View>
+                </TouchableWithoutFeedback>
+            </Modal>
+        </>
+    );
+};
