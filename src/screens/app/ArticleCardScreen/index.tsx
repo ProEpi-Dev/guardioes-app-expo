@@ -1,56 +1,52 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList } from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, View, ActivityIndicator, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ArticleCard from '../../../components/ArticleCard';
-import { Article } from '../../../types/article';
-import { RootStackParamList } from '../../../types/article';
-import { apiClient } from '../../../utils/api';
+import { RootStackParamList, Article } from '../../../types/article';
+import { useArticles } from '../../../hooks/useArticles';
+import { styles } from './styles';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function ArticleCardScreen({ navigation }: Props) {
-  const [content, setContent] = useState<Article[]>([]);
-  const [refreshing, setRefreshing] = useState(false);
+export default function ArticleListScreen({ navigation }: Props) {
+  const { articles, isLoading, isRefreshing, handleRefresh, error } = useArticles();
 
-  const card = async () => {
-    try {
-      const usersResponse = await apiClient('/v1/contents', { method: 'GET' }) as any;
-      setContent(usersResponse);
-    } catch (error) {
-      console.error("Erro ao buscar artigos", error);
-    }
-  };
+  const renderItem = useCallback(({ item }: { item: Article }) => (
+    <ArticleCard
+      title={item.title}
+      summary={item.summary}
+      onPress={() => navigation.navigate('Article', { article: item })}
+    />
+  ), [navigation]);
 
-  useEffect(() => {
-    card()
-  }, []);
+  if (isLoading && !isRefreshing) {
+    return (
+      <View style={styles.centerContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
-  const handleRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await card();
-    setRefreshing(false);
-  }, []);
+  if (error) {
+    return (
+      <View style={styles.centerContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <FlatList
-      style={{ flex: 1 }}
-      data={content}
+      style={styles.list}
+      data={articles}
       keyExtractor={(item) => String(item.id)}
-      renderItem={({ item }) => (
-        <ArticleCard
-          title={item.title}
-          summary={item.summary}
-          onPress={() => navigation.navigate('Article', { article: item })}
-        />
-      )}
-      contentContainerStyle={{ 
-        padding: 20,
-        paddingBottom: 0
-      }}
-      refreshing={refreshing}
+      renderItem={renderItem}
+      contentContainerStyle={styles.contentContainer}
+      refreshing={isRefreshing}
       onRefresh={handleRefresh}
       showsVerticalScrollIndicator={false}
       initialNumToRender={6}
+      ListEmptyComponent={<Text style={styles.emptyText}>Nenhum artigo encontrado.</Text>}
     />
   );
 }

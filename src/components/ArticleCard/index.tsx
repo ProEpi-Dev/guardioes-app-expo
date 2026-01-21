@@ -1,13 +1,10 @@
 import React from 'react';
-import { TouchableOpacity, Image, Text, View, StyleSheet } from 'react-native';
+import { TouchableOpacity, Image, Text, View } from 'react-native';
+import { ArticleProps } from '../../types/article';
+import { styles } from './styles';
 
-interface Props {
-  title: string;
-  summary: string;
-  onPress: () => void;
-}
 
-export default function ArticleCard({ title, summary, onPress }: Props) {
+export default function ArticleCard({ title, summary, onPress }: ArticleProps) {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <View style={{ flex: 1 }}>
@@ -18,30 +15,3 @@ export default function ArticleCard({ title, summary, onPress }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 3
-  },
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 8,
-    marginRight: 12
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold'
-  },
-  summary: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#666',
-    textAlign: 'justify'
-  }
-});

@@ -1,10 +1,7 @@
 import React, { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
-
-type ArticleWebViewProps = {
-  content: string;
-};
+import { ArticleWebViewProps } from '../../types/article';
 
 export function ArticleWebView({
   content,
@@ -12,9 +9,7 @@ export function ArticleWebView({
 
   const htmlContent = useMemo(() => {
     let processedContent = content
-      // Remove parágrafos vazios gerados por múltiplos "Enters" (<p><br></p>)
       .replace(/<p><br><\/p>/g, "")
-      // Remove quebras de linha excessivas soltas
       .replace(/<br><br>/g, "<br>"); 
 
     return `

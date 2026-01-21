@@ -8,30 +8,12 @@ import {
   StyleSheet,
   Button,
   StyleProp,
-  ViewStyle,
   TextStyle,
 } from 'react-native';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
-
-interface CustomStyles {
-  dateInput?: StyleProp<ViewStyle>;
-  dateText?: StyleProp<TextStyle>;
-  placeholderText?: StyleProp<TextStyle>;
-}
-
-interface CustomDatePickerProps {
-  date?: Date | null;
-  onDateChange: (date: Date) => void;
-  placeholder?: string;
-  style?: StyleProp<ViewStyle>; 
-  customStyles?: CustomStyles;
-  androidMode?: 'spinner' | 'calendar' | 'default' | 'clock';
-}
-
-const formatDate = (date: Date | null | undefined, placeholder: string): string => {
-  if (!date) return placeholder;
-  return date.toLocaleDateString('pt-BR');
-};
+import { CustomDatePickerProps } from '../../types/customDatePicker';
+import { formatDate } from '../../utils/formatDate';
+import { styles } from './styles';
 
 export const CustomDatePicker: React.FC<CustomDatePickerProps> = (props) => {
   const {
@@ -139,17 +121,3 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = (props) => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  iosModalOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  iosModalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    padding: 10,
-  },
-});

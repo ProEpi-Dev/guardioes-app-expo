@@ -3,16 +3,8 @@ import { View, Text, Modal, TouchableOpacity, ActivityIndicator, StyleSheet, Key
 import Feather from '@expo/vector-icons/Feather';
 import { FormRenderer } from '../FormRenderer';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-interface SentimentModalProps {
-  visible: boolean;
-  onClose: () => void;
-  loading: boolean;
-  sending: boolean;
-  formDefinition: any;
-  onFormChange: (val: any) => void;
-  onSubmit: () => void;
-}
+import { SentimentModalProps } from '../../types/sentimentModal';
+import { styles } from './styles';
 
 export function SentimentModal({ visible, onClose, loading, sending, formDefinition, onFormChange, onSubmit }: SentimentModalProps) {
   const azul = '#2E97BE';
@@ -55,16 +47,3 @@ export function SentimentModal({ visible, onClose, loading, sending, formDefinit
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  header: { alignItems: 'flex-end', padding: 16, backgroundColor: '#2E97BE' },
-  closeBtn: { padding: 5, backgroundColor: '#fff', borderRadius: 20 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  content: { flex: 1, padding: 16 },
-  footer: { flexDirection: 'row', padding: 16, borderTopWidth: 1, borderColor: '#eee' },
-  btn: { flex: 1, padding: 14, borderRadius: 8, alignItems: 'center', marginHorizontal: 6 },
-  btnCancel: { backgroundColor: '#ccc' },
-  btnSubmit: { backgroundColor: '#2E97BE' },
-  btnText: { color: '#fff', fontWeight: 'bold' }
-});

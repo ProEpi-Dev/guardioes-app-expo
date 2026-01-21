@@ -1,9 +1,9 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Quizz } from '../screens/app/QuizzCardScreen';
-import { QuizzInfoScreen } from '../screens/app/QuizInfoScreen';
-import { QuizStackParamList } from '../types/quizz';
+import { Quiz } from '../screens/app/QuizzCardScreen';
+import { QuizInfoScreen } from '../screens/app/QuizInfoScreen';
+import { QuizStackParamList } from '../types/quiz';
 import  ArticleScreen  from '../screens/app/ArticleScreen'
-import { QuizzQuestionsScreen } from '../screens/app/QuizQuestionsScreen';
+import { QuizQuestionsScreen } from '../screens/app/QuizQuestionsScreen';
 import { QuizResultScreen } from '../screens/app/QuizResultScreen';
 
 const Stack = createNativeStackNavigator<QuizStackParamList>();
@@ -13,7 +13,7 @@ export default function QuizStack() {
         <Stack.Navigator>
             <Stack.Screen 
             name="Home"
-            component={Quizz}
+            component={Quiz}
             options={{
                 headerTitle: '',
                 headerTransparent: true,
@@ -22,7 +22,7 @@ export default function QuizStack() {
 
             <Stack.Screen
             name="QuizzInfoScreen"
-            component={QuizzInfoScreen}
+            component={QuizInfoScreen}
             options={({ route }) => ({
                 title: route.params.title,
                 headerShown: true,
@@ -42,7 +42,7 @@ export default function QuizStack() {
 
             <Stack.Screen 
             name="QuizzQuestionsScreen" 
-            component={QuizzQuestionsScreen} 
+            component={QuizQuestionsScreen} 
             options={{ headerShown: false }}
             />
 

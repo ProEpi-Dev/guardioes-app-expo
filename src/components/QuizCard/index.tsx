@@ -1,20 +1,10 @@
 import { Feather } from '@expo/vector-icons';
 import React from 'react';
-import { TouchableOpacity, StyleSheet, View, Text } from 'react-native';
-import { scale } from '../../utils/scalling';
+import { TouchableOpacity, View, Text } from 'react-native';
+import { QuizCardProps } from '../../types/quiz';
+import { styles } from './styles';
 
-interface Props {
-  title: string;
-  active: boolean;
-  score?: number | null;
-  onPress: () => void;
-  isPassed?: boolean;
-  attemptNumber?: number;
-  passingScore?: number | null;
-  maxAttempts?: number | null;
-}
-
-export default function QuizzCard({ title, active, score, attemptNumber, isPassed, passingScore,maxAttempts, onPress }: Props) {
+export default function QuizCard({ title, active, score, attemptNumber, isPassed, passingScore,maxAttempts, onPress }: QuizCardProps) {
   const isCompleted = score !== null && score !== undefined;
   const statusColor = isCompleted 
     ? (isPassed ? '#4CAF50' : '#F44336') 
@@ -65,33 +55,3 @@ export default function QuizzCard({ title, active, score, attemptNumber, isPasse
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 3
-  },
-  title: {
-    fontSize: scale(16),
-    fontWeight: 'bold',
-    marginLeft: 12,
-    marginRight: 12,
-    textAlign: 'justify'
-  },
-  attemptText: {
-    fontSize: scale(10),
-    color: '#666',
-    marginTop: 2
-  },
-  passingScoreText: {
-    fontSize: scale(10),
-    color: '#888',
-    marginTop: 2,
-    fontStyle: 'italic'
-  }
-});

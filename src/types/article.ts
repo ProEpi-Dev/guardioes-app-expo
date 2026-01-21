@@ -11,3 +11,13 @@ export type RootStackParamList = {
   Article: { article: Article };
   Artigo: { article: Article };
 };
+
+export interface ArticleProps {
+  title: string;
+  summary: string;
+  onPress: () => void;
+}
+
+export type ArticleWebViewProps = {
+  content: string;
+};

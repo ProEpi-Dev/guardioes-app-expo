@@ -1,28 +1,13 @@
 import React from 'react';
-import { View, Text, Share, Linking, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, Alert } from 'react-native';
 import { 
   DrawerContentScrollView,
   DrawerItem
 } from '@react-navigation/drawer';
 import Feather from '@expo/vector-icons/Feather';
-import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import { styles } from './styles';
 import translate from '../../locales/i18n';
 import { useAuth } from '../../contexts/AuthContext';
-
-const onShare = async () => {
-  try {
-    const shareOptions = {
-      message: translate('drawer.shareLink'),
-      title: translate('drawer.share'), 
-    };
-    await Share.share(shareOptions);
-
-  } catch (error) {
-    Alert.alert(error.message);
-  }
-};
 
 export default function CustomDrawerContent(props) {
   const { navigation } = props;
@@ -42,7 +27,6 @@ export default function CustomDrawerContent(props) {
           style: 'destructive',
           onPress: async () => {
             await logout();
-            // A navegação será gerenciada automaticamente pelo RootNavigator
           },
         },
       ]

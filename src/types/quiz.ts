@@ -1,7 +1,7 @@
 import { Article } from './article';
 import { FormField } from './form';
 
-export interface Quizzes {
+export interface Quizes {
   id: number;
   active: boolean;
   title: string;
@@ -21,7 +21,7 @@ export interface Quizzes {
   timeLimitMinutes?: number | null;
 }
 
-export interface UserQuizzProgress {
+export interface UserQuizProgress {
   id: number;
   formId: number;
   formVersionId: number;
@@ -54,3 +54,22 @@ export interface LinkedArticle {
   title: string;
   reference: string;
 }
+
+export interface QuizCardProps {
+  title: string;
+  active: boolean;
+  score?: number | null;
+  onPress: () => void;
+  isPassed?: boolean;
+  attemptNumber?: number;
+  passingScore?: number | null;
+  maxAttempts?: number | null;
+}
+
+export interface QuizRouteParams {
+  quizId: number;
+  title: string;
+  timeLimitMinutes?: number | null;
+}
+
+export type QuizStepState = 'answering' | 'feedback';
