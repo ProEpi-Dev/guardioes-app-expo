@@ -6,6 +6,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CardStack from './CardStack';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
+import { TrailCard } from '../screens/app/trail/TrailCard';
+import TrailStack from './TrailStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -44,6 +46,18 @@ export function BottomNavigation() {
                 <MaterialCommunityIcons name="home" size={24} color="black" />
             ),
          }}
+      />
+
+      <Tab.Screen 
+        name="Trilha"
+        component={TrailStack}
+        options={{ 
+            tabBarLabel: 'Trilha',
+            tabBarIcon: () => (
+                <MaterialCommunityIcons name="arrow-decision" size={24} color="black" />
+            ),
+            title: 'Trilhas'
+        }}
       />
 
       <Tab.Screen 
