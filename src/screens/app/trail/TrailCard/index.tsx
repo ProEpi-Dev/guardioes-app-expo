@@ -17,7 +17,7 @@ export default function TrailCard({navigation}: Props) {
         <ArticleCard
             title={item.name}
             summary={item.description}
-            onPress={() => Alert.alert("Funcionou")}
+            onPress={() => navigation.navigate('Accordion', {trail: item})}
         />
     ), [navigation]);
 

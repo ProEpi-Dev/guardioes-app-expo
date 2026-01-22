@@ -1,5 +1,6 @@
 export type RootTrailParamList = {
   Home: undefined;
+  Accordion: {trail: Trail};
 };
 
 export interface Trail {
