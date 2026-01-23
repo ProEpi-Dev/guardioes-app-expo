@@ -3,35 +3,59 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootTrailParamList } from '../types/trail';
 import TrailCard from '../screens/app/trail/TrailCard';
 import TrailContent from '../screens/app/trail/TrailContent';
-import ArticleScreen from '../screens/app/ArticleScreen'; 
+import ArticleScreen from '../screens/app/ArticleScreen';
+import { QuizInfoScreen } from '../screens/app/QuizInfoScreen';
+import { QuizQuestionsScreen } from '../screens/app/QuizQuestionsScreen';
+import { QuizResultScreen } from '../screens/app/QuizResultScreen';
 
 const Stack = createNativeStackNavigator<RootTrailParamList>();
 
 export default function TrailStack() {
     return (
         <Stack.Navigator>
+            {/* ... Suas telas Home, Accordion, Article ... */}
             <Stack.Screen 
                 name="Home" 
                 component={TrailCard} 
                 options={{ title: 'Trilhas' }}
             />
-
             <Stack.Screen
                 name="Accordion"
                 component={TrailContent}
-                options={({ route }) => {
-                    const trail = route.params.trail;
-                    const trailName = Array.isArray(trail) ? trail[0]?.name : trail?.name;
-                    return { title: trailName || 'Detalhes da Trilha' };
-                }}
+                options={({ route }) => ({ title: route.params.trail.name || 'Trilha' })}
             />
-
             <Stack.Screen
                 name="Article"
                 component={ArticleScreen as any}
-                options={({ route }) => ({ 
-                    title: route.params.article?.title || 'Artigo'
+                options={({ route }) => ({ title: route.params.article?.title || 'Artigo' })}
+            />
+
+            {/* --- ADICIONE AS TELAS DE QUIZ ABAIXO --- */}
+            
+            <Stack.Screen
+                name="QuizzInfoScreen"
+                component={QuizInfoScreen as any}
+                options={({ route }) => ({
+                    title: route.params.title,
+                    headerShown: true,
+                    headerBackTitleVisible: false,
+                    headerTintColor: '#000',
+                    headerTitleAlign: 'center',
+                    headerStyle: { backgroundColor: '#F5F5F5' },
+                    headerShadowVisible: false,
                 })}
+            />
+
+            <Stack.Screen 
+                name="QuizzQuestionsScreen" 
+                component={QuizQuestionsScreen as any} 
+                options={{ headerShown: false }}
+            />
+
+            <Stack.Screen 
+                name="QuizResultScreen" 
+                component={QuizResultScreen as any} 
+                options={{ headerShown: false }} 
             />
         </Stack.Navigator>
     );

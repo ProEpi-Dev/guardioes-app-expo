@@ -1,7 +1,22 @@
 export type RootTrailParamList = {
   Home: undefined;
-  Accordion: {trail: Trail};
+  Accordion: { trail: Trail };
   Article: { article: TrailContentData };
+  QuizzInfoScreen: { 
+      quizId: number; 
+      title: string; 
+      currentAttempt: number; 
+      linkedArticle?: any; 
+      maxAttempts?: number | null; 
+      timeLimitMinutes?: number | null; 
+  };
+  QuizzQuestionsScreen: { quizId: number; title: string; timeLimitMinutes?: number | null };
+  QuizResultScreen: {
+    resultData: { score: number; isPassed: boolean };
+    userAnswers: Record<string, any>;
+    questions: any[];
+    title: string;
+  };
 };
 
 export interface Trail {
@@ -41,6 +56,13 @@ export interface Sequence {
   active: boolean;
   content?: TrailContentData | null;
   form?: TrailForm | null;
+  
+  score?: number | null;
+  isPassed?: boolean;
+  attemptNumber?: number;
+  passingScore?: number | null;
+  maxAttempts?: number | null;
+  timeLimitMinutes?: number | null;
 }
 
 export interface TrailContentData {
