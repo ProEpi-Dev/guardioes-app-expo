@@ -70,7 +70,8 @@ export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
   Register: undefined;
-  Home: undefined; // O DrawerNavigator é tratado como uma tela única aqui
+  FinishProfile: undefined;
+  Home: undefined;
 };
 
 export interface RegisterData {

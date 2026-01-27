@@ -6,6 +6,7 @@ import DrawerNavigator from './DrawerNavigator';
 import { useAuth } from '../contexts/AuthContext';
 import { Register } from '../screens/auth/Register'
 import { RootStackParamList } from '../types/auth';
+import { FinishProfile } from '../screens/auth/FinishProfile';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -22,6 +23,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Welcome" component={Welcome} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
+      <Stack.Screen name="FinishProfile" component={FinishProfile} />
       <Stack.Screen name="Home" component={DrawerNavigator} />
     </Stack.Navigator>
   );
