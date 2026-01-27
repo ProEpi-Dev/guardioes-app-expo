@@ -27,6 +27,10 @@ export default function CustomDrawerContent(props) {
           style: 'destructive',
           onPress: async () => {
             await logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Welcome' }],
+            });
           },
         },
       ]

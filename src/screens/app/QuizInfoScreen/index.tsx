@@ -43,22 +43,24 @@ export function QuizInfoScreen() {
       </View>
 
       <View style={styles.footer}>
-        <TouchableOpacity 
-          style={[styles.secondaryButton, !linkedArticle && styles.disabledButton]} 
-          onPress={handleGoToContent}
-          disabled={loadingContent || !linkedArticle}
-        >
-          {loadingContent ? (
-             <ActivityIndicator color="#0000ff" />
-          ) : (
-             <>
-               <Feather name="book-open" size={20} color={linkedArticle ? "#0000ff" : "#999"} />
-               <Text style={[styles.secondaryButtonText, !linkedArticle && { color: '#999' }]}>
-                 {linkedArticle ? 'Revisar Conteúdo' : 'Sem Conteúdo'}
-               </Text>
-             </>
-          )}
-        </TouchableOpacity>
+        {linkedArticle && (
+          <TouchableOpacity 
+            style={styles.secondaryButton} 
+            onPress={handleGoToContent}
+            disabled={loadingContent}
+          >
+            {loadingContent ? (
+              <ActivityIndicator color="#0000ff" />
+            ) : (
+              <>
+                <Feather name="book-open" size={20} color="#0000ff" />
+                <Text style={styles.secondaryButtonText}>
+                  Revisar Conteúdo
+                </Text>
+              </>
+            )}
+          </TouchableOpacity>
+        )}
 
         <TouchableOpacity style={styles.primaryButton} onPress={handleStartQuiz}>
           <Text style={styles.primaryButtonText}>Iniciar Quiz</Text>
