@@ -32,7 +32,7 @@ export const FormSeparator = styled(View)`
     width: 100%;
     align-items: center;
     justify-content: center;
-    margin-top: 5%;
+    margin-top: 0%;
 `
 
 export const SnowInput = styled(TextInput).attrs({
