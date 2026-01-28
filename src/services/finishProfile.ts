@@ -9,6 +9,11 @@ interface ProfileStatus {
   };
 }
 
+export interface UserBasicInfo {
+  name: string;
+  email: string;
+}
+
 export const getProfileStatus = async (): Promise<ProfileStatus | null> => {
   try {
     const response = await apiClient('/v1/users/me/profile-status', { method: 'GET' }) as any;
@@ -44,3 +49,13 @@ export const updateUserProfile = async (payload: { genderId: number, locationId:
     }
   });
 };
+
+export const getNameEmail = async (id: number | string): Promise<UserBasicInfo> => {
+  const response: any = await apiClient(`/v1/users/${id}`, { method: 'GET' });
+  const userData = response.data || response;
+
+  return {
+    name: userData.name,
+    email: userData.email
+  };
+}

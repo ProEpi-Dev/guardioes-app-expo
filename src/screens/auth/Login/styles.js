@@ -13,7 +13,7 @@ export const PageTitle = styled.Text`
     font-size: ${scale(21)}px;
     color: #ffffff;
     margin-top: 5%;
-    margin-bottom: 0%;
+    margin-bottom: 3%;
     text-align: center;
 `
 

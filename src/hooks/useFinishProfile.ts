@@ -2,15 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { DropdownOption } from '../types/finishProfile';
-import { getGenders, getLocations, getProfileStatus, updateUserProfile } from '../services/finishProfile';
+import { getGenders, getLocations, getNameEmail, getProfileStatus, updateUserProfile } from '../services/finishProfile';
+import { useParticipation } from '../contexts/ParticipationContext';
 
 export const useFinishProfile = () => {
+  const { participationId } = useParticipation();
   const navigation = useNavigation<any>();
 
   // Estados do Formulário
   const [selectedGenderId, setSelectedGenderId] = useState<number | null>(null);
   const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
   const [externalIdentifier, setExternalIdentifier] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   
   // Dados das Listas (Formatados)
   const [genders, setGenders] = useState<DropdownOption[]>([]);
@@ -32,6 +36,11 @@ export const useFinishProfile = () => {
 
       // 1. Verificar Status do Perfil
       const statusData = await getProfileStatus();
+      if (participationId) {
+          const {name, email} = await getNameEmail(participationId);
+          setName(name);
+          setEmail(email);
+      }
 
       if (statusData?.isComplete) {
         navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
@@ -111,6 +120,8 @@ export const useFinishProfile = () => {
     isSubmitting,
     handleSubmit,
     identifierInputRef,
-    navigation
+    navigation,
+    name,
+    email
   };
 };

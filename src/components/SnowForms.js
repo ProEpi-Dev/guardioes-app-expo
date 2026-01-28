@@ -172,3 +172,28 @@ export const CustomSelector = ({ data, initValue, onChange, placeholder }) => {
         </>
     );
 };
+
+export const UserInfoCard = styled.View`
+    background-color: #fff; /* Troquei backgroundColor e a vírgula */
+    width: 80%;
+    padding-vertical: ${scale(17)}px; /* paddingVertical funciona no styled-components/native, mas precisa de ; */
+    align-items: center;
+    justify-content: center;
+    border-radius: ${scale(15)}px;
+    elevation: 4;
+    shadow-color: #000;
+    shadow-offset: 0px 2px;
+    shadow-opacity: 0.2;
+    shadow-radius: 4px;
+`;
+
+export const UserName = styled.Text`
+    font-size: ${scale(16)}px;
+    font-weight: bold;
+    color: #333;
+`;
+
+export const UserEmail = styled.Text`
+    font-size: ${scale(14)}px;
+    color: #666;
+`;

@@ -11,7 +11,10 @@ import {
   Label, 
   SnowButton, 
   SnowInput, 
-  Touch 
+  Touch, 
+  UserEmail, 
+  UserInfoCard,
+  UserName
 } from '../../../components/SnowForms';
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
@@ -37,7 +40,9 @@ export function FinishProfile() {
     isSubmitting,
     handleSubmit,
     identifierInputRef,
-    navigation
+    navigation,
+    name,
+    email
   } = useFinishProfile();
 
   const LogoType = translate('lang.code') === 'es' ? GDSLogoES : GDSLogoBR;
@@ -60,9 +65,15 @@ export function FinishProfile() {
       <GradientBackground colors={[azul, verde]}>
         <KeyboardScrollView>
           <Logo source={LogoType} />
-          <PageTitle>{translate('register.title')}</PageTitle> 
+          <PageTitle>{translate('Finalizar Perfil')}</PageTitle> 
 
           <FormSeparator>
+
+            <UserInfoCard>
+              <UserName>{name}</UserName>
+              <UserEmail>{email}</UserEmail>
+            </UserInfoCard>
+
             <CustomSelector
               data={genders}
               placeholder="Selecione o Gênero"
