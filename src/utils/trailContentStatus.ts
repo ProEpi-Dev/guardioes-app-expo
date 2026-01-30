@@ -19,11 +19,11 @@ export const getItemStatus = (seq: Sequence): ItemStatus => {
 export const getItemTheme = (status: ItemStatus): TimelineTheme => {
   switch (status) {
     case 'completed':
-      return { color: '#4CAF50', bg: '#4CAF50', borderColor: '#4CAF50', icon: 'check', lightColor: '#4CAF50' };
+      return { color: '#3b82f6', bg: '#3b82f6', borderColor: '#3b82f6', icon: 'check', lightColor: '#4CAF50' };
     case 'failed':
-      return { color: '#F44336', bg: '#F44336', borderColor: '#F44336', icon: 'x', lightColor: '#F44336' };
+      return { color: '#3b82f6', bg: '#3b82f6', borderColor: '#3b82f6', icon: 'x', lightColor: '#F44336' };
     case 'current':
-      return { color: '#3b82f6', bg: '#3b82f6', borderColor: '#3b82f6', icon: 'unlock', lightColor: '#3b82f6' }; 
+      return { color: '#000', bg: '#fff', borderColor: '#000', icon: 'unlock', lightColor: '#000' }; 
     case 'locked':
     default:
       return { color: '#9ca3af', bg: '#e5e7eb', borderColor: '#d1d5db', icon: 'lock', lightColor: '#9ca3af' };

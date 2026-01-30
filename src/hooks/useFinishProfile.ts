@@ -27,12 +27,16 @@ export const useFinishProfile = () => {
   const identifierInputRef = useRef<any>(null);
 
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    if (participationId) {
+       loadInitialData();
+    }
+  }, [participationId]);
 
   const loadInitialData = async () => {
     try {
       setIsLoading(true);
+      setName('');
+      setEmail('');
 
       // 1. Verificar Status do Perfil
       const statusData = await getProfileStatus();

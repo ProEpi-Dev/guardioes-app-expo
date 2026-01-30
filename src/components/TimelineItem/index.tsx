@@ -13,6 +13,14 @@ interface Props {
   onPressArticle: (content: any) => void;
 }
 
+const iconColors: Record<string, string> = {
+  locked: '#000',
+  current: '#000',
+  completed: '#fff',
+  failed: '#fff',
+  default: '#fff'
+};
+
 export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, onPressArticle }) => {
   const status = getItemStatus(seq);
   const theme = getItemTheme(status);
@@ -36,7 +44,7 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
       <View style={styles.timelineContainer}>
         {!isLastItem && <View style={styles.verticalLine} />}
         <View style={[styles.nodeCircle, { backgroundColor: theme.bg, borderColor: theme.borderColor }]}>
-            <Feather name={theme.icon as any} size={14} color={status === 'locked' ? '#6b7280' : '#FFF'} />
+            <Feather name={theme.icon as any} size={14} color={iconColors[status] || iconColors.default} />
         </View>
       </View>
 
@@ -60,15 +68,6 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
                 </Text>
               )}
             </View>
-
-            {(seq.attemptNumber !== undefined || seq.maxAttempts) && (
-               <Text style={[
-                 styles.metaTextSmall, 
-                 status === 'failed' && { color: '#F44336', fontWeight: 'bold' }
-               ]}>
-                 Tentativa: {seq.attemptNumber || 0} {seq.maxAttempts ? `/ ${seq.maxAttempts}` : ''}
-               </Text>
-            )}
           </View>
         )}
       </View>
