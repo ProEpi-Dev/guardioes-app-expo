@@ -3,18 +3,35 @@ import { ItemStatus, TimelineTheme } from "../types/trailContent";
 
 
 export const getItemStatus = (seq: Sequence): ItemStatus => {
-  if (!seq.active) return 'locked';
-  
-  if (seq.form) {
-    if (seq.isPassed) return 'completed';
-    if (seq.maxAttempts && seq.attemptNumber && seq.attemptNumber >= seq.maxAttempts) {
-      return 'failed';
-    }
+  // 1. Bloqueado
+  if (seq.isLocked || !seq.active) {
+    return 'locked';
+  }
+
+  // 2. Concluído
+  if (seq.progressStatus === 'completed' || seq.isPassed) {
+    return 'completed';
+  }
+
+  // 3. Formulário estourou tentativas
+  if (
+    seq.form &&
+    seq.maxAttempts != null &&
+    seq.attemptNumber != null &&
+    seq.attemptNumber >= seq.maxAttempts
+  ) {
+    return 'failed';
+  }
+
+  // 4. Item disponível
+  if (seq.form || seq.content) {
     return 'current';
   }
 
-  return seq.content ? 'current' : 'locked';
+  // 5. Fallback
+  return 'locked';
 };
+
 
 export const getItemTheme = (status: ItemStatus): TimelineTheme => {
   switch (status) {

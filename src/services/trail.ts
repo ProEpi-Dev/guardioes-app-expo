@@ -1,5 +1,5 @@
 import { apiClient } from '../utils/api';
-import { TrackCycle } from '../types/trail';
+import { Section, TrackCycle } from '../types/trail';
 import { getQuizDetails, getUserSubmissions } from './quiz';
 
 export const getTrackCycles = async (): Promise<TrackCycle[]> => {
@@ -64,4 +64,41 @@ export const enrichTrailWithProgress = async (trailData: any, participationId: n
   });
 
   return Promise.all(sectionsPromises);
+};
+
+export const getTrackProgress = async (participationId: number, cycleId: number) => {
+    // Retorna qualquer resposta (pode ser 1, null, ou objeto)
+    return await apiClient(`/v1/track-progress/participation/${participationId}/cycle/${cycleId}`, { method: 'GET' });
+};
+
+export const startTrackProgress = async (participationId: number, trackCycleId: number) => {
+    return await apiClient('/v1/track-progress/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participationId, trackCycleId })
+    });
+};
+
+// NOVA FUNÇÃO: Combina a trilha completa (cycleDetails) com o progresso (progressData)
+export const mergeTrailWithProgress = (trailFullData: any, progressData: any): Section[] => {
+    // Se não tiver a estrutura da trilha, retorna vazio
+    if (!trailFullData || !trailFullData.section) return [];
+
+    const lockedMap = progressData?.sequence_locked || {};
+    const progressList = progressData?.sequence_progress || [];
+
+    // Mapeia usando a trilha COMPLETA (que tem os títulos) como base
+    return trailFullData.section.map((section: any) => ({
+        ...section,
+        sequence: (section.sequence || []).map((seq: any) => {
+            const isLocked = lockedMap[String(seq.id)];
+            const progressItem = progressList.find((p: any) => p.sequence_id === seq.id);
+            
+            return {
+                ...seq, // Mantém títulos, ids, form, content originais da trilha
+                isLocked: isLocked !== undefined ? isLocked : true,
+                progressStatus: progressItem?.status || 'not_started',
+            };
+        })
+    }));
 };

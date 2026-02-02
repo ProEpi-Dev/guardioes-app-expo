@@ -63,6 +63,8 @@ export interface Sequence {
   passingScore?: number | null;
   maxAttempts?: number | null;
   timeLimitMinutes?: number | null;
+  isLocked?: boolean;
+  progressStatus?: 'not_started' | 'in_progress' | 'completed';
 }
 
 export interface TrailContentData {
