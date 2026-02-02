@@ -27,6 +27,9 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
   const title = seq.form?.title || seq.content?.title || 'Conteúdo desconhecido';
   const isQuiz = !!seq.form;
 
+  const hasScore = seq.score !== null && seq.score !== undefined;
+  const hasPassingScore = seq.passingScore !== null && seq.passingScore !== undefined;
+
   const handlePress = () => {
     if (status === 'locked') return;
     if (seq.form) onPressQuiz(seq);
@@ -58,11 +61,14 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
         {isQuiz && status !== 'locked' && (
           <View style={styles.metaContainer}>
             <View style={styles.metaRow}>
+              
+              {/* Exibe Score: Se tiver nota mostra a nota, senão mostra traço (mas sempre exibe o /100) */}
               <Text style={[styles.metaTextBold, { color: theme.lightColor }]}>
-                 {seq.score !== null && seq.score !== undefined ? `${seq.score}/100` : '- /100'}
+                 {hasScore ? `${seq.score}/100` : '- /100'}
               </Text>
               
-              {seq.passingScore !== null && seq.passingScore !== undefined && (
+              {/* Exibe Mínimo: Apenas se passingScore existir */}
+              {hasPassingScore && (
                 <Text style={styles.metaTextSmall}>
                    (Mín: {seq.passingScore})
                 </Text>

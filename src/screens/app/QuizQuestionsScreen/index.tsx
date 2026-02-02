@@ -14,7 +14,9 @@ import { FeedbackBanner } from '../../../components/FeedbackBanner';
 
 export function QuizQuestionsScreen() {
   const route = useRoute();
-  const { quizId, timeLimitMinutes, title } = route.params as QuizRouteParams;
+  
+  // 1. Pegamos os IDs da rota aqui. Eles já existem neste escopo.
+  const { quizId, timeLimitMinutes, title, trackProgressId, sequenceId } = route.params as QuizRouteParams;
   const { participationId } = useParticipation();
 
   const {
@@ -29,7 +31,16 @@ export function QuizQuestionsScreen() {
     currentResponse,
     handleAnswerChange,
     handleAction
-  } = useQuizSession({ quizId, timeLimitMinutes, participationId, title });
+    // REMOVIDO: trackProgressId e sequenceId não devem ser extraídos daqui
+  } = useQuizSession({ 
+      quizId, 
+      timeLimitMinutes, 
+      participationId, 
+      title,
+      // ADICIONADO: Passamos os IDs para o hook usar na lógica de envio
+      trackProgressId, 
+      sequenceId 
+  });
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

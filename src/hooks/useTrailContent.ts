@@ -3,14 +3,16 @@ import { useFocusEffect } from '@react-navigation/native';
 import { 
   getTrackProgress, 
   startTrackProgress, 
-  getTrackCycleDetails, // Certifique-se de importar este
-  mergeTrailWithProgress // E a nova função de merge
+  getTrackCycleDetails,
+  mergeTrailWithProgress 
 } from '../services/trail';
+import { getUserSubmissions } from '../services/quiz';
 
 export const useTrailContent = (cycleId: number, participationId: number | null) => {
   const [enrichedSections, setEnrichedSections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [trailData, setTrailData] = useState<any>(null);
+  const [trackProgressId, setTrackProgressId] = useState<number | null>(null);
 
   const loadContent = useCallback(async () => {
     if (!cycleId || !participationId) return;
@@ -18,26 +20,21 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
     setLoading(true);
 
     try {
-      // 1. Busca Detalhes (Títulos) e Progresso (Status) em paralelo
-      const [cycleResponse, progressResponse] = await Promise.all([
+      const [cycleResponse, progressResponse, submissionsResponse] = await Promise.all([
         getTrackCycleDetails(cycleId),
-        getTrackProgress(participationId, cycleId)
+        getTrackProgress(participationId, cycleId),
+        getUserSubmissions(participationId)
       ]);
 
-      // Garante que pegamos os dados corretos (tratando Axios response se necessário)
-      const cycleDetails = cycleResponse; // getTrackCycleDetails já retorna o objeto tratado
+      const cycleDetails = cycleResponse;
       let currentProgress: any = (progressResponse as any)?.data || progressResponse;
+      const userSubmissions = Array.isArray(submissionsResponse) ? submissionsResponse : [];
 
-      // 2. Verifica se o progresso existe (se for 1, null ou sem track_cycle)
       const hasNoProgress = !currentProgress || currentProgress === 1 || !currentProgress.track_cycle;
 
       if (hasNoProgress) {
-        console.log('Progresso não iniciado. Iniciando...');
         try {
-          // Inicia o progresso
           await startTrackProgress(participationId, cycleId);
-          
-          // Busca o progresso recém-criado
           const newProgressResponse: any = await getTrackProgress(participationId, cycleId);
           currentProgress = newProgressResponse?.data || newProgressResponse;
         } catch (err) {
@@ -45,12 +42,12 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
         }
       }
 
-      // 3. Faz o Merge: Usa a estrutura rica do CycleDetails + Status do Progress
       if (cycleDetails && cycleDetails.track && currentProgress) {
-        const sections = mergeTrailWithProgress(cycleDetails.track, currentProgress);
+        const sections = mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
         
         setEnrichedSections(sections);
         setTrailData(cycleDetails.track);
+        setTrackProgressId(currentProgress.id);
       }
 
     } catch (e) {
@@ -69,6 +66,7 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
   return {
     trailData,
     enrichedSections,
-    loading
+    loading,
+    trackProgressId
   };
 };

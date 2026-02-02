@@ -14,7 +14,8 @@ export function QuizInfoScreen() {
     linkedArticle,
     loadingContent,
     handleStartQuiz,
-    handleGoToContent
+    handleGoToContent,
+    passingScore
   } = useQuizInfo();
 
   return (
@@ -28,6 +29,9 @@ export function QuizInfoScreen() {
           - Este quiz contém perguntas de múltipla escolha.
           {'\n'}- O objetivo é testar seus conhecimentos sobre "{title}".
           {'\n'}- Leia atentamente cada questão antes de responder.
+          {passingScore !== undefined && passingScore !== null 
+            ? `\n- Nota mínima para aprovação: ${passingScore} pontos.` 
+            : ''}
           {'\n'}- Ao finalizar, sua nota será calculada automaticamente.
           {timeLimitMinutes ? `\n- Tempo limite: ${timeLimitMinutes} minutos.` : ''}
         </Text>
@@ -38,7 +42,9 @@ export function QuizInfoScreen() {
         <Text style={styles.attemptLabel}>Você está iniciando a</Text>
         <Text style={styles.attemptNumber}>{currentAttempt}ª Tentativa</Text>
         <Text style={styles.attemptSub}>
-          {maxAttempts ? `de ${maxAttempts} tentativas permitidas` : 'Tentativas ilimitadas'}
+          {maxAttempts && maxAttempts > 0 
+            ? `de ${maxAttempts} tentativas permitidas` 
+            : 'Tentativas ilimitadas'}
         </Text>
       </View>
 

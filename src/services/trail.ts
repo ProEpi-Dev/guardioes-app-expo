@@ -67,7 +67,6 @@ export const enrichTrailWithProgress = async (trailData: any, participationId: n
 };
 
 export const getTrackProgress = async (participationId: number, cycleId: number) => {
-    // Retorna qualquer resposta (pode ser 1, null, ou objeto)
     return await apiClient(`/v1/track-progress/participation/${participationId}/cycle/${cycleId}`, { method: 'GET' });
 };
 
@@ -79,25 +78,76 @@ export const startTrackProgress = async (participationId: number, trackCycleId: 
     });
 };
 
-// NOVA FUNÇÃO: Combina a trilha completa (cycleDetails) com o progresso (progressData)
-export const mergeTrailWithProgress = (trailFullData: any, progressData: any): Section[] => {
-    // Se não tiver a estrutura da trilha, retorna vazio
+// Atualiza status e contadores (PUT)
+export const updateSequenceProgress = async (trackProgressId: number, sequenceId: number, data: { status?: string, timeSpentSeconds?: number, visits_count?: number }) => {
+    return await apiClient(`/v1/track-progress/${trackProgressId}/sequence/${sequenceId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    });
+};
+
+// Marca conteúdo como completo (POST)
+export const completeContentSequence = async (trackProgressId: number, sequenceId: number) => {
+    return await apiClient(`/v1/track-progress/${trackProgressId}/sequence/${sequenceId}/complete-content`, {
+        method: 'POST'
+    });
+};
+
+// Marca quiz como completo (POST)
+export const completeQuizSequence = async (trackProgressId: number, sequenceId: number, quizSubmissionId: number) => {
+    return await apiClient(`/v1/track-progress/${trackProgressId}/sequence/${sequenceId}/complete-quiz`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quizSubmissionId })
+    });
+};
+
+export const mergeTrailWithProgress = (trailFullData: any, progressData: any, submissions: any[] = []): Section[] => {
     if (!trailFullData || !trailFullData.section) return [];
 
     const lockedMap = progressData?.sequence_locked || {};
     const progressList = progressData?.sequence_progress || [];
 
-    // Mapeia usando a trilha COMPLETA (que tem os títulos) como base
     return trailFullData.section.map((section: any) => ({
         ...section,
         sequence: (section.sequence || []).map((seq: any) => {
             const isLocked = lockedMap[String(seq.id)];
             const progressItem = progressList.find((p: any) => p.sequence_id === seq.id);
             
+            // Extração de Configurações do Quiz
+            const formObj = seq.form || {};
+            const versionObj = formObj.latestVersion || {};
+
+            const passingScore = versionObj.passingScore ?? formObj.passingScore ?? null;
+            const maxAttempts = versionObj.maxAttempts ?? formObj.maxAttempts ?? null;
+            const timeLimitMinutes = versionObj.timeLimitMinutes ?? formObj.timeLimitMinutes ?? null;
+
+            // Busca a nota real nas submissões
+            let realScore = null;
+            if (seq.form) {
+                // Encontra a melhor/última submissão para este formulário
+                const quizSub = submissions
+                    .filter((s: any) => s.formVersion?.form?.id === seq.form.id)
+                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+                
+                if (quizSub) {
+                    realScore = quizSub.score;
+                }
+            }
+
             return {
-                ...seq, // Mantém títulos, ids, form, content originais da trilha
+                ...seq,
                 isLocked: isLocked !== undefined ? isLocked : true,
                 progressStatus: progressItem?.status || 'not_started',
+                
+                score: realScore ?? progressItem?.score, 
+                isPassed: progressItem?.is_passed || (progressItem?.status === 'completed' && !!seq.form),
+                attemptNumber: progressItem?.attempt_number || 0,
+                
+                passingScore,
+                maxAttempts,
+                timeLimitMinutes,
             };
         })
     }));

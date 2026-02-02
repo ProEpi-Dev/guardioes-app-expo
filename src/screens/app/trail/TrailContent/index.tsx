@@ -14,8 +14,12 @@ type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
 export default function TrailContent({ route }: Props) {
   const { participationId } = useParticipation();
-  const { trailData, enrichedSections, loading } = useTrailContent(route.params?.cycleId, participationId);
-  const { handleQuizPress, handleArticlePress } = useTrailNavigation();
+  const { trailData, enrichedSections, loading, trackProgressId  } = useTrailContent(route.params?.cycleId, participationId);
+  const { handleQuizPress, handleArticlePress, loading: navLoading } = useTrailNavigation();
+  
+  if (loading || navLoading) {
+    return <View style={styles.center}><ActivityIndicator size="large" color="#0000ff" /></View>;
+  }
   
   if (!trailData) {
     return <View style={styles.center}><Text>Trilha não encontrada</Text></View>;
@@ -36,26 +40,22 @@ export default function TrailContent({ route }: Props) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {sectionsToRender.map((sectionItem: any) => (
           <View key={sectionItem.id} style={styles.sectionContainer}>
-            
-            {/* Cabeçalho da Seção */}
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>{sectionItem.name}</Text>
               <View style={styles.sectionDivider} />
             </View>
             
-            {/* Lista de Itens */}
             <View style={styles.sectionBody}>
               {(sectionItem.sequence || []).map((seq: any, index: number) => (
                 <TimelineItem 
                   key={seq.id}
                   seq={seq}
                   isLastItem={index === (sectionItem.sequence || []).length - 1}
-                  onPressQuiz={handleQuizPress}
-                  onPressArticle={handleArticlePress}
+                  onPressQuiz={() => handleQuizPress(seq, trackProgressId)}
+                  onPressArticle={() => handleArticlePress(seq.content, trackProgressId, seq.id)}
                 />
               ))}
             </View>
-
           </View>
         ))}
       </ScrollView>

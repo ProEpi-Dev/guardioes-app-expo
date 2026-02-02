@@ -16,7 +16,10 @@ export const useQuizInfo = () => {
     currentAttempt, 
     linkedArticle, 
     maxAttempts, 
-    timeLimitMinutes 
+    timeLimitMinutes,
+    trackProgressId,
+    sequenceId,
+    passingScore
   } = route.params;
 
   const [loadingContent, setLoadingContent] = useState(false);
@@ -25,7 +28,9 @@ export const useQuizInfo = () => {
     navigation.navigate('QuizzQuestionsScreen', { 
       quizId, 
       title, 
-      timeLimitMinutes 
+      timeLimitMinutes,
+      trackProgressId,
+      sequenceId
     });
   };
 
@@ -61,6 +66,7 @@ export const useQuizInfo = () => {
     linkedArticle,
     loadingContent,
     handleStartQuiz,
-    handleGoToContent
+    handleGoToContent,
+    passingScore
   };
 };

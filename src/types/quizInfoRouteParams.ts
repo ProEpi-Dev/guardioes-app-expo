@@ -7,4 +7,7 @@ export interface QuizInfoRouteParams {
   linkedArticle?: LinkedArticle | null;
   maxAttempts?: number | null;
   timeLimitMinutes?: number | null;
+  trackProgressId?: number;
+  sequenceId?: number;
+  passingScore?: number | null;
 }

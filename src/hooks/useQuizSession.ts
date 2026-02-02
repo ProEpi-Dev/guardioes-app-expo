@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FormField } from '../types/form';
 import { QuizStepState } from '../types/quiz';
 import { getQuizDetails, submitQuizAttempt } from '../services/quiz';
+import { completeQuizSequence } from '../services/trail';
 
 
 interface UseQuizSessionProps {
@@ -11,9 +12,11 @@ interface UseQuizSessionProps {
   timeLimitMinutes?: number | null;
   participationId: number | null;
   title: string;
+  trackProgressId?: number;
+  sequenceId?: number;
 }
 
-export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, title }: UseQuizSessionProps) => {
+export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, title, trackProgressId, sequenceId }: UseQuizSessionProps) => {
   const navigation = useNavigation<any>();
   
   const [loading, setLoading] = useState(true);
@@ -126,6 +129,14 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
       };
 
       const result = await submitQuizAttempt(payload);
+
+      if (result.isPassed && trackProgressId && sequenceId) {
+         try {
+           await completeQuizSequence(trackProgressId, sequenceId, result.id);
+         } catch (seqError) {
+           console.error("Erro ao vincular progresso na trilha", seqError);
+         }
+      }
 
       navigation.replace('QuizResultScreen', {
         resultData: { score: result.score, isPassed: result.isPassed },
