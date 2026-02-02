@@ -1,36 +1,56 @@
 import { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { enrichTrailWithProgress } from '../services/trail';
+import { enrichTrailWithProgress, getTrackCycleDetails } from '../services/trail';
 
-export const useTrailContent = (rawTrail: any, participationId: number | null) => {
-  const trailData = Array.isArray(rawTrail) ? rawTrail[0] : rawTrail;
-  
+export const useTrailContent = (cycleId: number, participationId: number | null) => {
+  const [trailData, setTrailData] = useState<any>(null);
   const [enrichedSections, setEnrichedSections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchProgress = useCallback(async () => {
-    if (!trailData) return;
-
-    if (!participationId) {
-      setEnrichedSections(trailData.section || []);
-      setLoading(false);
-      return;
-    }
+  const fetchDataAndProgress = useCallback(async () => {
+    if (!cycleId) return;
+    
+    setLoading(true);
 
     try {
-      const sections = await enrichTrailWithProgress(trailData, participationId);
-      setEnrichedSections(sections);
+      // 1. Busca os detalhes do ciclo (que inclui sections)
+      const cycleDetail = await getTrackCycleDetails(cycleId);
+      
+      if (!cycleDetail || !cycleDetail.track) {
+        setLoading(false);
+        return;
+      }
+
+      const currentTrailData = cycleDetail.track;
+      setTrailData(currentTrailData);
+
+      // 2. Se não tiver participação, retorna as seções cruas
+      if (!participationId) {
+        setEnrichedSections(currentTrailData.section || []);
+        setLoading(false);
+        return;
+      }
+
+      // 3. Se tiver participação, enriquece com o progresso
+      try {
+        const sections = await enrichTrailWithProgress(currentTrailData, participationId);
+        setEnrichedSections(sections);
+      } catch (error) {
+        console.error("Erro ao enriquecer progresso", error);
+        setEnrichedSections(currentTrailData.section || []);
+      }
+
     } catch (error) {
-      setEnrichedSections(trailData.section || []);
+      console.error("Erro geral no useTrailContent", error);
     } finally {
       setLoading(false);
     }
-  }, [trailData, participationId]);
+  }, [cycleId, participationId]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchProgress();
-    }, [fetchProgress])
+      fetchDataAndProgress();
+    }, [fetchDataAndProgress])
   );
 
   return {

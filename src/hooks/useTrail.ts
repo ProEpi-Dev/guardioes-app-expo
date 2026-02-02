@@ -1,40 +1,48 @@
 import { useCallback, useEffect, useState } from "react"
-import { Trail } from "../types/trail"
-import { getTrails } from "../services/trail";
+import { TrackCycle } from "../types/trail"
+import { getTrackCycles } from "../services/trail";
+import { useParticipation } from "../contexts/ParticipationContext";
 
 export const useTrails = () => {
-    const [trails, setTrails] = useState<Trail[]>([]);
+    const { contextId } = useParticipation();
+    const [cycles, setCycles] = useState<TrackCycle[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const fetchTrails = useCallback(async (isRefresh = false) => {
+    const fetchCycles = useCallback(async (isRefresh = false) => {
         try{
             if (isRefresh) setIsRefreshing(true);
             else setIsLoading(true);
 
             setError(null);
-            const data = await getTrails();
-            setTrails(data);
+            
+            const data = await getTrackCycles();
+            
+            const filteredData = contextId 
+                ? data.filter(cycle => cycle.context_id === contextId)
+                : [];
+
+            setCycles(filteredData);
         } catch (err) {
-            setError('Não foi possível carregar as trilhas.');
+            setError('Não foi possível carregar os ciclos de trilha.');
             console.error(err);
         } finally {
             setIsLoading(false);
             setIsRefreshing(false);
         }
-    }, []);
+    }, [contextId]);
 
     useEffect(() => {
-        fetchTrails();
-    }, [fetchTrails]);
+        fetchCycles();
+    }, [fetchCycles]);
 
     const handleRefresh = () => {
-        fetchTrails(true); 
+        fetchCycles(true); 
     };
 
     return {
-        trails,
+        cycles,
         isLoading,
         isRefreshing,
         error,

@@ -1,15 +1,23 @@
 import { apiClient } from '../utils/api';
-import { Trail } from '../types/trail';
+import { TrackCycle } from '../types/trail';
 import { getQuizDetails, getUserSubmissions } from './quiz';
 
-export const getTrails = async (): Promise<Trail[]> => {
-  const response = await apiClient('/v1/tracks', { method: 'GET' }) as any;
-
-    if (Array.isArray(response)) {
+export const getTrackCycles = async (): Promise<TrackCycle[]> => {
+  const response = await apiClient('/v1/track-cycles', { method: 'GET' }) as any;
+  if (Array.isArray(response)) {
     return response;
   }
-
   return [];
+};
+
+export const getTrackCycleDetails = async (id: number): Promise<TrackCycle | null> => {
+  try {
+    const response = await apiClient(`/v1/track-cycles/${id}`, { method: 'GET' }) as any;
+    return response;
+  } catch (error) {
+    console.error('Erro ao buscar detalhes do ciclo', error);
+    return null;
+  }
 };
 
 export const enrichTrailWithProgress = async (trailData: any, participationId: number) => {

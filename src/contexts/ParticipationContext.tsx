@@ -4,6 +4,7 @@ import { apiClient } from '../utils/api';
 
 interface ParticipationContextData {
   participationId: number | null;
+  contextId: number | null;
   loadingParticipation: boolean;
 }
 
@@ -12,6 +13,7 @@ const ParticipationContext = createContext<ParticipationContextData>({} as Parti
 export function ParticipationProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [participationId, setParticipationId] = useState<number | null>(null);
+  const [contextId, setContextId] = useState<number | null>(null);
   const [loadingParticipation, setLoading] = useState(false);
 
   useEffect(() => {
@@ -61,6 +63,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
         }
 
         let foundParticipationId: number | null = null;
+        let foundContextId: number | null = null;
         page = 1;
         let hasMorePart = true;
 
@@ -80,6 +83,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
 
             if (myParticipation) {
               foundParticipationId = myParticipation.id;
+              foundContextId = myParticipation.contextId;
             } else {
               if (partList.length < PAGE_SIZE) {
                 hasMorePart = false;
@@ -94,6 +98,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
 
         if (foundParticipationId) {
           setParticipationId(foundParticipationId);
+          setContextId(foundContextId);
         } else {
         }
 
@@ -108,7 +113,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
   }, [user]);
 
   return (
-    <ParticipationContext.Provider value={{ participationId, loadingParticipation }}>
+    <ParticipationContext.Provider value={{ participationId, contextId, loadingParticipation }}>
       {children}
     </ParticipationContext.Provider>
   );

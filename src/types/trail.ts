@@ -1,6 +1,6 @@
 export type RootTrailParamList = {
   Home: undefined;
-  Accordion: { trail: Trail };
+  Accordion: { cycleId: number; title: string };
   Article: { article: TrailContentData };
   QuizzInfoScreen: { 
       quizId: number; 
@@ -90,4 +90,17 @@ export interface TrailForm {
   createdAt: string;
   updatedAt: string;
   active: boolean;
+}
+
+export interface TrackCycle {
+  id: number;
+  track_id: number;
+  context_id: number;
+  name: string;
+  description: string | null;
+  status: string;
+  start_date: string;
+  end_date: string;
+  active: boolean;
+  track: Trail;
 }

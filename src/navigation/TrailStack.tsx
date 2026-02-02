@@ -22,7 +22,7 @@ export default function TrailStack() {
             <Stack.Screen
                 name="Accordion"
                 component={TrailContent}
-                options={({ route }) => ({ title: route.params.trail.name || 'Trilha' })}
+                options={({ route }) => ({ title: route.params.title || 'Trilha' })}
             />
             <Stack.Screen
                 name="Article"

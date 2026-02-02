@@ -14,7 +14,7 @@ type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
 export default function TrailContent({ route }: Props) {
   const { participationId } = useParticipation();
-  const { trailData, enrichedSections, loading } = useTrailContent(route.params?.trail, participationId);
+  const { trailData, enrichedSections, loading } = useTrailContent(route.params?.cycleId, participationId);
   const { handleQuizPress, handleArticlePress } = useTrailNavigation();
   
   if (!trailData) {
