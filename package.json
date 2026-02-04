@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "apk": "cd android && ./gradlew assembleRelease"
   },
@@ -13,6 +13,8 @@
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "8.4.4",
+    "@react-native-firebase/app": "^23.8.6",
+    "@react-native-firebase/messaging": "^23.8.6",
     "@react-navigation/bottom-tabs": "^7.4.9",
     "@react-navigation/drawer": "^7.6.0",
     "@react-navigation/native": "^7.1.18",
@@ -25,6 +27,7 @@
     "expo-linear-gradient": "^15.0.7",
     "expo-localization": "~17.0.7",
     "expo-location": "~19.0.7",
+    "expo-notifications": "^0.32.16",
     "expo-splash-screen": "^31.0.10",
     "expo-status-bar": "~3.0.8",
     "i18n-js": "^4.5.1",

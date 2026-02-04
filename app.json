@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.meuapp.demo",
+      "bundleIdentifier": "com.guardioes.proepi",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa."
       },
@@ -23,22 +23,27 @@
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.guardioes.proepi",
       "edgeToEdgeEnabled": true,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyBPNdP6xgjfTHiJ94e8cH7uLd8ZEm8AASw"
         }
-      }
+      },
+      "permissions": ["android.permission.POST_NOTIFICATIONS"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-localization"
+      "expo-localization",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging"
     ]
   }
 }
