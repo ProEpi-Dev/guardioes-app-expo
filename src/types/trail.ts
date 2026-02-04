@@ -1,6 +1,6 @@
 export type RootTrailParamList = {
   Home: undefined;
-  Accordion: { cycleId: number; title: string };
+  Accordion: { cycleId: number; title: string; isCycleExpired: boolean; };
   Article: { article: TrailContentData };
   QuizzInfoScreen: { 
       quizId: number; 
@@ -100,9 +100,13 @@ export interface TrackCycle {
   context_id: number;
   name: string;
   description: string | null;
-  status: string;
+  status: 'draft' | 'active' | 'closed' | 'archived';
   start_date: string;
   end_date: string;
   active: boolean;
   track: Trail;
+  progress_percentage?: number;
+  user_status?: string;
+  isExpired?: boolean;
+  isClosed?: boolean;
 }

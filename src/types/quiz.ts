@@ -72,6 +72,7 @@ export interface QuizRouteParams {
   timeLimitMinutes?: number | null;
   trackProgressId?: number;
   sequenceId?: number;
+  isCycleExpired?: boolean;
 }
 
 export type QuizStepState = 'answering' | 'feedback';

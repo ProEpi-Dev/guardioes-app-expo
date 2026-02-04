@@ -14,19 +14,20 @@ type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
 export default function TrailContent({ route }: Props) {
   const { participationId } = useParticipation();
-  const { trailData, enrichedSections, loading, trackProgressId  } = useTrailContent(route.params?.cycleId, participationId);
+  const { cycleId, isCycleExpired } = route.params || {};
+  const { trailData, enrichedSections, loading, trackProgressId } = useTrailContent(cycleId, participationId);
   const { handleQuizPress, handleArticlePress, loading: navLoading } = useTrailNavigation();
-  
+
+  if (!cycleId) {
+    return <View style={styles.center}><Text>Ciclo não identificado.</Text></View>;
+  }
+
   if (loading || navLoading) {
     return <View style={styles.center}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
-  
+
   if (!trailData) {
     return <View style={styles.center}><Text>Trilha não encontrada</Text></View>;
-  }
-
-  if (loading && enrichedSections.length === 0) {
-    return <View style={styles.center}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
   const sectionsToRender = enrichedSections.length > 0 ? enrichedSections : (trailData.section || []);
@@ -40,6 +41,7 @@ export default function TrailContent({ route }: Props) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {sectionsToRender.map((sectionItem: any) => (
           <View key={sectionItem.id} style={styles.sectionContainer}>
+            
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>{sectionItem.name}</Text>
               <View style={styles.sectionDivider} />
@@ -51,11 +53,12 @@ export default function TrailContent({ route }: Props) {
                   key={seq.id}
                   seq={seq}
                   isLastItem={index === (sectionItem.sequence || []).length - 1}
-                  onPressQuiz={() => handleQuizPress(seq, trackProgressId)}
-                  onPressArticle={() => handleArticlePress(seq.content, trackProgressId, seq.id)}
+                  onPressQuiz={() => handleQuizPress(seq, trackProgressId, isCycleExpired)}
+                  onPressArticle={() => handleArticlePress(seq.content, trackProgressId, seq.id, isCycleExpired)}
                 />
               ))}
             </View>
+
           </View>
         ))}
       </ScrollView>

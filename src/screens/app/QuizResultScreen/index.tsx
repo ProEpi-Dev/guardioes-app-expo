@@ -37,7 +37,7 @@ export function QuizResultScreen() {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.returnButton} onPress={handleReturnToHome}>
-          <Text style={styles.returnButtonText}>Retornar para os Quizzes</Text>
+          <Text style={styles.returnButtonText}>Retornar para tela inicial</Text>
           <Feather name="list" size={20} color="#FFF" />
         </TouchableOpacity>
       </View>
