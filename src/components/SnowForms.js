@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import { LinearGradient } from 'expo-linear-gradient'
 import { TouchableOpacity, TextInput, View, ScrollView, Modal, FlatList, TouchableWithoutFeedback, Text } from 'react-native'
 import { scale, percentage } from '../utils/scalling'
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const verde = '#77bfad'
 const azul = '#2E97BE'
@@ -91,10 +91,10 @@ export const TransparentButton = styled(TouchableOpacity).attrs({
     height: ${scale(38)}px;
 `
 export const SnowSelectContainer = styled(TouchableOpacity)`
-    width: 80%;
+    width: ${props => props.fullWidth ? '100%' : '80%'};
     height: ${scale(38)}px;
-    border-color: #ffffff;
-    border-width: 3px;
+    border-color: ${props => props.lightMode ? '#348eac' : '#ffffff'};
+    border-width: ${props => props.lightMode ? '1px' : '3px'};
     border-radius: ${scale(16)}px;
     margin-top: ${percentage(4)}px;
     align-items: center;
@@ -105,13 +105,20 @@ export const SnowSelectLabel = styled(Text)`
     font-family: 'System';
     font-weight: 500;
     font-size: ${scale(15)}px;
-    color: #ffffff;
+    color: ${props => props.lightMode ? '#333' : '#ffffff'};
     text-align: center;
 `
 
-export const CustomSelector = ({ data, initValue, onChange, placeholder }) => {
+export const CustomSelector = ({ lightMode = false, data, initValue, onChange, placeholder }) => {
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedLabel, setSelectedLabel] = useState(initValue);
+    const [selectedLabel, setSelectedLabel] = useState("");
+
+    useEffect(() => {
+        if (initValue !== null && data && data.length > 0) {
+            const item = data.find(i => String(i.value) === String(initValue));
+            if (item) setSelectedLabel(item.label);
+        }
+    }, [initValue, data]);
 
     const handleSelect = (item) => {
         setSelectedLabel(item.label);
@@ -121,8 +128,12 @@ export const CustomSelector = ({ data, initValue, onChange, placeholder }) => {
 
     return (
         <>
-            <SnowSelectContainer onPress={() => setModalVisible(true)}>
-                <SnowSelectLabel numberOfLines={1}>
+            <SnowSelectContainer 
+                lightMode={lightMode} 
+                fullWidth={lightMode}
+                onPress={() => setModalVisible(true)}
+            >
+                <SnowSelectLabel lightMode={lightMode} numberOfLines={1}>
                     {selectedLabel || placeholder || "Selecione..."}
                 </SnowSelectLabel>
             </SnowSelectContainer>

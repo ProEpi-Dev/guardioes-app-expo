@@ -250,6 +250,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const updateUserLocal = async (userData: User): Promise<void> => {
+    try {
+      await authStorage.storeUser(userData);
+      setUser(userData);
+    } catch (error) {
+      console.error('Erro ao atualizar dados locais do usuário:', error);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     token,
@@ -260,6 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateUser,
+    updateUserLocal,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

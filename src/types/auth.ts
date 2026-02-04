@@ -64,6 +64,7 @@ export interface AuthContextType {
   register: (data: RegisterData) => Promise<LoginResult>;
   logout: () => Promise<void>;
   updateUser: (userData: User) => Promise<void>;
+  updateUserLocal: (userData: User) => Promise<void>;
 }
 
 export type RootStackParamList = {
