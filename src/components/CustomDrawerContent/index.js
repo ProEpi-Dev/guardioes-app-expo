@@ -11,7 +11,7 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export default function CustomDrawerContent(props) {
   const { navigation } = props;
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const handleLogout = () => {
     Alert.alert(
@@ -39,6 +39,17 @@ export default function CustomDrawerContent(props) {
 
   return (
     <DrawerContentScrollView {...props}>
+      <View style={styles.userInfoSection}>
+        <View style={styles.avatarContainer}>
+          <Feather name="user" size={30} color="#348eac" />
+        </View>
+        <Text style={styles.userName}>
+          Olá, {user?.name || 'Usuário'} 
+        </Text>
+      </View>
+
+      <View style={styles.separator} />
+
       <View style={styles.header}>
         <DrawerItem
           label="Início"
@@ -50,17 +61,26 @@ export default function CustomDrawerContent(props) {
           labelStyle={styles.drawerLabel}
         />
         <DrawerItem
-          label={translate('drawer.logout')}
+          label="Perfil"
+          icon={({ size }) => (
+            <Feather name="user" size={size} color={'white'} />
+          )}
+          onPress={() => navigation.navigate('Perfil')}
+          style={styles.drawerItemBlue}
+          labelStyle={styles.drawerLabel}
+        />
+        <DrawerItem
+          label="Sair"
           icon={({ size }) => (
             <Feather name="log-out" size={size} color={'white'} />
           )}
           onPress={handleLogout}
-          style={styles.drawerItemBlue}
+          style={styles.drawerItemGreen}
           labelStyle={styles.drawerLabel}
         />
       </View>
 
-      <View style={styles.titleSection}>
+      {/* <View style={styles.titleSection}>
         <Text style={styles.titleText}>{translate('drawer.app')}</Text>
       </View>
 
@@ -82,7 +102,7 @@ export default function CustomDrawerContent(props) {
         onPress={() => navigation.navigate('Quizz')}
         style={styles.drawerItemGreen}
         labelStyle={styles.drawerLabel}
-      />
+      /> */}
     </DrawerContentScrollView>
   );
 }

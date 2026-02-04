@@ -6,7 +6,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import CardStack from './CardStack';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
-import { TrailCard } from '../screens/app/trail/TrailCard';
 import TrailStack from './TrailStack';
 
 const Tab = createBottomTabNavigator();
