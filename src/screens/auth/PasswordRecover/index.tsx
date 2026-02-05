@@ -1,9 +1,7 @@
-// src/screens/auth/PasswordRecover/index.tsx
-import React, { useState } from 'react';
-import { StatusBar, ActivityIndicator, Alert } from 'react-native';
+import React from 'react';
+import { StatusBar, ActivityIndicator } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import {
   GradientBackground,
@@ -18,11 +16,7 @@ import {
 import { Logo, PageTitle } from '../Login/styles';
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
-import { RootStackParamList } from '../../../types/auth';
-import { forgotPassword } from '../../../services/passwordRecover';
-
-
-type Props = NativeStackScreenProps<RootStackParamList, 'PasswordRecover'>;
+import { usePasswordRecover } from '../../../hooks/usePasswordRecover';
 
 const GDSLogoBR = require('../../../../assets/gds-pt-branca.png');
 const GDSLogoES = require('../../../../assets/gds-es-branca.png');
@@ -30,34 +24,14 @@ const verde = '#77bfad';
 const azul = '#2E97BE';
 const branco = '#ffffff';
 
-export function PasswordRecover({ navigation }: Props) {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async () => {
-    if (!email.trim()) {
-      Alert.alert("Erro", "Por favor, insira seu e-mail.");
-      return;
-    }
-
-    setLoading(true);
-    try {
-      await forgotPassword(email);
-      
-      // Pop-up solicitado
-      Alert.alert(
-        "Sucesso",
-        "Verifique o seu email para recuperar a senha",
-        [{ text: "OK", onPress: () => navigation.navigate('Login') }]
-      );
-    } catch (error) {
-      // Como o endpoint sempre retorna sucesso para o usuário, 
-      // cairemos aqui apenas em erros de rede/servidor.
-      Alert.alert("Erro", "Ocorreu uma falha ao processar a solicitação.");
-    } finally {
-      setLoading(false);
-    }
-  };
+export function PasswordRecover() {
+  const { 
+    email, 
+    setEmail, 
+    loading, 
+    handleSubmit, 
+    navigation 
+  } = usePasswordRecover();
 
   const LogoType = translate('lang.code') === 'es' ? GDSLogoES : GDSLogoBR;
 
@@ -68,7 +42,9 @@ export function PasswordRecover({ navigation }: Props) {
       <GradientBackground colors={[azul, verde]}>
         <KeyboardScrollView>
           <Logo source={LogoType} />
-          <PageTitle>Digite o E-Mail que cadastrado para receber o link de redefinição de senha</PageTitle>
+          <PageTitle>
+            Digite o E-Mail cadastrado para receber o link da redefinição de senha
+          </PageTitle>
 
           <FormSeparator>
             <SnowInput
@@ -77,6 +53,7 @@ export function PasswordRecover({ navigation }: Props) {
               autoCapitalize="none"
               value={email}
               onChangeText={setEmail}
+              onSubmitEditing={handleSubmit}
             />
           </FormSeparator>
 
