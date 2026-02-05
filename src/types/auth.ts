@@ -70,6 +70,7 @@ export interface AuthContextType {
 export type RootStackParamList = {
   Welcome: undefined;
   Login: undefined;
+  PasswordRecover: undefined;
   Register: undefined;
   FinishProfile: undefined;
   Home: undefined;

@@ -113,7 +113,7 @@ const Login = ({ navigation }) => {
                     </FormSeparator>
 
                     <TransparentButton
-                        onPress={() => Alert.alert('Info', 'Funcionalidade de recuperar senha em desenvolvimento')}
+                        onPress={() => navigation.navigate('PasswordRecover')}
                     >
                         <LabelVisible>
                             {translate('login.forgetbutton')}
