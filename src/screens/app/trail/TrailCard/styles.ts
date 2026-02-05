@@ -36,11 +36,11 @@ export const styles = StyleSheet.create({
     borderColor: '#e5e7eb'
   },
   completedCard: {
-    borderColor: '#3b82f6', // Tom de azul
-    borderWidth: 2,         // Borda um pouco mais grossa para destaque
+    borderColor: '#3b82f6',
+    borderWidth: 2,
   },
   header: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 12,

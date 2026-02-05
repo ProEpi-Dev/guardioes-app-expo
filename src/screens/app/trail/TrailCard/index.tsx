@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ActivityIndicator, FlatList, Text, View, TouchableOpacity } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, TouchableOpacity, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTrailParamList, TrackCycle } from '../../../../types/trail';
 import { useTrails } from '../../../../hooks/useTrail';
@@ -7,7 +7,7 @@ import { styles } from './styles';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Home'>;
 
-export default function TrailCard({navigation}: Props) {
+export default function TrailCard({ navigation }: Props) {
     const { cycles, isLoading, isRefreshing, handleRefresh, error } = useTrails();
 
     const formatDate = (dateString: string) => {
@@ -16,19 +16,24 @@ export default function TrailCard({navigation}: Props) {
         return date.toLocaleDateString('pt-BR');
     };
 
-    const handlePress = (item: TrackCycle) => {
-        // Bloqueia Draft e Archived
-        if (item.status === 'draft' || item.status === 'archived') {
+    const handlePress = useCallback((item: TrackCycle) => {
+        console.log(item.isMandatoryLock);
+        if (item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true) {
+            if (item.isMandatoryLock) {
+                Alert.alert(
+                    "Trilha Bloqueada", 
+                    "Você deve concluir a trilha obrigatória primeiro para liberar este conteúdo."
+                );
+            }
             return;
         }
 
-        // Navega passando a flag de expirado
         navigation.navigate('Accordion', { 
             cycleId: item.id, 
             title: item.name,
-            isCycleExpired: !!item.isClosed // Passamos para o Accordion saber se mostra alertas
+            isCycleExpired: !!item.isClosed 
         });
-    };
+    }, [navigation]);
 
     const renderItem = useCallback(({ item, index }: { item: TrackCycle, index: number }) => {
         const previousItem = index > 0 ? cycles[index - 1] : null;
@@ -37,13 +42,11 @@ export default function TrailCard({navigation}: Props) {
         const isCompleted = item.user_status === 'completed';
         const percentage = item.progress_percentage || 0;
         
-        // Verifica se deve ficar "apagado" (closed ou expired)
-        const isFaded = item.isClosed; 
+        const isFaded = item.isClosed || item.isMandatoryLock;
         
-        // Verifica se é completamente inacessível (apenas visual, ou removido da lista se preferir)
         const isDisabled = item.status === 'draft' || item.status === 'archived';
 
-        if (isDisabled) return null; // Opcional: Não renderiza rascunhos
+        if (isDisabled) return null;
 
         return (
             <View>
@@ -60,7 +63,7 @@ export default function TrailCard({navigation}: Props) {
                     style={[
                         styles.cardContainer, 
                         isCompleted && styles.completedCard,
-                        isFaded && styles.fadedCard // Aplica opacidade
+                        isFaded && styles.fadedCard 
                     ]}
                     activeOpacity={0.7}
                     onPress={() => handlePress(item)}
@@ -72,8 +75,14 @@ export default function TrailCard({navigation}: Props) {
                             <Text style={styles.trackDescription} numberOfLines={3}>
                                 {item.track.description}
                             </Text>
-                            {/* Opcional: Texto indicando encerrado */}
-                            {isFaded && !isCompleted && (
+                            
+                            {item.isMandatoryLock && (
+                                <Text style={[styles.closedText, { color: '#6b7280' }]}>
+                                    Aguardando conclusão da trilha obrigatória
+                                </Text>
+                            )}
+
+                            {item.isClosed && !isCompleted && !item.isMandatoryLock && (
                                 <Text style={styles.closedText}>Prazo encerrado</Text>
                             )}
                         </View>
@@ -81,7 +90,7 @@ export default function TrailCard({navigation}: Props) {
                         <View style={styles.percentageContainer}>
                             <Text style={[
                                 styles.percentageText, 
-                                isCompleted && { color: '#3b82f6' } // Azul se completo
+                                isCompleted && { color: '#3b82f6' }
                             ]}>
                                 {Math.round(percentage)}%
                             </Text>
@@ -90,7 +99,7 @@ export default function TrailCard({navigation}: Props) {
                 </TouchableOpacity>
             </View>
         );
-    }, [navigation, cycles]);
+    }, [navigation, cycles, handlePress]);
 
     if (isLoading && !isRefreshing) {
         return (

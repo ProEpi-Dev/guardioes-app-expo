@@ -22,6 +22,7 @@ export type RootTrailParamList = {
 export interface Trail {
   id: number;
   name: string;
+  slug: string;
   description: string;
   contextId?: number | null;
   controlPeriod: boolean;
@@ -109,4 +110,6 @@ export interface TrackCycle {
   user_status?: string;
   isExpired?: boolean;
   isClosed?: boolean;
+  mandatory_slug?: string | null;
+  isMandatoryLock?: boolean;
 }

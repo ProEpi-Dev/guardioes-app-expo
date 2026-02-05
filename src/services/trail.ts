@@ -5,6 +5,7 @@ import { getQuizDetails, getUserSubmissions } from './quiz';
 export const getTrackCycles = async (): Promise<TrackCycle[]> => {
   const response = await apiClient('/v1/track-cycles', { method: 'GET' }) as any;
   if (Array.isArray(response)) {
+    console.log(response)
     return response;
   }
   return [];
@@ -151,4 +152,16 @@ export const mergeTrailWithProgress = (trailFullData: any, progressData: any, su
             };
         })
     }));
+};
+
+export const checkMandatoryCompliance = async (participationId: number): Promise<{ is_compliant: boolean; mandatory_slug?: string }> => {
+    try {
+        const response = await apiClient(`/v1/track-progress/mandatory-compliance?participationId=${participationId}`, { 
+            method: 'GET' 
+        }) as any;
+        return response;
+    } catch (error) {
+        console.error('Erro ao verificar conformidade obrigatória', error);
+        return { is_compliant: true }; 
+    }
 };

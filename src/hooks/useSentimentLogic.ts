@@ -1,16 +1,20 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { useUserLocation } from './useUserLocation';
 import { useSentimentMap } from './useSentimentMap';
 import { getLatestSignalForm } from '../services/forms';
 import { createReport } from '../services/reports';
+import { checkMandatoryCompliance } from '../services/trail';
 
 export const useSentimentLogic = () => {
   // Hooks Externos
   const { participationId } = useParticipation();
   const { location, refreshLocation } = useUserLocation();
   const { mapPoints, loadingPoints, refreshPoints } = useSentimentMap();
+  
+  // Estado de conformidade (inicia true para não bloquear durante o carregamento)
+  const [isCompliant, setIsCompliant] = useState(true);
 
   // Estados Locais
   const [showForm, setShowForm] = useState(false);
@@ -27,7 +31,35 @@ export const useSentimentLogic = () => {
     return location || await refreshLocation();
   };
 
-  // 1. Fluxo do Sentimento Positivo (Envio Imediato)
+  // Verificação de Conformidade
+  useEffect(() => {
+    if (participationId) {
+      checkMandatoryCompliance(participationId)
+        .then((response: any) => {
+            const data = response?.data || response;
+            let userIsCompliant = true;
+
+            // Verifica a nova estrutura (contadores)
+            if (data && typeof data.totalRequired === 'number') {
+                userIsCompliant = data.completedCount >= data.totalRequired;
+            } 
+            // Fallback para a estrutura antiga
+            else if (data?.is_compliant !== undefined) {
+                userIsCompliant = data.is_compliant;
+            }
+
+            console.log('Compliance Check (Sentiment):', userIsCompliant);
+            setIsCompliant(userIsCompliant);
+        })
+        .catch(err => {
+            console.error("Erro no compliance:", err);
+            // Em caso de erro, não bloqueamos
+            setIsCompliant(true);
+        });
+    }
+  }, [participationId]);
+
+  // 1. Fluxo do Sentimento Positivo
   const handlePositiveSentiment = async () => {
     if (!participationId) return Alert.alert('Aguarde', 'Carregando perfil...');
 
@@ -54,7 +86,7 @@ export const useSentimentLogic = () => {
     }
   };
 
-  // 2. Fluxo do Sentimento Negativo (Abrir Modal)
+  // 2. Fluxo do Sentimento Negativo
   const handleNegativeSentiment = async () => {
     setLoadingForm(true);
     setShowForm(true);
@@ -80,6 +112,14 @@ export const useSentimentLogic = () => {
 
   // 3. Decisor (Handler Principal)
   const onFeelingSelected = (feeling: 'good' | 'bad') => {
+    // Bloqueio explícito se isCompliant for false
+    if (isCompliant === false) {
+        return Alert.alert(
+            "Acesso Bloqueado", 
+            "Conclua sua trilha obrigatória para poder registrar seu estado de saúde."
+        );
+    }
+    
     if (feeling === 'good') {
       handlePositiveSentiment();
     } else {
@@ -118,16 +158,13 @@ export const useSentimentLogic = () => {
   };
 
   return {
-    // Dados do Mapa
     mapPoints,
     loadingPoints,
-    // Dados do Modal
     showForm,
     setShowForm,
     formDefinition,
     loadingForm,
     sending,
-    // Ações
     onFeelingSelected,
     setFormValues,
     handleSubmitForm
