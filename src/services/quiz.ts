@@ -25,9 +25,15 @@ export const getActiveQuizzes = async () => {
 };
 
 export const getUserSubmissions = async (participationId: number) => {
-  const response: any = await apiClient(`/v1/quiz-submissions`, { method: 'GET' });
-  const responses = response.data || [];
-  return responses.filter((f: any) => f.participationId === participationId);
+  const params = new URLSearchParams({
+    participationId: String(participationId),
+    pageSize: '50', 
+    page: '1'
+  });
+
+  const response: any = await apiClient(`/v1/quiz-submissions?${params.toString()}`, { method: 'GET' });
+   
+  return response.data || [];
 };
 
 export const getContentQuizMapping = async () => {

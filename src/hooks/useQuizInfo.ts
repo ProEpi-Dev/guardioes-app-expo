@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { QuizInfoRouteParams } from '../types/quizInfoRouteParams';
-import { getContentById } from '../services/contents';
+import { getContentById } from '../services/article';
 
 type QuizzInfoScreenRouteProp = RouteProp<{ params: QuizInfoRouteParams }, 'params'>;
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { useUserLocation } from './useUserLocation';
@@ -6,6 +6,7 @@ import { useSentimentMap } from './useSentimentMap';
 import { getLatestSignalForm } from '../services/forms';
 import { createReport } from '../services/reports';
 import { checkMandatoryCompliance } from '../services/trail';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const useSentimentLogic = () => {
   // Hooks Externos
@@ -32,10 +33,17 @@ export const useSentimentLogic = () => {
   };
 
   // Verificação de Conformidade
-  useEffect(() => {
-    if (participationId) {
-      checkMandatoryCompliance(participationId)
-        .then((response: any) => {
+  useFocusEffect(
+    useCallback(() => {
+      let isActive = true; // Flag para evitar atualização de estado se o componente desmontar
+
+      const checkCompliance = async () => {
+        if (!participationId) return;
+
+        try {
+          const response: any = await checkMandatoryCompliance(participationId);
+          
+          if (isActive) {
             const data = response?.data || response;
             let userIsCompliant = true;
 
@@ -48,16 +56,23 @@ export const useSentimentLogic = () => {
                 userIsCompliant = data.is_compliant;
             }
 
-            console.log('Compliance Check (Sentiment):', userIsCompliant);
+            console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
             setIsCompliant(userIsCompliant);
-        })
-        .catch(err => {
-            console.error("Erro no compliance:", err);
-            // Em caso de erro, não bloqueamos
-            setIsCompliant(true);
-        });
-    }
-  }, [participationId]);
+          }
+        } catch (err) {
+          console.error("Erro no compliance:", err);
+          // Em caso de erro, por segurança, não bloqueamos (ou decida sua regra de negócio)
+          if (isActive) setIsCompliant(true);
+        }
+      };
+
+      checkCompliance();
+
+      return () => {
+        isActive = false;
+      };
+    }, [participationId])
+  );
 
   // 1. Fluxo do Sentimento Positivo
   const handlePositiveSentiment = async () => {

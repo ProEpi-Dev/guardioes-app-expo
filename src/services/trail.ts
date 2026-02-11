@@ -116,7 +116,6 @@ export const mergeTrailWithProgress = (trailFullData: any, progressData: any, su
             const isLocked = lockedMap[String(seq.id)];
             const progressItem = progressList.find((p: any) => p.sequence_id === seq.id);
             
-            // Extração de Configurações do Quiz
             const formObj = seq.form || {};
             const versionObj = formObj.latestVersion || {};
 
@@ -124,28 +123,16 @@ export const mergeTrailWithProgress = (trailFullData: any, progressData: any, su
             const maxAttempts = versionObj.maxAttempts ?? formObj.maxAttempts ?? null;
             const timeLimitMinutes = versionObj.timeLimitMinutes ?? formObj.timeLimitMinutes ?? null;
 
-            // Busca a nota real nas submissões
-            let realScore = null;
-            if (seq.form) {
-                // Encontra a melhor/última submissão para este formulário
-                const quizSub = submissions
-                    .filter((s: any) => s.formVersion?.form?.id === seq.form.id)
-                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
-                
-                if (quizSub) {
-                    realScore = quizSub.score;
-                }
-            }
+            const isPassed = progressItem?.is_passed || (progressItem?.status === 'completed' && !!seq.form);
+            const score = progressItem?.score;
 
             return {
                 ...seq,
                 isLocked: isLocked !== undefined ? isLocked : true,
                 progressStatus: progressItem?.status || 'not_started',
-                
-                score: realScore ?? progressItem?.score, 
-                isPassed: progressItem?.is_passed || (progressItem?.status === 'completed' && !!seq.form),
+                score: score, 
+                isPassed: isPassed,
                 attemptNumber: progressItem?.attempt_number || 0,
-                
                 passingScore,
                 maxAttempts,
                 timeLimitMinutes,

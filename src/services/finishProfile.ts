@@ -33,7 +33,7 @@ export const getGenders = async (): Promise<any[]> => {
 };
 
 export const getLocations = async (): Promise<any[]> => {
-  const response = await apiClient('/v1/locations', { method: 'GET' }) as any;
+  const response = await apiClient('/v1/locations?page=1&pageSize=100&active=true', { method: 'GET' }) as any;
   if (response && Array.isArray(response.data)) {
     return response.data;
   }

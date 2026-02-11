@@ -20,15 +20,13 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
     setLoading(true);
 
     try {
-      const [cycleResponse, progressResponse, submissionsResponse] = await Promise.all([
+      const [cycleResponse, progressResponse] = await Promise.all([
         getTrackCycleDetails(cycleId),
-        getTrackProgress(participationId, cycleId),
-        getUserSubmissions(participationId)
+        getTrackProgress(participationId, cycleId)
       ]);
 
       const cycleDetails = cycleResponse;
       let currentProgress: any = (progressResponse as any)?.data || progressResponse;
-      const userSubmissions = Array.isArray(submissionsResponse) ? submissionsResponse : [];
 
       const hasNoProgress = !currentProgress || currentProgress === 1 || !currentProgress.track_cycle;
 
@@ -43,7 +41,7 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
       }
 
       if (cycleDetails && cycleDetails.track && currentProgress) {
-        const sections = mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
+        const sections = mergeTrailWithProgress(cycleDetails.track, currentProgress, []);
         
         setEnrichedSections(sections);
         setTrailData(cycleDetails.track);

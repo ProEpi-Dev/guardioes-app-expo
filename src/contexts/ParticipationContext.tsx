@@ -17,99 +17,74 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
   const [loadingParticipation, setLoading] = useState(false);
 
   useEffect(() => {
+    let isActive = true;
+
     const fetchParticipation = async () => {
       if (!user?.email) return;
 
       setLoading(true);
 
       try {
-        let foundUserId: number | null = null;
-        let page = 1;
-        const PAGE_SIZE = 50;
-        let hasMoreUsers = true;
-        while (hasMoreUsers && !foundUserId) {
-          console.log(`[ParticipationContext] Buscando usuários - Página ${page}...`);
-          
-          try {
-            const usersRes: any = await apiClient(`/v1/users?page=${page}&pageSize=${PAGE_SIZE}`, { method: 'GET' });
-            const usersList = usersRes.data || usersRes || [];
+        const userParams = new URLSearchParams({
+          page: '1',
+          pageSize: '1',
+          active: 'true',
+          search: user.email.trim()
+        });
 
-            if (!Array.isArray(usersList) || usersList.length === 0) {
-              hasMoreUsers = false;
-              break;
-            }
+        console.log(`[ParticipationContext] Buscando usuário: /v1/users?${userParams.toString()}`);
+        
+        const usersRes: any = await apiClient(`/v1/users?${userParams.toString()}`, { method: 'GET' });
+        const usersList = usersRes.data || usersRes || [];
 
-            const targetUser = usersList.find((u: any) => 
-              u.email?.trim().toLowerCase() === user.email.trim().toLowerCase()
-            );
+        const targetUser = usersList.find((u: any) => 
+          u.email?.trim().toLowerCase() === user.email?.trim().toLowerCase()
+        );
 
-            if (targetUser) {
-              foundUserId = targetUser.id;
-            } else {
-              if (usersList.length < PAGE_SIZE) {
-                hasMoreUsers = false;
-              } else {
-                page++;
-              }
-            }
-          } catch (err) {
-            console.error(`[ParticipationContext] Erro ao buscar página ${page} de usuários`, err);
-            hasMoreUsers = false;
-          }
-        }
-
-        if (!foundUserId) {
+        if (!targetUser) {
+          console.warn('[ParticipationContext] Usuário não encontrado na busca por email.');
+          if (isActive) setLoading(false);
           return;
         }
 
-        let foundParticipationId: number | null = null;
-        let foundContextId: number | null = null;
-        page = 1;
-        let hasMorePart = true;
+        const foundUserId = targetUser.id;
 
-        while (hasMorePart && !foundParticipationId) {          
-          try {
-            const partRes: any = await apiClient(`/v1/participations?page=${page}&pageSize=${PAGE_SIZE}`, { method: 'GET' });
-            const partList = partRes.data || partRes || [];
+        const partParams = new URLSearchParams({
+          page: '1',
+          pageSize: '1',
+          active: 'true',
+          userId: foundUserId.toString()
+        });
 
-            if (!Array.isArray(partList) || partList.length === 0) {
-              hasMorePart = false;
-              break;
-            }
+        console.log(`[ParticipationContext] Buscando participação: /v1/participations?${partParams.toString()}`);
 
-            const myParticipation = partList.find((p: any) => 
-               (p.userId == foundUserId) && p.active === true
-            );
+        const partRes: any = await apiClient(`/v1/participations?${partParams.toString()}`, { method: 'GET' });
+        const partList = partRes.data || partRes || [];
 
-            if (myParticipation) {
-              foundParticipationId = myParticipation.id;
-              foundContextId = myParticipation.contextId;
-            } else {
-              if (partList.length < PAGE_SIZE) {
-                hasMorePart = false;
-              } else {
-                page++;
-              }
-            }
-          } catch (err) {
-            hasMorePart = false;
+        if (Array.isArray(partList) && partList.length > 0) {
+          const myParticipation = partList[0];
+          
+          if (isActive) {
+            console.log(`[ParticipationContext] Sucesso! ID: ${myParticipation.id}`);
+            setParticipationId(myParticipation.id);
+            setContextId(myParticipation.contextId);
           }
-        }
-
-        if (foundParticipationId) {
-          setParticipationId(foundParticipationId);
-          setContextId(foundContextId);
         } else {
+          console.warn('[ParticipationContext] Nenhuma participação ativa encontrada para este userId.');
         }
 
       } catch (error) {
-        console.error('[ParticipationContext] Erro fatal geral:', error);
+        console.error('[ParticipationContext] Erro ao carregar contexto:', error);
       } finally {
-        setLoading(false);
+        if (isActive) setLoading(false);
       }
     };
 
     fetchParticipation();
+
+    return () => {
+      isActive = false;
+    };
   }, [user]);
 
   return (

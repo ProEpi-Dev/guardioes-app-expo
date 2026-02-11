@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import { Alert } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import { TrackCycle } from "../types/trail";
@@ -13,10 +13,17 @@ export const useTrails = () => {
     const [error, setError] = useState<string | null>(null);
     const [isCompliant, setIsCompliant] = useState<boolean>(true);
 
+    const lastFetchTime = useRef<number>(0);
+    const CACHE_DURATION = 60 * 1000;
+
     const fetchCycles = useCallback(async (isRefresh = false) => {
+        const now = Date.now();
+        if (!isRefresh && cycles.length > 0 && (now - lastFetchTime.current < CACHE_DURATION)) {
+            return; 
+        }
         try {
             if (isRefresh) setIsRefreshing(true);
-            else if (cycles.length === 0) setIsLoading(true);
+            else setIsLoading(true);
 
             setError(null);
             
@@ -28,6 +35,7 @@ export const useTrails = () => {
             ]);
 
             const compliance = (complianceRaw as any)?.data || complianceRaw;
+            console.log(compliance);
             
             let isUserCompliant = true;
 
@@ -37,21 +45,21 @@ export const useTrails = () => {
                 isUserCompliant = compliance.is_compliant;
             }
 
-            let targetMandatorySlug = null;
+            let targetMandatorySlugs: string[] = [];
 
             if (!isUserCompliant) {
                 if (Array.isArray(compliance?.items)) {
-                    const pendingItem = compliance.items.find((item: any) => !item.completed);
-                    if (pendingItem) {
-                        targetMandatorySlug = pendingItem.mandatorySlug;
-                    }
+                    const pendingItems = compliance.items.filter((item: any) => !item.completed);
+                    targetMandatorySlugs = pendingItems.map((item: any) => item.mandatorySlug);
                 } else {
-                    targetMandatorySlug = compliance?.mandatory_slug || null;
+                    if (compliance?.mandatory_slug) {
+                        targetMandatorySlugs = [compliance.mandatory_slug];
+                    }
                 }
             }
 
             console.log('Status Compliance:', isUserCompliant); 
-            console.log('Slug Alvo:', targetMandatorySlug);
+            console.log('Slug Alvo:', targetMandatorySlugs);
 
             setIsCompliant(isUserCompliant);
             
@@ -75,8 +83,8 @@ export const useTrails = () => {
                 const currentCycleSlug = (cycle as any).mandatory_slug;
                 
                 const isMandatoryLock = !isUserCompliant && 
-                                       !!targetMandatorySlug && 
-                                       currentCycleSlug !== targetMandatorySlug;
+                                       targetMandatorySlugs.length > 0 && 
+                                       !targetMandatorySlugs.includes(currentCycleSlug);
 
                 const isClosed = cycle.status === 'closed' || isExpired || isMandatoryLock;
 
@@ -116,7 +124,7 @@ export const useTrails = () => {
             });
 
             setCycles(processedCycles);
-
+            lastFetchTime.current = Date.now();
         } catch (err) {
             setError('Não foi possível carregar os ciclos de trilha.');
             console.error(err);
@@ -124,7 +132,7 @@ export const useTrails = () => {
             setIsLoading(false);
             setIsRefreshing(false);
         }
-    }, [contextId, participationId]);
+    }, [contextId, participationId, cycles.length]);
 
     useFocusEffect(
         useCallback(() => {

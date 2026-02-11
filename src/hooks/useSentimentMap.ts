@@ -9,13 +9,14 @@ export function useSentimentMap() {
     setLoadingPoints(true);
     try {
       const today = new Date();
-      const thirtyDaysAgo = new Date();
-      thirtyDaysAgo.setDate(today.getDate() - 30);
+      const startDaysAgo = new Date();
+      
+      startDaysAgo.setDate(today.getDate() - 7); 
 
       const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
       const response: any = await apiClient(
-        `/v1/reports/points?startDate=${formatDate(thirtyDaysAgo)}&endDate=${formatDate(today)}`,
+        `/v1/reports/points?startDate=${formatDate(startDaysAgo)}&endDate=${formatDate(today)}`,
         { method: 'GET' }
       );
       
