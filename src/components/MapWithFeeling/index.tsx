@@ -6,6 +6,7 @@ import Supercluster from 'supercluster';
 import type { ClusterFeature, PointFeature } from 'supercluster';
 import translate from '../../locales/i18n';
 import { colors } from '../../utils/colors';
+import { useSentimentLogic } from '../../hooks/useSentimentLogic';
 
 interface MapPoint {
   id?: number;
@@ -31,6 +32,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
     latitudeDelta: 1.0,
     longitudeDelta: 1.0,
   });
+  const {isCompliant} = useSentimentLogic();
 
   // Separar pontos por tipo (POSITIVE e NEGATIVE)
   const { pointsPositive, pointsNegative } = useMemo(() => {
@@ -425,7 +427,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
       )}
 
       <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset}]}>
-        <View style={styles.card}>
+        <View style={[styles.card, !isCompliant && { opacity: 0.5 }]}>
           <Text style={styles.cardTitle}>
             {translate('home.userHowYouFelling') || 'Como você se sente hoje?'}
           </Text>

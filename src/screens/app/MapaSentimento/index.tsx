@@ -6,6 +6,7 @@ import { useSentimentLogic } from '../../../hooks/useSentimentLogic';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AlertModal } from '../../../components/AlertModal';
 
 export function MapaSentimento() {
   const { user } = useAuth(); 
@@ -22,7 +23,8 @@ export function MapaSentimento() {
     loadingForm,
     sending,
     setFormValues,
-    handleSubmitForm
+    handleSubmitForm,
+    isCompliant
   } = useSentimentLogic();
 
   return (
@@ -39,6 +41,14 @@ export function MapaSentimento() {
       </View>
 
       <CustomHeader userName={user?.name} />
+
+      {!isCompliant && (
+        <View style={StyleSheet.absoluteFillObject}>
+          <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.2)', justifyContent: 'center' }}>
+             <AlertModal />
+          </View>
+        </View>
+      )}
 
       <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: TAB_BAR_HEIGHT }}>
         <SentimentModal 

@@ -191,6 +191,7 @@ export const useSentimentLogic = () => {
     sending,
     onFeelingSelected,
     setFormValues,
-    handleSubmitForm
+    handleSubmitForm,
+    isCompliant
   };
 };
