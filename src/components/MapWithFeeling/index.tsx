@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Supercluster from 'supercluster';
 import type { ClusterFeature, PointFeature } from 'supercluster';
 import translate from '../../locales/i18n';
+import { colors } from '../../utils/colors';
 
 interface MapPoint {
   id?: number;
@@ -18,9 +19,10 @@ interface MapWithFeelingProps {
   onFeelingSelected?: (feeling: 'good' | 'bad') => void;
   points?: MapPoint[];
   loading?: boolean;
+  bottomOffset?: number;
 }
 
-export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelected, points = [], loading = false }) => {
+export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelected, points = [], loading = false, bottomOffset = 0 }) => {
   const insets = useSafeAreaInsets();
   const [region, setRegion] = useState<Region>({
     // Brasília como centro padrão
@@ -422,7 +424,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
         </View>
       )}
 
-      <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
+      <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset}]}>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>
             {translate('home.userHowYouFelling') || 'Como você se sente hoje?'}
@@ -471,7 +473,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 25,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -497,14 +499,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 15,
     marginHorizontal: 4,
   },
   goodButton: {
-    backgroundColor: '#2E97BE',
+    backgroundColor: colors.botãoBem,
   },
   badButton: {
-    backgroundColor: '#dd821a',
+    backgroundColor: colors.botãoMal,
   },
   buttonText: {
     fontSize: 18,

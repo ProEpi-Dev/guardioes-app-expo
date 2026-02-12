@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { useUserLocation } from './useUserLocation';
@@ -27,6 +27,9 @@ export const useSentimentLogic = () => {
   const [loadingForm, setLoadingForm] = useState(false);
   const [sending, setSending] = useState(false);
 
+  const lastComplianceCheck = useRef<number>(0);
+  const CACHE_DURATION = 60 * 1000;
+
   // Auxiliar para pegar localização atualizada
   const getLocation = async () => {
     return location || await refreshLocation();
@@ -39,6 +42,11 @@ export const useSentimentLogic = () => {
 
       const checkCompliance = async () => {
         if (!participationId) return;
+
+        const now = Date.now();
+        if (now - lastComplianceCheck.current < CACHE_DURATION) {
+            return;
+        }
 
         try {
           const response: any = await checkMandatoryCompliance(participationId);
@@ -58,6 +66,7 @@ export const useSentimentLogic = () => {
 
             console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
             setIsCompliant(userIsCompliant);
+            lastComplianceCheck.current = Date.now();
           }
         } catch (err) {
           console.error("Erro no compliance:", err);

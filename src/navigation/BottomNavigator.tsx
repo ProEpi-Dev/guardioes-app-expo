@@ -2,27 +2,51 @@ import React from 'react';
 import { TouchableOpacity } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MapaSentimento } from '../screens/app/MapaSentimento';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import CardStack from './CardStack';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import TrailStack from './TrailStack';
+import { colors } from '../utils/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigation() {
   const navigation = useNavigation<DrawerNavigationProp<any>>();
+  const insets = useSafeAreaInsets();
 
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#348eac',
-        tabBarInactiveTintColor: '#999',
+        tabBarActiveTintColor: colors.secundaria, 
+        tabBarInactiveTintColor: '#999', 
         tabBarStyle: {
-           height: 70,
-           paddingTop: 4,
+           height: 60 + insets.bottom, 
+           paddingTop: 8,
+           paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+           borderTopLeftRadius: 25,
+           borderTopRightRadius: 25,
+           backgroundColor: '#FFF',
+           borderTopWidth: 0,
+           elevation: 0,
+           shadowColor: 'transparent',
+           shadowOffset: { width: 0, height: -2 },
+           shadowOpacity: 0.1,
+           shadowRadius: 4,
+           position: 'absolute',
+           paddingHorizontal: '5%'
         },
+        tabBarItemStyle: {
+          maxWidth: 200,
+          alignSelf: 'center',
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: '500',
+          marginBottom: 4,
+        }
       }}
     >
       <Tab.Screen 
@@ -30,7 +54,7 @@ export function BottomNavigation() {
         component={MapaSentimento}
         options={{ 
             tabBarLabel: 'Início',
-            headerShown: true,
+            headerShown: false,
             headerTransparent: true,
             headerTitle: '',
             headerLeft: () => (
@@ -41,8 +65,12 @@ export function BottomNavigation() {
                     <MaterialCommunityIcons name="menu" size={30} color="black" />
                 </TouchableOpacity>
             ),
-            tabBarIcon: () => (
-                <MaterialCommunityIcons name="home" size={24} color="black" />
+            tabBarIcon: ({ focused, color }) => (
+                <Feather
+                    name={"home"} 
+                    size={24} 
+                    color={color} 
+                />
             ),
          }}
       />
@@ -51,9 +79,13 @@ export function BottomNavigation() {
         name="Trilha"
         component={TrailStack}
         options={{ 
-            tabBarLabel: 'Trilha',
-            tabBarIcon: () => (
-                <MaterialCommunityIcons name="arrow-decision" size={24} color="black" />
+            tabBarLabel: 'Aprenda',
+            tabBarIcon: ({ focused, color }) => (
+                <MaterialCommunityIcons 
+                    name={"chat-question-outline"} 
+                    size={24} 
+                    color={color} 
+                />
             ),
             title: 'Trilhas'
         }}
@@ -63,9 +95,13 @@ export function BottomNavigation() {
         name="Artigos"
         component={CardStack}
         options={{ 
-            tabBarLabel: 'Artigos',
-            tabBarIcon: () => (
-                <MaterialCommunityIcons name="newspaper-variant-outline" size={24} color="black" />
+            tabBarLabel: 'Conteúdos',
+            tabBarIcon: ({ focused, color }) => (
+                <MaterialCommunityIcons 
+                    name={"file-document-multiple-outline"} 
+                    size={24} 
+                    color={color} 
+                />
             ),
         }}
       />
