@@ -4,10 +4,15 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTrailParamList, TrackCycle } from '../../../../types/trail';
 import { useTrails } from '../../../../hooks/useTrail';
 import { styles } from './styles';
+import { CustomHeader } from '../../../../components/CustomHeader';
+import { useAuth } from '../../../../contexts/AuthContext';
+import { colors } from '../../../../utils/colors';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Home'>;
 
 export default function TrailCard({ navigation }: Props) {
+    const { user } = useAuth(); 
     const { cycles, isLoading, isRefreshing, handleRefresh, error } = useTrails();
 
     const formatDate = (dateString: string) => {
@@ -19,12 +24,12 @@ export default function TrailCard({ navigation }: Props) {
     const handlePress = useCallback((item: TrackCycle) => {
         console.log(item.isMandatoryLock);
         if (item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true) {
-            if (item.isMandatoryLock) {
-                Alert.alert(
-                    "Trilha Bloqueada", 
-                    "Você deve concluir a trilha obrigatória primeiro para liberar este conteúdo."
-                );
-            }
+            // if (item.isMandatoryLock) {
+            //     Alert.alert(
+            //         "Trilha Bloqueada", 
+            //         "Você deve concluir a trilha obrigatória primeiro para liberar este conteúdo."
+            //     );
+            // }
             return;
         }
 
@@ -50,14 +55,14 @@ export default function TrailCard({ navigation }: Props) {
 
         return (
             <View>
-                {shouldShowHeader && (
+                {/* {shouldShowHeader && (
                     <View style={styles.header}>
                         <Text style={styles.cycleName}>{item.name}</Text>
                         <Text style={styles.dates}>
                             {formatDate(item.start_date)} - {formatDate(item.end_date)}
                         </Text>
                     </View>
-                )}
+                )} */}
                 
                 <TouchableOpacity 
                     style={[
@@ -90,7 +95,7 @@ export default function TrailCard({ navigation }: Props) {
                         <View style={styles.percentageContainer}>
                             <Text style={[
                                 styles.percentageText, 
-                                isCompleted && { color: '#3b82f6' }
+                                isCompleted && { color: colors.green }
                             ]}>
                                 {Math.round(percentage)}%
                             </Text>
@@ -118,17 +123,28 @@ export default function TrailCard({ navigation }: Props) {
     }
 
     return (
-        <FlatList
-            style={styles.list}
-            data={cycles}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={renderItem}
-            contentContainerStyle={styles.contentContainer}
-            refreshing={isRefreshing}
-            onRefresh={handleRefresh}
-            showsVerticalScrollIndicator={false}
-            initialNumToRender={6}
-            ListEmptyComponent={<Text style={styles.emptyText}>Nenhum ciclo encontrado para seu contexto.</Text>}
-        />
+        <>
+            <CustomHeader userName={user?.name} />
+            <View style={styles.title}>
+                <MaterialCommunityIcons 
+                    name={"chat-question-outline"} 
+                    size={48} 
+                    color={colors.secundaria} 
+                />
+                <Text style={styles.textTitle}>Aprenda</Text>
+            </View>
+            <FlatList
+                style={styles.list}
+                data={cycles}
+                keyExtractor={(item) => String(item.id)}
+                renderItem={renderItem}
+                contentContainerStyle={styles.contentContainer}
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={6}
+                ListEmptyComponent={<Text style={styles.emptyText}>Nenhum ciclo encontrado para seu contexto.</Text>}
+            />
+        </>
     );
 }

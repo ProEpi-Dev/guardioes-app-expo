@@ -17,7 +17,7 @@ export default function TrailStack() {
             <Stack.Screen 
                 name="Home" 
                 component={TrailCard} 
-                options={{ title: 'Trilhas' }}
+                options={{ headerShown: false, }}
             />
             <Stack.Screen
                 name="Accordion"

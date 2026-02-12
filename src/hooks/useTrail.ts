@@ -63,12 +63,12 @@ export const useTrails = () => {
 
             setIsCompliant(isUserCompliant);
             
-            if (!isUserCompliant && !isRefresh) {
-                Alert.alert(
-                    "Trilha Obrigatória", 
-                    "Você possui uma trilha obrigatória pendente. Conclua-a para liberar as demais funcionalidades."
-                );
-            }
+            // if (!isUserCompliant && !isRefresh) {
+            //     Alert.alert(
+            //         "Trilha Obrigatória", 
+            //         "Você possui uma trilha obrigatória pendente. Conclua-a para liberar as demais funcionalidades."
+            //     );
+            // }
 
             const filteredData = contextId 
                 ? data.filter(cycle => cycle.context_id === contextId)

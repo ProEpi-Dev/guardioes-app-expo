@@ -1,4 +1,5 @@
 import { StyleSheet } from "react-native";
+import { colors } from "../../../../utils/colors";
 
 export const styles = StyleSheet.create({
   list: {
@@ -6,7 +7,7 @@ export const styles = StyleSheet.create({
   },
   contentContainer: { 
     padding: 20,
-    paddingBottom: 20
+    paddingBottom: 90
   },
   centerContainer: {
     flex: 1,
@@ -36,7 +37,7 @@ export const styles = StyleSheet.create({
     borderColor: '#e5e7eb'
   },
   completedCard: {
-    borderColor: '#3b82f6',
+    borderColor: colors.green,
     borderWidth: 2,
   },
   header: {
@@ -86,7 +87,7 @@ export const styles = StyleSheet.create({
   percentageText: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#3b82f6',
+    color: colors.green,
   },
   fadedCard: {
     opacity: 0.6,
@@ -98,4 +99,11 @@ export const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: 'bold'
   },
+  title: {
+    flexDirection: 'row'
+  },
+  textTitle: {
+    color: colors.secundaria,
+    fontSize: 25
+  }
 });
