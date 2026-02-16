@@ -2,12 +2,17 @@ import { StyleSheet } from "react-native";
 import { colors } from "../../../../utils/colors";
 
 export const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FAFAFA', // Fundo levemente cinza melhora o contraste dos cards brancos
+  },
   list: {
     flex: 1,
   },
   contentContainer: { 
-    padding: 20,
-    paddingBottom: 90
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 90 // Espaço para a BottomNavigation
   },
   centerContainer: {
     flex: 1,
@@ -23,87 +28,17 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     color: '#666',
   },
-  cardContainer: {
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    borderWidth: 1,
-    borderColor: '#e5e7eb'
-  },
-  completedCard: {
-    borderColor: colors.green,
-    borderWidth: 2,
-  },
-  header: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 12,
-    paddingBottom: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6'
-  },
-  cycleName: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#4b5563',
-    textTransform: 'uppercase'
-  },
-  dates: {
-    fontSize: 14,
-    color: '#9ca3af'
-  },
-  trackInfo: {
-    flex: 1,
-    marginRight: 10,
-  },
-  trackTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1f2937',
-    marginBottom: 6
-  },
-  trackDescription: {
-    fontSize: 14,
-    color: '#6b7280',
-    lineHeight: 20
-  },
-  contentRow: {
+  titleContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  percentageContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    minWidth: 50,
-  },
-  percentageText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: colors.green,
-  },
-  fadedCard: {
-    opacity: 0.6,
-    backgroundColor: '#f9fafb'
-  },
-  closedText: {
-    fontSize: 12,
-    color: '#ef4444',
-    marginTop: 4,
-    fontWeight: 'bold'
-  },
-  title: {
-    flexDirection: 'row'
+    marginTop: 25,
+    marginBottom: 20,
   },
   textTitle: {
     color: colors.secundaria,
-    fontSize: 25
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginLeft: 8,
   }
 });

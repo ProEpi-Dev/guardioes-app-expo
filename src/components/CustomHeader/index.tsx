@@ -8,10 +8,11 @@ import { colors } from "../../utils/colors";
 
 interface CustomHeaderProps {
   userName: string | undefined;
+  showBackButton?: boolean; // Propriedade nova
 }
 
-export const CustomHeader = ({ userName }: CustomHeaderProps) => {
-  const navigation = useNavigation<DrawerNavigationProp<any>>();
+export const CustomHeader = ({ userName, showBackButton }: CustomHeaderProps) => {
+  const navigation = useNavigation<any>(); // Usando <any> para aceitar tanto Drawer quanto Stack
   const insets = useSafeAreaInsets();
   
   return (
@@ -29,11 +30,16 @@ export const CustomHeader = ({ userName }: CustomHeaderProps) => {
         paddingTop: insets.top,
       }}
     >
-      <TouchableOpacity onPress={() => navigation.openDrawer()}>
-        <Feather name="menu" size={28} color="white" />
+      {/* Condição: Seta de voltar ou Menu hambúrguer */}
+      <TouchableOpacity 
+        style={{ zIndex: 10, padding: 5 }} 
+        onPress={() => showBackButton ? navigation.goBack() : navigation.openDrawer()}
+      >
+        <Feather name={showBackButton ? "arrow-left" : "menu"} size={28} color="white" />
       </TouchableOpacity>
 
-      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+      {/* paddingRight compensa o tamanho do ícone à esquerda para manter o texto centralizado */}
+      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', paddingRight: 38 }}>
         <Image source={require('../../../assets/icone_g_branca.png')} style={{ width: 50, height: 55 }} />
         <Text style={{ color: 'white', marginLeft: 15, fontSize: 17 }}>Olá, {userName}!</Text>
       </View>
