@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const isValid = authStorage.isTokenValid(storedToken, 5);
         
         if (!isValid) {
-          console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
+          // console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
           // Token está expirando em menos de 5 minutos, fazer logout
           await logout();
           return;
@@ -239,9 +239,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data && response.data.length > 0) {
         const firstForm = response.data[0];
         setForm(firstForm);
-        console.log('Form carregado:', firstForm);
+        // console.log('Form carregado:', firstForm);
       } else {
-        console.log('Nenhum form disponível');
+        // console.log('Nenhum form disponível');
         setForm(null);
       }
     } catch (error) {

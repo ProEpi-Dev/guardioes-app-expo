@@ -89,7 +89,7 @@ sdk.dir=${normalizedPath}
 `;
 
   fs.writeFileSync(localPropertiesPath, content, 'utf8');
-  console.log(`✅ Generated android/local.properties with SDK path: ${normalizedPath}`);
+  // console.log(`✅ Generated android/local.properties with SDK path: ${normalizedPath}`);
 }
 
 const withAndroidLocalProperties = (config) => {

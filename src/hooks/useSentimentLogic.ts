@@ -64,7 +64,7 @@ export const useSentimentLogic = () => {
                 userIsCompliant = data.is_compliant;
             }
 
-            console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
+            // console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
             setIsCompliant(userIsCompliant);
             lastComplianceCheck.current = Date.now();
           }

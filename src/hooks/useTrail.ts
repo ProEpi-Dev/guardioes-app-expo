@@ -35,7 +35,7 @@ export const useTrails = () => {
             ]);
 
             const compliance = (complianceRaw as any)?.data || complianceRaw;
-            console.log(compliance);
+            // console.log(compliance);
             
             let isUserCompliant = true;
 
@@ -58,8 +58,8 @@ export const useTrails = () => {
                 }
             }
 
-            console.log('Status Compliance:', isUserCompliant); 
-            console.log('Slug Alvo:', targetMandatorySlugs);
+            // console.log('Status Compliance:', isUserCompliant); 
+            // console.log('Slug Alvo:', targetMandatorySlugs);
 
             setIsCompliant(isUserCompliant);
             

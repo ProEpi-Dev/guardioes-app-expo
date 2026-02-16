@@ -17,7 +17,7 @@ import {
 const messaging = getMessaging();
 
 setBackgroundMessageHandler(messaging, async remoteMessage => {
-  console.log('Mensagem em Background (App Fechado):', remoteMessage);
+  // console.log('Mensagem em Background (App Fechado):', remoteMessage);
 });
 
 
@@ -70,14 +70,14 @@ function AppContent() {
       if (enabled) {
         try {
           const token = await getToken(messaging);
-          console.log('>>> TOKEN FCM (Modular):', token);
+          // console.log('>>> TOKEN FCM (Modular):', token);
         } catch (error) {
-          console.log('Erro token FCM:', error);
+          // console.log('Erro token FCM:', error);
         }
       }
 
       const unsubscribe = onMessage(messaging, async remoteMessage => {
-        console.log('Foreground FCM:', remoteMessage);
+        // console.log('Foreground FCM:', remoteMessage);
         
         const { notification, data } = remoteMessage;
         
@@ -117,14 +117,14 @@ function AppContent() {
       
       if (isAuthenticated) {
         // Se estiver autenticado, navegar para Home
-        console.log('🔐 [App] Usuário autenticado, navegando para Home');
+        // console.log('🔐 [App] Usuário autenticado, navegando para Home');
         navigationRef.current.reset({
           index: 0,
           routes: [{ name: 'Home' }],
         });
       } else {
         // Se não estiver autenticado, garantir que está na Welcome
-        console.log('🔐 [App] Usuário não autenticado, mantendo na Welcome');
+        // console.log('🔐 [App] Usuário não autenticado, mantendo na Welcome');
         navigationRef.current.reset({
           index: 0,
           routes: [{ name: 'Welcome' }],

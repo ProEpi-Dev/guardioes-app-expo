@@ -202,7 +202,7 @@ export default function ProfileScreen() {
         visible={showDetailsModal} 
         onClose={() => setShowDetailsModal(false)}
         onSuccess={() => {
-           console.log("Dados complementares atualizados");
+          //  console.log("Dados complementares atualizados");
         }}
       />
 

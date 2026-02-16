@@ -9,36 +9,37 @@ import { useTrailContent } from '../../../../hooks/useTrailContent';
 import { useTrailNavigation } from '../../../../hooks/useTrailNavigation';
 import { styles } from './styles';
 import { TimelineItem } from '../../../../components/TimelineItem';
+import { CustomHeader } from '../../../../components/CustomHeader'; // ADICIONADO
+import { useAuth } from '../../../../contexts/AuthContext'; // ADICIONADO
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
 export default function TrailContent({ route }: Props) {
+  const { user } = useAuth();
   const { participationId } = useParticipation();
-  const { cycleId, isCycleExpired } = route.params || {};
+  const { cycleId, title, isCycleExpired } = route.params || {};
   const { trailData, enrichedSections, loading, trackProgressId } = useTrailContent(cycleId, participationId);
   const { handleQuizPress, handleArticlePress, loading: navLoading } = useTrailNavigation();
 
-  if (!cycleId) {
-    return <View style={styles.center}><Text>Ciclo não identificado.</Text></View>;
-  }
-
+  // ... (mantenha as checagens de loading/empty originais)
   if (loading || navLoading) {
     return <View style={styles.center}><ActivityIndicator size="large" color="#0000ff" /></View>;
   }
 
-  if (!trailData) {
-    return <View style={styles.center}><Text>Trilha não encontrada</Text></View>;
-  }
-
-  const sectionsToRender = enrichedSections.length > 0 ? enrichedSections : (trailData.section || []);
-
-  if (sectionsToRender.length === 0) {
-    return <Text style={styles.emptyText}>Nenhuma seção encontrada.</Text>;
-  }
+  const sectionsToRender = enrichedSections.length > 0 ? enrichedSections : (trailData?.section || []);
 
   return (
-    <SafeAreaView style={styles.screen}>
+    <SafeAreaView style={styles.screen} edges={['bottom', 'left', 'right']}>
+      {/* Cabeçalho igual ao da imagem */}
+      <CustomHeader userName={user?.name} showBackButton={true}/>
+      
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        
+        {/* Título da Trilha centralizado */}
+        <View style={styles.trailHeader}>
+           <Text style={styles.trailTitleText}>Trilha: {title}</Text>
+        </View>
+
         {sectionsToRender.map((sectionItem: any) => (
           <View key={sectionItem.id} style={styles.sectionContainer}>
             

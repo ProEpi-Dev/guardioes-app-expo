@@ -5,7 +5,7 @@ import { getQuizDetails, getUserSubmissions } from './quiz';
 export const getTrackCycles = async (): Promise<TrackCycle[]> => {
   const response = await apiClient('/v1/track-cycles', { method: 'GET' }) as any;
   if (Array.isArray(response)) {
-    console.log(response)
+    // console.log(response)
     return response;
   }
   return [];
@@ -19,52 +19,6 @@ export const getTrackCycleDetails = async (id: number): Promise<TrackCycle | nul
     console.error('Erro ao buscar detalhes do ciclo', error);
     return null;
   }
-};
-
-export const enrichTrailWithProgress = async (trailData: any, participationId: number) => {
-  const userSubmissions = await getUserSubmissions(participationId);
-
-  const sectionsPromises = (trailData.section || []).map(async (section: any) => {
-    
-    const sequencePromises = (section.sequence || []).map(async (seqItem: any) => {
-      if (!seqItem.form) return seqItem;
-
-      try {
-        const quizDefinition = await getQuizDetails(seqItem.form.id);
-        const targetId = String(seqItem.form.id);
-        const targetTitle = seqItem.form.title?.trim().toLowerCase();
-
-        const submission = userSubmissions.find((s: any) => {
-          if (s.formId && String(s.formId) === targetId) return true;
-          if (s.formVersion?.formId && String(s.formVersion.formId) === targetId) return true;
-          if (s.formVersion?.form?.id && String(s.formVersion.form.id) === targetId) return true;
-          const subTitle = s.formVersion?.form?.title?.trim().toLowerCase();
-          return subTitle && targetTitle && subTitle === targetTitle;
-        });
-
-        return {
-          ...seqItem,
-          maxAttempts: quizDefinition?.maxAttempts,
-          passingScore: quizDefinition?.passingScore,
-          timeLimitMinutes: quizDefinition?.timeLimitMinutes,
-          score: submission?.score,
-          isPassed: submission?.isPassed,
-          attemptNumber: submission?.attemptNumber,
-          form: {
-            ...seqItem.form,
-            title: seqItem.form.title
-          }
-        };
-      } catch (err) {
-        return seqItem;
-      }
-    });
-
-    const resolvedSequence = await Promise.all(sequencePromises);
-    return { ...section, sequence: resolvedSequence };
-  });
-
-  return Promise.all(sectionsPromises);
 };
 
 export const getTrackProgress = async (participationId: number, cycleId: number) => {
@@ -104,41 +58,81 @@ export const completeQuizSequence = async (trackProgressId: number, sequenceId: 
     });
 };
 
-export const mergeTrailWithProgress = (trailFullData: any, progressData: any, submissions: any[] = []): Section[] => {
+export const mergeTrailWithProgress = async (trailFullData: any, progressData: any, submissions: any[] = []): Promise<Section[]> => {
     if (!trailFullData || !trailFullData.section) return [];
 
     const lockedMap = progressData?.sequence_locked || {};
     const progressList = progressData?.sequence_progress || [];
 
-    return trailFullData.section.map((section: any) => ({
-        ...section,
-        sequence: (section.sequence || []).map((seq: any) => {
+    const sectionsPromises = trailFullData.section.map(async (section: any) => {
+        const sequencePromises = (section.sequence || []).map(async (seq: any) => {
             const isLocked = lockedMap[String(seq.id)];
             const progressItem = progressList.find((p: any) => p.sequence_id === seq.id);
             
-            const formObj = seq.form || {};
-            const versionObj = formObj.latestVersion || {};
+            const isQuiz = !!seq.form;
+            
+            let passingScore = null;
+            let maxAttempts = null;
+            let timeLimitMinutes = null;
 
-            const passingScore = versionObj.passingScore ?? formObj.passingScore ?? null;
-            const maxAttempts = versionObj.maxAttempts ?? formObj.maxAttempts ?? null;
-            const timeLimitMinutes = versionObj.timeLimitMinutes ?? formObj.timeLimitMinutes ?? null;
+            // 1. Busca assíncrona dos detalhes do quiz
+            if (isQuiz) {
+                try {
+                    const quizDetails = await getQuizDetails(seq.form.id);
+                    passingScore = quizDetails?.passingScore ?? quizDetails?.latestVersion?.passingScore ?? null;
+                    maxAttempts = quizDetails?.maxAttempts ?? quizDetails?.latestVersion?.maxAttempts ?? null;
+                    timeLimitMinutes = quizDetails?.timeLimitMinutes ?? quizDetails?.latestVersion?.timeLimitMinutes ?? null;
+                } catch (err) {
+                    console.warn(`Falha ao buscar detalhes do quiz ${seq.form.id}:`, err);
+                }
+            }
 
-            const isPassed = progressItem?.is_passed || (progressItem?.status === 'completed' && !!seq.form);
-            const score = progressItem?.score;
+            // 2. Busca a nota real e tentativa nas submissões
+            let realScore = null;
+            let attemptNumber = 0;
+            let isPassed = false;
+
+            if (isQuiz) {
+                // Encontra a melhor/última submissão para este formulário ordenando por data
+                const quizSub = submissions
+                    .filter((s: any) => s.formVersion?.form?.id === seq.form.id)
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+                
+                if (quizSub) {
+                    realScore = quizSub.score;
+                    attemptNumber = quizSub.attemptNumber || 0; // Usando a chave correta do seu log
+                    isPassed = quizSub.isPassed; // Usando a chave correta do seu log
+                }
+            } else {
+                // Se for artigo, a aprovação é o status concluído do progressItem
+                isPassed = progressItem?.status === 'completed';
+            }
+
+            // Se for quiz e não tiver nota, forçamos o status para 'not_started' para ele não ficar verde atoa
+            let progressStatus = progressItem?.status || 'not_started';
+            if (isQuiz && realScore === null) {
+                progressStatus = 'not_started';
+            }
 
             return {
                 ...seq,
                 isLocked: isLocked !== undefined ? isLocked : true,
-                progressStatus: progressItem?.status || 'not_started',
-                score: score, 
+                progressStatus: progressStatus,
+                score: realScore, 
                 isPassed: isPassed,
-                attemptNumber: progressItem?.attempt_number || 0,
+                attemptNumber: attemptNumber,
                 passingScore,
                 maxAttempts,
-                timeLimitMinutes,
             };
-        })
-    }));
+        });
+
+        // Aguarda todas as sequencias desta seção serem resolvidas
+        const resolvedSequence = await Promise.all(sequencePromises);
+        return { ...section, sequence: resolvedSequence };
+    });
+
+    // Aguarda todas as seções serem resolvidas
+    return Promise.all(sectionsPromises);
 };
 
 export const checkMandatoryCompliance = async (participationId: number): Promise<{ is_compliant: boolean; mandatory_slug?: string }> => {

@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
 export function ClusterMap() {
   const [markersData] = useState<MarkerData[]>(() => {
     const generated = generateBrasiliaMarkers(500);
-    console.log('Total de marcadores gerados:', generated.length);
+    // console.log('Total de marcadores gerados:', generated.length);
     return generated;
   });
 
@@ -334,9 +334,9 @@ export function ClusterMap() {
     // O Callout já mostra as informações quando o usuário clica
     try {
       if ('cluster' in cluster.properties && cluster.properties.cluster) {
-        console.log('Cluster pressionado:', clusterType, 'Total:', (cluster.properties as any).point_count);
+        // console.log('Cluster pressionado:', clusterType, 'Total:', (cluster.properties as any).point_count);
       } else {
-        console.log('Marcador pressionado:', cluster.properties);
+        // console.log('Marcador pressionado:', cluster.properties);
       }
     } catch (error) {
       console.error('Erro ao processar clique no cluster:', error);

@@ -13,7 +13,7 @@ export function useUserLocation() {
       setLocation(current);
       return current;
     } catch (error) {
-      console.log('Erro localização', error);
+      // console.log('Erro localização', error);
       return null;
     }
   };

@@ -32,7 +32,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
           search: user.email.trim()
         });
 
-        console.log(`[ParticipationContext] Buscando usuário: /v1/users?${userParams.toString()}`);
+        // console.log(`[ParticipationContext] Buscando usuário: /v1/users?${userParams.toString()}`);
         
         const usersRes: any = await apiClient(`/v1/users?${userParams.toString()}`, { method: 'GET' });
         const usersList = usersRes.data || usersRes || [];
@@ -56,7 +56,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
           userId: foundUserId.toString()
         });
 
-        console.log(`[ParticipationContext] Buscando participação: /v1/participations?${partParams.toString()}`);
+        // console.log(`[ParticipationContext] Buscando participação: /v1/participations?${partParams.toString()}`);
 
         const partRes: any = await apiClient(`/v1/participations?${partParams.toString()}`, { method: 'GET' });
         const partList = partRes.data || partRes || [];
@@ -65,7 +65,7 @@ export function ParticipationProvider({ children }: { children: React.ReactNode 
           const myParticipation = partList[0];
           
           if (isActive) {
-            console.log(`[ParticipationContext] Sucesso! ID: ${myParticipation.id}`);
+            // console.log(`[ParticipationContext] Sucesso! ID: ${myParticipation.id}`);
             setParticipationId(myParticipation.id);
             setContextId(myParticipation.contextId);
           }

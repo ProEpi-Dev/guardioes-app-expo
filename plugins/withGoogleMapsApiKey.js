@@ -97,14 +97,14 @@ if (withAndroidManifest) {
       if (googleMapsMetaDataIndex >= 0) {
         // Update existing meta-data
         existingMetaData[googleMapsMetaDataIndex] = metaData;
-        console.log('✅ Google Maps API Key updated in AndroidManifest (from .env)');
+        // console.log('✅ Google Maps API Key updated in AndroidManifest (from .env)');
       } else {
         // Add new meta-data
         if (!application['meta-data']) {
           application['meta-data'] = [];
         }
         application['meta-data'].push(metaData);
-        console.log('✅ Google Maps API Key added to AndroidManifest (from .env)');
+        // console.log('✅ Google Maps API Key added to AndroidManifest (from .env)');
       }
 
       return config;
