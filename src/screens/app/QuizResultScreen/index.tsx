@@ -22,7 +22,7 @@ export function QuizResultScreen() {
 
   return (
     <View style={styles.container}>
-      <CustomHeader userName={user?.name} showBackButton={true}/>
+      <CustomHeader userName={user?.name} showButton={false}/>
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomBarHeight + 20 }]}>
         
         <ScoreHeader 

@@ -1,70 +1,74 @@
 import { StyleSheet } from "react-native";
 import { scale } from "../../../utils/scalling";
+import { colors } from "../../../utils/colors";
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
   centerContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  
+  // Cabeçalho alinhado ao Figma
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0'
+    paddingTop: 16,
+    paddingBottom: 10,
   },
-  progressText: { fontSize: scale(14), fontWeight: '600', color: '#666' },
-  timerText: { fontSize: scale(14), fontWeight: 'bold', color: '#0000ff', marginTop: 2 },
-  progressBarBg: { height: 4, backgroundColor: '#E0E0E0', width: '100%' },
-  progressBarFill: { height: '100%', backgroundColor: '#0000ff' },
-  contentContainer: { flex: 1, padding: 20 },
-  resultText: { fontWeight: 'bold', fontSize: scale(16) },
+  trailTitle: { 
+    fontSize: scale(18), 
+    color: colors.secundaria, 
+    fontWeight: '500', 
+    marginBottom: 12, 
+    textAlign: 'center' 
+  },
+  progressText: { 
+    fontSize: scale(15), 
+    fontWeight: 'bold', 
+    color: colors.secundaria, 
+    marginBottom: 8 
+  },
+  progressBarBg: { 
+    height: 6, 
+    backgroundColor: '#E5E7EB', 
+    width: '80%', 
+    borderRadius: 3, 
+    alignSelf: 'center', 
+    overflow: 'hidden' 
+  },
+  progressBarFill: { 
+    height: '100%', 
+    backgroundColor: colors.secundaria, 
+    borderRadius: 3 
+  },
+  timerText: { 
+    fontSize: scale(14), 
+    fontWeight: 'bold', 
+    color: '#D32F2F', 
+    marginTop: 12 
+  },
+
+  contentContainer: { flex: 1, paddingHorizontal: 20, paddingTop: 10 },
+  
+  // Rodapé e Botões
   footer: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
+    paddingHorizontal: 20,
+    paddingTop: 5,
     backgroundColor: '#FFF',
+    gap: 12,
   },
-  actionButton: {
-    backgroundColor: '#0000ff',
-    flexDirection: 'row',
+  actionButtonContainer: {
+    borderRadius: 30,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  actionButtonGradient: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
-    borderRadius: 12,
-    gap: 8,
-    elevation: 2,
   },
-  disabledButton: { backgroundColor: '#CCC' },
-  actionButtonText: { color: '#FFF', fontSize: scale(16), fontWeight: 'bold' },
-  resultBanner: {
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 16,
-    marginTop: 5,
-  },
-  bannerHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-    gap: 10,
-  },
-  resultTitle: { 
-    fontWeight: 'bold', 
-    fontSize: scale(16) 
-  },
-  feedbackText: {
-    fontSize: scale(14),
-    color: '#333',
-    fontStyle: 'italic',
-    marginBottom: 4,
-    marginLeft: 34,
-  },
-  correctAnswerText: {
-    fontSize: scale(12), 
-    color: '#666', 
-    marginTop: 4,
-    marginLeft: 34,
-    fontWeight: '600'
-  },
+  actionButtonText: { color: '#FFF', fontSize: scale(15), fontWeight: 'bold' },
+  disabledButton: { opacity: 0.6 },
 });

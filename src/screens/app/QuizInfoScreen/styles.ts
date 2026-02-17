@@ -1,99 +1,153 @@
 import { StyleSheet } from "react-native";
 import { scale } from "../../../utils/scalling";
+import { colors } from "../../../utils/colors";
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
-    padding: 20,
-    justifyContent: 'space-between'
+    backgroundColor: '#F8F9FA', 
   },
+  scrollContent: {
+    padding: 20,
+    flexGrow: 1,
+    alignItems: 'center',
+  },
+  
+  headerTitles: {
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  trailTitle: {
+    fontSize: scale(23),
+    color: colors.secundaria,
+    fontWeight: '500',
+    textAlign: 'center',
+  },
+  separator: {
+    width: 150,
+    height: 1,
+    backgroundColor: '#D1D5DB', 
+    marginVertical: 10,
+  },
+  evaluationTitle: {
+    fontSize: scale(19),
+    color: colors.secundaria,
+    fontWeight: 'bold',
+  },
+
   instructionsContainer: {
     backgroundColor: '#FFF',
-    padding: 20,
-    borderRadius: 12,
-    elevation: 2,
+    padding: 24,
+    borderRadius: 20,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 30,
   },
   iconHeader: {
-    flexDirection: 'row',
+    flexDirection: 'column',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 16,
     gap: 8
   },
   sectionTitle: {
     fontSize: scale(18),
     fontWeight: 'bold',
-    color: '#333',
+    color: colors.secundaria,
+  },
+  bulletsContainer: {
+    width: '100%',
+    alignItems: 'flex-start',
+    paddingHorizontal: 10,
   },
   instructionText: {
     fontSize: scale(14),
-    color: '#555',
-    lineHeight: 24,
+    color: colors.secundaria,
+    lineHeight: 22,
+    textAlign: 'left',
+    marginBottom: 8,
   },
+
   attemptContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
-    paddingTop:5
+    marginBottom: 30,
+  },
+  orangeCircle: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 2,
+    borderColor: '#FFA000',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  orangeIcon: {
+    fontSize: scale(22),
+    fontWeight: 'bold',
+    color: '#FFA000',
+    fontStyle: 'italic',
   },
   attemptLabel: {
-    fontSize: scale(16),
-    color: '#666',
-    marginTop: 10,
+    fontSize: scale(14),
+    color: '#888',
   },
   attemptNumber: {
-    fontSize: scale(32),
+    fontSize: scale(28),
     fontWeight: 'bold',
     color: '#FFA000', 
-    marginVertical: 5,
+    marginVertical: 2,
   },
   attemptSub: {
-    fontSize: scale(12),
-    color: '#999',
+    fontSize: scale(13),
+    color: '#888',
   },
+
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    gap: 15,
+    width: '100%',
+    flexDirection: 'column',
+    gap: 16, 
   },
   secondaryButton: {
-    flex: 1,
-    flexDirection: 'row',
+    width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFF',
-    paddingVertical: 15,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#0000ff',
-    elevation: 2,
-  },
-  disabledButton: {
-    borderColor: '#e0e0e0',
-    backgroundColor: '#f9f9f9',
-    elevation: 0
+    paddingVertical: 16,
+    borderRadius: 30,
+    borderWidth: 1.5,
+    borderColor: colors.secundaria,
   },
   secondaryButtonText: {
-    color: '#0000ff',
+    color: colors.secundaria,
     fontWeight: 'bold',
-    fontSize: scale(14),
-    marginLeft: 8,
+    fontSize: scale(15),
   },
-  primaryButton: {
-    flex: 1,
-    flexDirection: 'row',
+  
+  primaryButtonContainer: {
+    width: '100%',
+    borderRadius: 30,
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  primaryButtonGradient: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0000ff',
-    paddingVertical: 15,
-    borderRadius: 8,
-    elevation: 3,
+    paddingVertical: 16,
   },
   primaryButtonText: {
     color: '#FFF',
     fontWeight: 'bold',
-    fontSize: scale(14),
-    marginRight: 8,
+    fontSize: scale(15),
   },
 });

@@ -35,15 +35,16 @@ export default function TrailStack() {
             <Stack.Screen
                 name="QuizzInfoScreen"
                 component={QuizInfoScreen as any}
-                options={({ route }) => ({
-                    title: route.params.title,
-                    headerShown: true,
-                    headerBackTitleVisible: false,
-                    headerTintColor: '#000',
-                    headerTitleAlign: 'center',
-                    headerStyle: { backgroundColor: '#F5F5F5' },
-                    headerShadowVisible: false,
-                })}
+                // options={({ route }) => ({
+                //     title: route.params.title,
+                //     headerShown: true,
+                //     headerBackTitleVisible: false,
+                //     headerTintColor: '#000',
+                //     headerTitleAlign: 'center',
+                //     headerStyle: { backgroundColor: '#F5F5F5' },
+                //     headerShadowVisible: false,
+                // })}
+                options={{ headerShown: false }}
             />
 
             <Stack.Screen 

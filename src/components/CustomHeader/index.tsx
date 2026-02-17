@@ -8,11 +8,12 @@ import { colors } from "../../utils/colors";
 
 interface CustomHeaderProps {
   userName: string | undefined;
-  showBackButton?: boolean; // Propriedade nova
+  showBackButton?: boolean;
+  showButton?: boolean;
 }
 
-export const CustomHeader = ({ userName, showBackButton }: CustomHeaderProps) => {
-  const navigation = useNavigation<any>(); // Usando <any> para aceitar tanto Drawer quanto Stack
+export const CustomHeader = ({ userName, showBackButton, showButton=true }: CustomHeaderProps) => {
+  const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   
   return (
@@ -31,12 +32,14 @@ export const CustomHeader = ({ userName, showBackButton }: CustomHeaderProps) =>
       }}
     >
       {/* Condição: Seta de voltar ou Menu hambúrguer */}
-      <TouchableOpacity 
-        style={{ zIndex: 10, padding: 5 }} 
-        onPress={() => showBackButton ? navigation.goBack() : navigation.openDrawer()}
-      >
-        <Feather name={showBackButton ? "arrow-left" : "menu"} size={28} color="white" />
-      </TouchableOpacity>
+      {showButton && (
+        <TouchableOpacity 
+          style={{ zIndex: 10, padding: 5 }} 
+          onPress={() => showBackButton ? navigation.goBack() : navigation.openDrawer()}
+        >
+          <Feather name={showBackButton ? "arrow-left" : "menu"} size={28} color="white" />
+        </TouchableOpacity>
+      )}
 
       {/* paddingRight compensa o tamanho do ícone à esquerda para manter o texto centralizado */}
       <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', paddingRight: 38 }}>

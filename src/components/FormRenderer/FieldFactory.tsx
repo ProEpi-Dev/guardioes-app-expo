@@ -102,6 +102,59 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   };
 
+  const renderRadioField = () => {
+    const qAny = field as any;
+    const correctAnswer = qAny.correctAnswer;
+
+    return (
+      <View style={{ gap: 12 }}>
+        {field.options?.map((opt) => {
+          const isSelected = value === opt.value;
+          let bgColor = '#FFF';
+          let borderColor = '#E5E7EB';
+          let textColor = '#333';
+          
+          if (readOnly) {
+            // Se estiver no feedback (somente leitura), mostra verde ou vermelho
+            const isCorrectOption = correctAnswer !== undefined && String(opt.value).trim().toLowerCase() === String(correctAnswer).trim().toLowerCase();
+            
+            if (isCorrectOption) {
+              bgColor = '#D1F4E0'; // Verde claro
+              borderColor = '#4CAF50';
+              textColor = '#2E7D32';
+            } else if (isSelected && !isCorrectOption) {
+              bgColor = '#FDECEA'; // Vermelho claro
+              borderColor = '#F44336';
+              textColor = '#C62828';
+            }
+          } else if (isSelected) {
+            // Se estiver respondendo agora e selecionou a opção
+            borderColor = '#01738D'; // Sua colors.secundaria
+            bgColor = '#F0F7FF';
+            textColor = '#01738D';
+          }
+
+          return (
+            <TouchableOpacity
+              key={String(opt.value)}
+              style={[
+                styles.optionCard,
+                { backgroundColor: bgColor, borderColor: borderColor }
+              ]}
+              onPress={() => !readOnly && onChange(opt.value)}
+              disabled={readOnly}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionText, { color: textColor }]}>
+                {opt.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  };
+
   const renderDateField = () => {
     const dateValue = value instanceof Date ? value : (value ? new Date(value) : null);
 
@@ -176,6 +229,8 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         return renderNumberField();
       case 'select':
         return renderSelectField();
+      case 'radio':
+        return renderRadioField();
       case 'date':
         return renderDateField();
       case 'multiselect':
@@ -208,8 +263,8 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   }
   return (
-    <View style={[styles.fieldContainer, containerStyle]}>
-      <Text style={styles.label}>
+    <View style={[styles.fieldContainer, (field.type as string) === 'radio' && { marginBottom: 0 }, containerStyle]}>
+      <Text style={[styles.label, field.type === 'radio' && styles.quizLabel]}>
         {field.label}
         {field.required && <Text style={styles.required}> *</Text>}
       </Text>
@@ -286,5 +341,25 @@ const styles = StyleSheet.create({
   checkboxLabel: {
     fontSize: 16,
     color: '#32323b',
+  },
+  quizLabel: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#01738D',
+    textAlign: 'center',
+  },
+  optionCard: {
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  optionText: {
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 });
