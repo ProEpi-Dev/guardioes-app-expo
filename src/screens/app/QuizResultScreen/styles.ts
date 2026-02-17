@@ -11,17 +11,23 @@ export const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 10,
     marginLeft: 4,
+    textAlign: 'center'
   },
 
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: '#FFF',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#E0E0E0',
+  buttonContainer: {
+    marginTop: 24,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    overflow: 'hidden',
+  },
+  returnButtonGradient: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
   },
   returnButton: {
     backgroundColor: '#0000ff',

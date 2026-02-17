@@ -20,6 +20,9 @@ export const styles = StyleSheet.create({
     completedCard: {
         borderColor: '#4CAF50', 
     },
+    expiredCard: {
+        borderColor: '#9CA3AF',
+    },
     lockedCard: {
         borderColor: '#E5E7EB', 
         elevation: 1, 

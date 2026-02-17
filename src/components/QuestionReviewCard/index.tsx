@@ -35,14 +35,19 @@ export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question
     ? qAny.options?.find((o: any) => normalizeAnswer(o.value) === normalizeAnswer(correctAnswer))?.label || correctAnswer
     : '';
 
+  const statusColor = isCorrect ? '#4CAF50' : '#D32F2F';
+
   return (
-    <View style={styles.questionCard}>
+    <View style={[
+        styles.questionCard, 
+        { borderColor: statusColor, shadowColor: statusColor }
+    ]}>
       <View style={styles.questionHeader}>
         <Text style={styles.questionIndex}>Questão {index + 1}</Text>
         <Feather 
           name={isCorrect ? "check-circle" : "x-circle"} 
           size={20} 
-          color={isCorrect ? "#4CAF50" : "#F44336"} 
+          color={statusColor} 
         />
       </View>
       
@@ -50,7 +55,7 @@ export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question
 
       <View style={styles.answerContainer}>
         <Text style={styles.label}>Sua resposta:</Text>
-        <Text style={[styles.answerText, { color: isCorrect ? "#4CAF50" : "#F44336" }]}>
+        <Text style={[styles.answerText, { color: statusColor }]}>
           {answerLabel}
         </Text>
       </View>

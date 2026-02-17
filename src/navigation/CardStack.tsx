@@ -17,9 +17,10 @@ export default function CardStack() {
             <Stack.Screen 
             name="Article" 
             component={ArticleScreen}
-            options={({ route }) => ({ 
-                title: route.params.article.title 
-            })}
+            // options={({ route }) => ({ 
+            //     title: route.params.article.title 
+            // })}
+            options={{ headerShown: false }}
             />
         </Stack.Navigator>
     );

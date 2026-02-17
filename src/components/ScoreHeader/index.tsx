@@ -9,7 +9,7 @@ interface ScoreHeaderProps {
 }
 
 export const ScoreHeader: React.FC<ScoreHeaderProps> = ({ title, score, isPassed }) => {
-  const color = isPassed ? '#4CAF50' : '#F44336';
+  const color = isPassed ? '#4CAF50' : '#D32F2F';
 
   return (
     <View style={styles.headerResult}>
@@ -19,12 +19,15 @@ export const ScoreHeader: React.FC<ScoreHeaderProps> = ({ title, score, isPassed
         <Text style={[styles.scoreValue, { color }]}>
           {score}%
         </Text>
-        <Text style={styles.scoreLabel}>Nota Final</Text>
+        <Text style={styles.scoreLabel}>Nota final</Text>
       </View>
 
-      <Text style={[styles.statusText, { backgroundColor: color }]}>
-        {isPassed ? "APROVADO" : "REPROVADO"}
-      </Text>
+      {/* Container com sombra na cor do status para dar o efeito de "Glow" */}
+      <View style={[styles.statusButtonContainer, { backgroundColor: color, shadowColor: color }]}>
+        <Text style={styles.statusText}>
+          {isPassed ? "Aprovado" : "Reprovado"}
+        </Text>
+      </View>
     </View>
   );
 };

@@ -4,5 +4,7 @@ export const colors = {
     botãoBem: '#179EC7',
     botãoMal: '#EB9711',
     white: '#fff',
-    green: '#4AB24E'
+    green: '#4AB24E',
+    azulClaro: '#006A8A',
+    azulEscuro: '#003344',
 }

@@ -1,35 +1,51 @@
 import { StyleSheet } from "react-native";
 import { scale } from "../../utils/scalling";
+import { colors } from "../../utils/colors";
 
 export const styles = StyleSheet.create({
   headerResult: {
     backgroundColor: '#FFF',
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 16,
+    padding: 24,
     alignItems: 'center',
-    marginBottom: 20,
-    elevation: 2,
+    marginBottom: 24,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
-  quizTitle: { fontSize: scale(18), fontWeight: 'bold', color: '#333', marginBottom: 15, textAlign: 'center' },
-  
+  quizTitle: { 
+    fontSize: scale(18), 
+    fontWeight: '500', 
+    color: colors.secundaria, 
+    marginBottom: 20, 
+    textAlign: 'center' 
+  },
   scoreCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
+    width: 130,
+    height: 130,
+    borderRadius: 65,
+    borderWidth: 6,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 15,
+    marginBottom: 24,
   },
-  scoreValue: { fontSize: scale(29), fontWeight: 'bold' },
-  scoreLabel: { fontSize: scale(12), color: '#666' },
+  scoreValue: { fontSize: scale(28), fontWeight: 'bold' },
+  scoreLabel: { fontSize: scale(13), color: '#888', marginTop: 4 },
   
+  statusButtonContainer: {
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    borderRadius: 17,
+    elevation: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+  },
   statusText: {
     color: '#FFF',
     fontWeight: 'bold',
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 20,
     fontSize: scale(14),
   }
 });

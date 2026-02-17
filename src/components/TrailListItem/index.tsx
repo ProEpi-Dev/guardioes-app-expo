@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, Text, View } from 'react-native';
+import { TouchableOpacity, Text, View, StyleProp, ViewStyle } from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { styles } from './styles';
 import { TrackCycle } from '../../types/trail';
@@ -13,6 +13,8 @@ interface TrailListItemProps {
 export function TrailListItem({ item, onPress }: TrailListItemProps) {
     const isCompleted = item.user_status === 'completed';
     const isLocked = item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true;
+    
+    const isExpired = item.isClosed && !isCompleted && !isLocked;
 
     const getIcon = () => {
         if (isCompleted) {
@@ -21,12 +23,19 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
         if (isLocked) {
             return <Feather name="lock" size={22} color="#D1D5DB" />;
         }
+        if (isExpired) {
+             return <MaterialCommunityIcons name="play-circle-outline" size={24} color="#9CA3AF" />;
+        }
         return <MaterialCommunityIcons name="play-circle-outline" size={24} color={colors.secundaria} />;
     };
 
-    const cardStyle = [
+    const cardStyle: StyleProp<ViewStyle> = [
         styles.card,
-        isCompleted ? styles.completedCard : isLocked ? styles.lockedCard : styles.activeCard
+        isCompleted ? styles.completedCard : 
+        isLocked ? styles.lockedCard : 
+        isExpired ? styles.expiredCard :
+        styles.activeCard,
+        isExpired && { opacity: 0.6 } 
     ];
 
     return (
@@ -45,24 +54,25 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
                     Trilha: {item.track?.name || item.name}
                 </Text>
 
-                {/* {item.track?.description && (
+                {item.track?.description && (
                     <Text style={styles.description} numberOfLines={2}>
                         {item.track.description}
                     </Text>
-                )} */}
+                )}
 
-                {item.isMandatoryLock && !isCompleted && (
+                {item.isMandatoryLock && (
                     <Text style={styles.lockedText}>
                         Aguardando conclusão da(s) trilha(s) obrigatória(s)
                     </Text>
                 )}
-
-                {item.isClosed && !isCompleted && !item.isMandatoryLock && (
+                {isExpired && (
                     <Text style={styles.closedText}>
                         Prazo encerrado
                     </Text>
                 )}
             </View>
+
+            <View style={styles.emptyRightSpace} />
         </TouchableOpacity>
     );
 }

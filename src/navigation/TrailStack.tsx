@@ -27,7 +27,7 @@ export default function TrailStack() {
             <Stack.Screen
                 name="Article"
                 component={ArticleScreen as any}
-                options={({ route }) => ({ title: route.params.article?.title || 'Artigo' })}
+                options={{ headerShown: false }}
             />
 
             {/* --- ADICIONE AS TELAS DE QUIZ ABAIXO --- */}
