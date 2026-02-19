@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getArticles } from '../services/article';
-import { Article } from '../types/article';
+import { getArticles, getContentTypes } from '../services/article';
+import { Article, ContentType } from '../types/article';
 
 export const useArticles = () => {
   const [articles, setArticles] = useState<Article[]>([]);
+  const [contentTypes, setContentTypes] = useState<ContentType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -14,8 +15,13 @@ export const useArticles = () => {
       else setIsLoading(true);
       
       setError(null);
-      const data = await getArticles();
-      setArticles(data);
+      const [articlesData, typesData] = await Promise.all([
+        getArticles(),
+        getContentTypes()
+      ]);
+      
+      setArticles(articlesData);
+      setContentTypes(typesData);
     } catch (err) {
       setError('Não foi possível carregar os artigos.');
       console.error(err);
@@ -35,6 +41,7 @@ export const useArticles = () => {
 
   return {
     articles,
+    contentTypes,
     isLoading,
     isRefreshing,
     error,

@@ -11,7 +11,7 @@ export default function CardStack() {
             <Stack.Screen 
             name="Home" 
             component={ArticleCardScreen} 
-            options={{ title: 'Artigos' }}
+            options={{ headerShown: false }}
             />
 
             <Stack.Screen 
