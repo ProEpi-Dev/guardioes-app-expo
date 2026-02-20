@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { colors } from '../../../../utils/colors';
+import { scale } from '../../../../utils/scalling';
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: '#FAFAFA' }, // Fundo cinza clarinho melhora o destaque dos cards
@@ -38,4 +39,21 @@ export const styles = StyleSheet.create({
     shadowRadius: 1,
   },
   sectionBody: { paddingLeft: 4, marginTop: 10 },
+
+  buttonContainer: {
+    marginTop: 24,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    overflow: 'hidden',
+  },
+  returnButtonGradient: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+  returnButtonText: { color: '#FFF', fontSize: scale(16), fontWeight: 'bold' },
 });
