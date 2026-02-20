@@ -3,15 +3,34 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../../utils/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useTrails } from '../../hooks/useTrail';
 
 export function AlertModal() {
   const navigation = useNavigation<any>();
+  const { cycles } = useTrails();
+
+  const handleStart = () => {
+    const targetCycle = cycles.find(c => !c.isMandatoryLock && !c.isClosed) || cycles[0];
+
+    if (targetCycle) {
+        navigation.navigate('Trilha', {
+            screen: 'Accordion',
+            params: {
+                cycleId: targetCycle.id,
+                title: targetCycle.track?.name || targetCycle.name,
+                isCycleExpired: !!targetCycle.isClosed
+            }
+        });
+    } else {
+        navigation.navigate('Trilha');
+    }
+  };
 
   return (
     <View style={styles.container}>
         <Ionicons name="chatbubbles-outline" size={45} color={colors.secundaria} />
         <Text style={styles.textAlert}>Dê os primeiros passos no Guardiões da Saúde</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Trilha')}>
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
             <Text style={styles.buttonText}>Iniciar</Text>
         </TouchableOpacity>
     </View>

@@ -101,7 +101,7 @@ export const useSentimentLogic = () => {
           occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
         });
         
-        Alert.alert('Sucesso', 'Sentimento registrado!');
+        Alert.alert('Sucesso', 'Obrigado por reportar!');
         setTimeout(refreshPoints, 500);
       }
     } catch (e) {

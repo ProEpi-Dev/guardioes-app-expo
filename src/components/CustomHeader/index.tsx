@@ -10,9 +10,10 @@ interface CustomHeaderProps {
   userName: string | undefined;
   showBackButton?: boolean;
   showButton?: boolean;
+  onBackPress?: () => void;
 }
 
-export const CustomHeader = ({ userName, showBackButton, showButton=true }: CustomHeaderProps) => {
+export const CustomHeader = ({ userName, showBackButton, showButton=true, onBackPress }: CustomHeaderProps) => {
   const navigation = useNavigation<any>();
   const insets = useSafeAreaInsets();
   
@@ -35,7 +36,13 @@ export const CustomHeader = ({ userName, showBackButton, showButton=true }: Cust
       {showButton && (
         <TouchableOpacity 
           style={{ zIndex: 10, padding: 5 }} 
-          onPress={() => showBackButton ? navigation.goBack() : navigation.openDrawer()}
+          onPress={() => {
+            if (showBackButton) {
+                onBackPress ? onBackPress() : navigation.goBack();
+            } else {
+                navigation.openDrawer();
+            }
+          }}
         >
           <Feather name={showBackButton ? "arrow-left" : "menu"} size={28} color="white" />
         </TouchableOpacity>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { TouchableOpacity, DeviceEventEmitter } from 'react-native'; // DeviceEventEmitter ADICIONADO
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MapaSentimento } from '../screens/app/MapaSentimento';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,12 +9,32 @@ import { DrawerNavigationProp } from '@react-navigation/drawer';
 import TrailStack from './TrailStack';
 import { colors } from '../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSentimentLogic } from '../hooks/useSentimentLogic';
 
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigation() {
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const insets = useSafeAreaInsets();
+  
+  // Pegamos a variável original que demorava pra recarregar...
+  const { isCompliant: logicCompliant } = useSentimentLogic();
+  
+  // ... e jogamos num Estado Local pra gente ter poder de manipular ela!
+  const [isCompliant, setIsCompliant] = useState(logicCompliant);
+
+  // Sincroniza caso o hook original decida atualizar
+  useEffect(() => {
+    setIsCompliant(logicCompliant);
+  }, [logicCompliant]);
+
+  // ADICIONADO: Escuta o evento de conclusão da Trilha para forçar a exibição da barra
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('force_compliance_update', (status) => {
+      setIsCompliant(status);
+    });
+    return () => subscription.remove();
+  }, []);
 
   return (
     <Tab.Navigator
@@ -23,6 +43,7 @@ export function BottomNavigation() {
         tabBarActiveTintColor: colors.secundaria, 
         tabBarInactiveTintColor: '#999', 
         tabBarStyle: {
+           display: isCompliant ? 'flex' : 'none', // Lê do Estado controlável
            height: 60 + insets.bottom, 
            paddingTop: 8,
            paddingBottom: insets.bottom > 0 ? insets.bottom : 8,

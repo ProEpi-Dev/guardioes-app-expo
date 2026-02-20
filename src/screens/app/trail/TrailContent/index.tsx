@@ -1,6 +1,6 @@
-import React from 'react';
-import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useCallback } from 'react';
+import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, BackHandler } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { RootTrailParamList } from '../../../../types/trail';
@@ -14,6 +14,8 @@ import { useAuth } from '../../../../contexts/AuthContext'; // ADICIONADO
 import { getItemStatus } from '../../../../utils/trailContentStatus';
 import { colors } from '../../../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
+import { useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
@@ -23,6 +25,35 @@ export default function TrailContent({ route, navigation }: Props) {
   const { cycleId, title, isCycleExpired } = route.params || {};
   const { trailData, enrichedSections, loading, trackProgressId } = useTrailContent(cycleId, participationId);
   const { handleQuizPress, handleArticlePress, loading: navLoading } = useTrailNavigation();
+  const { isCompliant } = useSentimentLogic();
+  const insets = useSafeAreaInsets();
+  const bottomPadding = 60 + insets.bottom + 40;
+
+  const handleBackBehavior = useCallback(() => {
+    if (!isCompliant) {
+      // 1. Navega para a tela Inicial (Mapa)
+      (navigation as any).navigate('Inicio', { screen: 'Home' });
+      
+      // 2. Reseta o stack atual (Trilha) de forma segura em background
+      if (navigation.canGoBack()) {
+        navigation.popToTop();
+      } else {
+        navigation.navigate('Home'); // Retorna ao TrailCard (Listagem)
+      }
+      
+      return true; 
+    }
+    // Se está tudo certo, permite voltar pra listagem de trilhas normalmente
+    navigation.goBack();
+    return true;
+  }, [isCompliant, navigation]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', handleBackBehavior);
+      return () => subscription.remove();
+    }, [handleBackBehavior])
+  );
 
   // ... (mantenha as checagens de loading/empty originais)
   if (loading || navLoading) {
@@ -38,9 +69,9 @@ export default function TrailContent({ route, navigation }: Props) {
   return (
     <SafeAreaView style={styles.screen} edges={['bottom', 'left', 'right']}>
       {/* Cabeçalho igual ao da imagem */}
-      <CustomHeader userName={user?.name} showBackButton={true}/>
+      <CustomHeader userName={user?.name} showBackButton={true} onBackPress={handleBackBehavior}/>
       
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomPadding }]}>
         
         {/* Título da Trilha centralizado */}
         <View style={styles.trailHeader}>
@@ -73,7 +104,14 @@ export default function TrailContent({ route, navigation }: Props) {
         {isTrailCompleted && (
           <TouchableOpacity 
             style={styles.buttonContainer} 
-            onPress={() => (navigation as any).navigate('Inicio', { screen: 'Home' })}
+            onPress={() => {
+              (navigation as any).navigate('Inicio', { screen: 'Home' });
+              if (navigation.canGoBack()) {
+                navigation.popToTop();
+              } else {
+                navigation.navigate('Home');
+              }
+            }}
             activeOpacity={0.8}
           >
             <LinearGradient
@@ -86,7 +124,7 @@ export default function TrailContent({ route, navigation }: Props) {
             </LinearGradient>
           </TouchableOpacity>
         )}
-        
+
       </ScrollView>
     </SafeAreaView>
   );

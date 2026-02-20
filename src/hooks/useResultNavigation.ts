@@ -17,7 +17,14 @@ export const useResultNavigation = () => {
   );
 
   const handleReturnToHome = () => {
-    navigation.popToTop(); 
+    const state = navigation.getState();
+    const isFromTrail = state?.routes?.some((r: any) => r.name === 'Accordion');
+    
+    if (isFromTrail) {
+      navigation.navigate('Accordion');
+    } else {
+      navigation.popToTop(); 
+    }
   };
 
   return {
