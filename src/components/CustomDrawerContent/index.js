@@ -1,13 +1,17 @@
 import React from 'react';
-import { View, Text, Alert } from 'react-native';
+import { View, Text, Alert, TouchableOpacity, Linking } from 'react-native';
 import { 
   DrawerContentScrollView,
-  DrawerItem
 } from '@react-navigation/drawer';
-import Feather from '@expo/vector-icons/Feather';
+import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
+import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Entypo from '@expo/vector-icons/Entypo';
 import { styles } from './styles';
 import translate from '../../locales/i18n';
 import { useAuth } from '../../contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors } from '../../utils/colors';
 
 export default function CustomDrawerContent(props) {
   const { navigation } = props;
@@ -29,7 +33,7 @@ export default function CustomDrawerContent(props) {
             await logout();
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Welcome' }],
+              routes: [{ name: 'Login' }],
             });
           },
         },
@@ -38,52 +42,67 @@ export default function CustomDrawerContent(props) {
   };
 
   return (
-    <DrawerContentScrollView {...props}>
+    <DrawerContentScrollView {...props} contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.userInfoSection}>
-        <View style={styles.avatarContainer}>
-          <Feather name="user" size={30} color="#348eac" />
-        </View>
         <Text style={styles.userName}>
-          Olá, {user?.name || 'Usuário'} 
+          {user?.name || 'Usuário'} 
         </Text>
+        <TouchableOpacity style={styles.closeContainer} onPress={() => navigation.closeDrawer()}>
+          <AntDesign name="close" size={24} color="black" />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.separator} />
 
       <View style={styles.header}>
-        <DrawerItem
-          label="Início"
-          icon={({ size }) => (
-            <Feather name="home" size={size} color={'white'} />
-          )}
-          onPress={() => navigation.navigate('Inicio')}
-          style={styles.drawerItemBlue}
-          labelStyle={styles.drawerLabel}
-        />
-        <DrawerItem
-          label="Perfil"
-          icon={({ size }) => (
-            <Feather name="user" size={size} color={'white'} />
-          )}
-          onPress={() => navigation.navigate('Perfil')}
-          style={styles.drawerItemBlue}
-          labelStyle={styles.drawerLabel}
-        />
-        <DrawerItem
-          label="Sair"
-          icon={({ size }) => (
-            <Feather name="log-out" size={size} color={'white'} />
-          )}
-          onPress={handleLogout}
-          style={styles.drawerItemGreen}
-          labelStyle={styles.drawerLabel}
-        />
+
+        <View style={styles.botao}>
+          <TouchableOpacity style={styles.actionButtonContainer} onPress={() => navigation.navigate('Inicio')}>
+            <LinearGradient
+              colors={[colors.azulClaro, colors.azulEscuro]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.actionButtonGradient}
+            >
+                  <FontAwesome5 name="home" size={24} color={'white'} />
+                  <Text style={styles.actionButtonText}>
+                    Início
+                  </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButtonContainer} onPress={() => navigation.navigate('Perfil')}>
+            <LinearGradient
+              colors={[colors.azulClaro, colors.azulEscuro]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.actionButtonGradient}
+            >
+                  <FontAwesome5 name="user-edit" size={24} color={'white'} />
+                  <Text style={styles.actionButtonText}>
+                    Perfil
+                  </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButtonContainer} onPress={handleLogout}>
+            <LinearGradient
+              colors={[colors.azulClaro, colors.azulEscuro]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.actionButtonGradient}
+            >
+                  <Entypo name="log-out" size={24} color={'white'} />
+                  <Text style={styles.actionButtonText}>
+                    Sair
+                  </Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* <View style={styles.titleSection}>
         <Text style={styles.titleText}>{translate('drawer.app')}</Text>
-      </View>
-
+        </View>
+        
       <DrawerItem
         label={translate('drawer.cluster')}
         icon={({ size }) => (
@@ -103,6 +122,30 @@ export default function CustomDrawerContent(props) {
         style={styles.drawerItemGreen}
         labelStyle={styles.drawerLabel}
       /> */}
+
+      <View style={styles.socialContainer}>
+        <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/guardioesdasaudeunb/')}>
+          <LinearGradient
+            colors={[colors.gradientSocialLinkEscuro, colors.gradientSocialLinkClaro]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.redeSocial}
+          >
+            <Entypo name="instagram" size={24} color="white" />
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => Linking.openURL('https://x.com/guardioesunb')}>
+          <LinearGradient
+            colors={[colors.gradientSocialLinkEscuro, colors.gradientSocialLinkClaro]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.redeSocial}
+          >
+            <FontAwesome6 name="x-twitter" size={24} color="white" />
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
     </DrawerContentScrollView>
   );
 }

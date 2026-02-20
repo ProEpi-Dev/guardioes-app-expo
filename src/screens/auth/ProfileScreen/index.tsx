@@ -6,6 +6,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { updateUser as updateUserApi } from '../../../services/user';
 import { EditProfileModal } from '../../../components/EditProfileModal';
 import { styles } from './styles';
+import { ChangePasswordModal } from '../../../components/ChangePasswordModal';
 
 export default function ProfileScreen() {
   const { user, updateUserLocal } = useAuth(); 
@@ -19,6 +20,7 @@ export default function ProfileScreen() {
   const [confirmPassword, setConfirmPassword] = useState('');
   
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showChangePasswordModal, setShowPasswordModal] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -119,42 +121,8 @@ export default function ProfileScreen() {
             />
           </View>
 
-          {/* Área de Senha */}
           {isEditingBasic && (
             <View style={styles.passwordContainer}>
-              <TouchableOpacity 
-                style={styles.togglePasswordBtn}
-                onPress={() => setIsChangingPassword(!isChangingPassword)}
-              >
-                <Feather name={isChangingPassword ? "check-square" : "square"} size={20} color="#348eac" />
-                <Text style={styles.togglePasswordText}>Quero alterar minha senha</Text>
-              </TouchableOpacity>
-
-              {isChangingPassword && (
-                <>
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Nova Senha</Text>
-                    <TextInput 
-                      style={styles.input}
-                      value={password}
-                      onChangeText={setPassword}
-                      secureTextEntry
-                      placeholder="Digite a nova senha"
-                    />
-                  </View>
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Confirme a Nova Senha</Text>
-                    <TextInput 
-                      style={styles.input}
-                      value={confirmPassword}
-                      onChangeText={setConfirmPassword}
-                      secureTextEntry
-                      placeholder="Confirme a nova senha"
-                    />
-                  </View>
-                </>
-              )}
-
               <View style={styles.actionButtons}>
                 <TouchableOpacity 
                   style={styles.cancelButton} 
@@ -182,6 +150,21 @@ export default function ProfileScreen() {
 
         {/* Seção 2: Dados Complementares */}
         <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Alterar Senha</Text>
+          <Text style={styles.sectionDescription}>
+            Senha Atual, Nova Senha e Confirme sua senha
+          </Text>
+          
+          <TouchableOpacity 
+            style={styles.editDetailsButton}
+            onPress={() => setShowPasswordModal(true)}
+          >
+            <Feather name="edit-3" size={20} color="#348eac" />
+            <Text style={styles.editDetailsText}>Atualizar Senha</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dados Complementares</Text>
           <Text style={styles.sectionDescription}>
             Gênero, Localização e Matrícula.
@@ -201,6 +184,14 @@ export default function ProfileScreen() {
       <EditProfileModal 
         visible={showDetailsModal} 
         onClose={() => setShowDetailsModal(false)}
+        onSuccess={() => {
+          //  console.log("Dados complementares atualizados");
+        }}
+      />
+
+      <ChangePasswordModal 
+        visible={showChangePasswordModal} 
+        onClose={() => setShowPasswordModal(false)}
         onSuccess={() => {
           //  console.log("Dados complementares atualizados");
         }}

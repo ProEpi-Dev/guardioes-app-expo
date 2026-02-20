@@ -127,7 +127,7 @@ function AppContent() {
         // console.log('🔐 [App] Usuário não autenticado, mantendo na Welcome');
         navigationRef.current.reset({
           index: 0,
-          routes: [{ name: 'Welcome' }],
+          routes: [{ name: 'Login' }],
         });
       }
     }

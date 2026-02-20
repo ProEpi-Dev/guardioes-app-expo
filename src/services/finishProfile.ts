@@ -50,6 +50,16 @@ export const updateUserProfile = async (payload: { genderId: number, locationId:
   });
 };
 
+export const updatePassword = async (payload: { currentPassword: string, newPassword: string }) => {
+  return await apiClient('/v1/auth/change-password', { 
+    method: 'PATCH',
+    body: JSON.stringify(payload),
+    headers: {
+        'Content-Type': 'application/json'
+    }
+  });
+};
+
 export const getNameEmail = async (id: number | string): Promise<UserBasicInfo> => {
   const response: any = await apiClient(`/v1/users/${id}`, { method: 'GET' });
   const userData = response.data || response;

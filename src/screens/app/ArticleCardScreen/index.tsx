@@ -11,6 +11,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FilterDrawer } from '../../../components/FilterDrawer';
+import { Feather } from '@expo/vector-icons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -72,23 +73,24 @@ export default function ArticleListScreen({ navigation }: Props) {
       <CustomHeader userName={user?.name} />
 
       <View style={styles.botaoFiltro}>
-              <TouchableOpacity 
-                style={styles.actionButtonContainer}
-                onPress={() => setIsDrawerOpen(true)}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={[colors.azulClaro, colors.azulEscuro]}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.actionButtonGradient}
-                >
-                     <Text style={styles.actionButtonText}>
-                       Filtro {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
-                     </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+        <TouchableOpacity 
+          style={styles.actionButtonContainer}
+          onPress={() => setIsDrawerOpen(true)}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={[colors.azulClaro, colors.azulEscuro]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.actionButtonGradient}
+          >
+            <Feather name="filter" size={24} color="white" />
+            <Text style={styles.actionButtonText}>
+              Filtro {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
+            </Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      </View>
 
       <FlatList
         style={styles.list}

@@ -7,4 +7,7 @@ export const colors = {
     green: '#4AB24E',
     azulClaro: '#006A8A',
     azulEscuro: '#003344',
+    gradientSocialLinkEscuro: '#00A89F',
+    gradientSocialLinkClaro: '#34C2C1',
+    gradientAzulEscuro: '#003344'
 }

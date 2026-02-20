@@ -38,9 +38,11 @@ export const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   actionButtonGradient: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 16,
+    gap: 10,
   },
   actionButtonText: { 
     color: '#FFF', 

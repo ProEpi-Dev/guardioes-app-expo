@@ -14,8 +14,7 @@ import { terms } from '../../../utils/consts'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 // Logos
-const GDSLogoBR = require('../../../../assets/gds-pt-branca.png')
-const GDSLogoES = require('../../../../assets/gds-es-branca.png')
+const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png')
 const verde = '#77bfad'
 const azul = '#2E97BE'
 
@@ -40,10 +39,6 @@ const Welcome = ({ navigation }) => {
     }
 
     let LogoType = GDSLogoBR
-
-    if (translate('lang.code') === 'es') {
-        LogoType = GDSLogoES
-    }
 
     return (
         <>

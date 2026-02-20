@@ -16,12 +16,12 @@ export default function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? "Home" : "Welcome"}
+      initialRouteName={isAuthenticated ? "Home" : "Login"}
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Stack.Screen name="Welcome" component={Welcome} />
+      {/* <Stack.Screen name="Welcome" component={Welcome} /> */}
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="PasswordRecover" component={PasswordRecover} />
       <Stack.Screen name="Register" component={Register} />

@@ -12,14 +12,17 @@ import {
   Touch,
   SnowButton,
   Label,
+  SolidInput,
+  GradientButtonContainer,
+  GradientButtonLabel,
 } from '../../../components/SnowForms';
 import { Logo, PageTitle } from '../Login/styles';
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
 import { usePasswordRecover } from '../../../hooks/usePasswordRecover';
+import { colors } from '../../../utils/colors';
 
-const GDSLogoBR = require('../../../../assets/gds-pt-branca.png');
-const GDSLogoES = require('../../../../assets/gds-es-branca.png');
+const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 const verde = '#77bfad';
 const azul = '#2E97BE';
 const branco = '#ffffff';
@@ -33,12 +36,10 @@ export function PasswordRecover() {
     navigation 
   } = usePasswordRecover();
 
-  const LogoType = translate('lang.code') === 'es' ? GDSLogoES : GDSLogoBR;
+  const LogoType = GDSLogoBR;
 
   return (
     <>
-      <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
-      <StatusBar backgroundColor={verde} barStyle='light-content' />
       <GradientBackground colors={[azul, verde]}>
         <KeyboardScrollView>
           <Logo source={LogoType} />
@@ -47,10 +48,11 @@ export function PasswordRecover() {
           </PageTitle>
 
           <FormSeparator>
-            <SnowInput
+            <SolidInput
               placeholder={translate('login.email')}
               keyboardType='email-address'
-              autoCapitalize="none"
+              returnKeyType='next'
+              maxLength={100}
               value={email}
               onChangeText={setEmail}
               onSubmitEditing={handleSubmit}
@@ -59,13 +61,13 @@ export function PasswordRecover() {
 
           <FormSeparator>
             <Touch onPress={handleSubmit} disabled={loading}>
-              <SnowButton>
+              <GradientButtonContainer colors={[colors.azulClaro, colors.azulEscuro]}>
                 {loading ? (
-                  <ActivityIndicator size="small" color="#32323b" />
+                  <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <Label>Receber código</Label>
+                  <GradientButtonLabel>Receber link</GradientButtonLabel>
                 )}
-              </SnowButton>
+              </GradientButtonContainer>
             </Touch>
           </FormSeparator>
 

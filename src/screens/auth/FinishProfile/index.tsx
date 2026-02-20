@@ -60,8 +60,6 @@ export function FinishProfile() {
 
   return (
     <>
-      <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
-      <StatusBar backgroundColor={verde} barStyle='light-content' />
       <GradientBackground colors={[azul, verde]}>
         <KeyboardScrollView>
           <Logo source={LogoType} />

@@ -1,29 +1,30 @@
 import React, { useRef, useState } from 'react'
 import { Alert, Keyboard, StatusBar, ActivityIndicator } from 'react-native'
-import Feather from '@expo/vector-icons/Feather'
 import {
     GradientBackground,
     KeyboardScrollView,
-    ButtonBack,
     FormSeparator,
-    SnowInput,
+    SolidInput,
     Touch,
-    SnowButton,
-    Label,
     TransparentButton,
+    GradientButtonContainer,
+    GradientButtonLabel,
 } from '../../../components/SnowForms'
-import { Logo, PageTitle, LabelVisible } from './styles'
+import { 
+    Logo, 
+    WelcomeText, 
+    LabelVisible, 
+    SeparatorLine, 
+    FooterContainer, 
+    FooterText, 
+    FooterLink 
+} from './styles'
 import translate from '../../../locales/i18n'
-import { scale } from '../../../utils/scalling'
-import { SafeAreaView } from 'react-native-safe-area-context'
 import { useAuth } from '../../../contexts/AuthContext'
+import { colors } from '../../../utils/colors'
 
 // Logos
-const GDSLogoBR = require('../../../../assets/gds-pt-branca.png')
-const GDSLogoES = require('../../../../assets/gds-es-branca.png')
-const verde = '#77bfad'
-const azul = '#2E97BE'
-const branco = '#ffffff'
+const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png')
 
 const Login = ({ navigation }) => {
     const [email, setEmail] = useState('')
@@ -47,9 +48,6 @@ const Login = ({ navigation }) => {
             const result = await login(email, password)
             
             if (result.success) {
-                // Login bem-sucedido - a navegação será gerenciada automaticamente
-                // pelo RootNavigator baseado no estado de autenticação
-                // Não precisa fazer navigation.navigate manualmente
                 navigation.navigate('FinishProfile')
             } else {
                 Alert.alert('Erro', result.error || 'Erro ao fazer login')
@@ -64,32 +62,28 @@ const Login = ({ navigation }) => {
 
     let LogoType = GDSLogoBR
 
-    if (translate('lang.code') === 'es') {
-        LogoType = GDSLogoES
-    }
-
     return (
         <>
-            <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
-            <StatusBar backgroundColor={verde} barStyle='light-content' />
-            <GradientBackground>
+            <StatusBar backgroundColor={colors.gradientSocialLinkEscuro} barStyle='light-content' />
+            
+            <GradientBackground colors={[colors.azulClaro, colors.gradientSocialLinkEscuro]}>
                 <KeyboardScrollView>
+                    
                     <Logo source={LogoType} />
-                    <PageTitle>{translate('login.title')}</PageTitle>
+                    
+                    <WelcomeText>Bem vindo (a)</WelcomeText>
 
                     <FormSeparator>
-                        <SnowInput
+                        <SolidInput
                             placeholder={translate('login.email')}
                             keyboardType='email-address'
                             returnKeyType='next'
                             maxLength={100}
                             value={email}
                             onChangeText={(text) => setEmail(text)}
-                            onSubmitEditing={() =>
-                                passwordInput.current.focus()
-                            }
+                            onSubmitEditing={() => passwordInput.current.focus()}
                         />
-                        <SnowInput
+                        <SolidInput
                             placeholder={translate('login.password')}
                             secureTextEntry
                             maxLength={100}
@@ -102,31 +96,31 @@ const Login = ({ navigation }) => {
 
                     <FormSeparator>
                         <Touch onPress={() => handleLogin()} disabled={showProgressBar}>
-                            <SnowButton>
+                            <GradientButtonContainer colors={[colors.azulClaro, colors.azulEscuro]}>
                                 {showProgressBar ? (
-                                    <ActivityIndicator size="small" color="#32323b" />
+                                    <ActivityIndicator size="small" color="#ffffff" />
                                 ) : (
-                                    <Label>{translate('login.loginbutton')}</Label>
+                                    <GradientButtonLabel>Login</GradientButtonLabel>
                                 )}
-                            </SnowButton>
+                            </GradientButtonContainer>
                         </Touch>
                     </FormSeparator>
 
-                    <TransparentButton
-                        onPress={() => navigation.navigate('PasswordRecover')}
-                    >
-                        <LabelVisible>
-                            {translate('login.forgetbutton')}
-                        </LabelVisible>
+                    <TransparentButton onPress={() => navigation.navigate('PasswordRecover')}>
+                        <LabelVisible>{translate('login.forgetbutton')}</LabelVisible>
                     </TransparentButton>
 
-                    <ButtonBack onPress={() => navigation.goBack()}>
-                        <Feather
-                            name='chevron-left'
-                            size={scale(40)}
-                            color={branco}
-                        />
-                    </ButtonBack>
+                    <SeparatorLine />
+
+                    <FooterContainer>
+                        <FooterText>Não tem uma conta?</FooterText>
+                        <TransparentButton 
+                            style={{ width: 'auto', marginTop: 0, height: 'auto' }} 
+                            onPress={() => navigation.navigate('Register')}
+                        >
+                            <FooterLink>Cadastre-se</FooterLink>
+                        </TransparentButton>
+                    </FooterContainer>
                 </KeyboardScrollView>
             </GradientBackground>
         </>
