@@ -35,11 +35,13 @@ export default function TrailContent({ route, navigation }: Props) {
       (navigation as any).navigate('Inicio', { screen: 'Home' });
       
       // 2. Reseta o stack atual (Trilha) de forma segura em background
-      if (navigation.canGoBack()) {
-        navigation.popToTop();
-      } else {
-        navigation.navigate('Home'); // Retorna ao TrailCard (Listagem)
-      }
+      setTimeout(() => {
+        if (navigation.canGoBack()) {
+          navigation.popToTop();
+        } else {
+          navigation.navigate('Home'); // Retorna ao TrailCard (Listagem)
+        }
+      }, 100); // <-- Adicionado o setTimeout aqui
       
       return true; 
     }
@@ -106,11 +108,13 @@ export default function TrailContent({ route, navigation }: Props) {
             style={styles.buttonContainer} 
             onPress={() => {
               (navigation as any).navigate('Inicio', { screen: 'Home' });
-              if (navigation.canGoBack()) {
-                navigation.popToTop();
-              } else {
-                navigation.navigate('Home');
-              }
+              setTimeout(() => {
+                if (navigation.canGoBack()) {
+                  navigation.popToTop();
+                } else {
+                  navigation.navigate('Home');
+                }
+              }, 100);
             }}
             activeOpacity={0.8}
           >
