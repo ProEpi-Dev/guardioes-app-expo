@@ -1,7 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { Alert } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
-import { useUserLocation } from './useUserLocation';
+import { useUserLocationQuery } from './useUserLocationQuery';
 import { useSentimentMap } from './useSentimentMap';
 import { getLatestSignalForm } from '../services/forms';
 import { createReport } from '../services/reports';
@@ -11,7 +11,7 @@ import { useFocusEffect } from '@react-navigation/native';
 export const useSentimentLogic = () => {
   // Hooks Externos
   const { participationId } = useParticipation();
-  const { location, refreshLocation } = useUserLocation();
+  const { location, refetch: refetchLocation } = useUserLocationQuery();
   const { mapPoints, loadingPoints, refreshPoints } = useSentimentMap();
   
   // Estado de conformidade (inicia true para não bloquear durante o carregamento)
@@ -30,9 +30,10 @@ export const useSentimentLogic = () => {
   const lastComplianceCheck = useRef<number>(0);
   const CACHE_DURATION = 60 * 1000;
 
-  // Auxiliar para pegar localização atualizada
   const getLocation = async () => {
-    return location || await refreshLocation();
+    if (location) return location;
+    const { data } = await refetchLocation();
+    return data ?? null;
   };
 
   // Verificação de Conformidade

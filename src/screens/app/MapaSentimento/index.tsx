@@ -3,15 +3,18 @@ import { StatusBar, StyleSheet, View } from 'react-native';
 import { MapWithFeeling } from '../../../components/MapWithFeeling';
 import { SentimentModal } from '../../../components/SentimentModal';
 import { useSentimentLogic } from '../../../hooks/useSentimentLogic';
+import { useUserLocationQuery } from '../../../hooks/useUserLocationQuery';
 import { CustomHeader } from '../../../components/CustomHeader';
-import { useAuth } from '../../../contexts/AuthContext'; 
+import { useAuth } from '../../../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlertModal } from '../../../components/AlertModal';
 
 export function MapaSentimento() {
-  const { user } = useAuth(); 
+  const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
+
+  const { location } = useUserLocationQuery();
 
   const {
     mapPoints,
@@ -30,10 +33,11 @@ export function MapaSentimento() {
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content"/>
-      
+
       <View style={StyleSheet.absoluteFillObject}>
-        <MapWithFeeling 
-          onFeelingSelected={onFeelingSelected} 
+        <MapWithFeeling
+          userLocation={location}
+          onFeelingSelected={onFeelingSelected}
           points={mapPoints}
           loading={loadingPoints}
           bottomOffset={TAB_BAR_HEIGHT}

@@ -1,9 +1,18 @@
 import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+    },
+  },
+});
 import { Platform, PermissionsAndroid } from 'react-native';
 import * as Notifications from 'expo-notifications'; 
 import { 
@@ -142,12 +151,14 @@ function AppContent() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ParticipationProvider>
-        <NavigationContainer ref={navigationRef}>
-          <AppContent />
-        </NavigationContainer>
-      </ParticipationProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <ParticipationProvider>
+          <NavigationContainer ref={navigationRef}>
+            <AppContent />
+          </NavigationContainer>
+        </ParticipationProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
