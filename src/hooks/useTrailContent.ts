@@ -4,7 +4,8 @@ import {
   getTrackProgress, 
   startTrackProgress, 
   getTrackCycleDetails,
-  mergeTrailWithProgress 
+  mergeTrailWithProgress,
+  completeQuizSequence 
 } from '../services/trail';
 import { getUserSubmissions } from '../services/quiz';
 
@@ -15,7 +16,10 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
   const [trackProgressId, setTrackProgressId] = useState<number | null>(null);
 
   const loadContent = useCallback(async () => {
-    if (!cycleId || !participationId) return;
+    if (!cycleId || !participationId){ 
+      setLoading(false);
+      return;
+    }
     
     setLoading(true);
 
@@ -43,10 +47,37 @@ export const useTrailContent = (cycleId: number, participationId: number | null)
       }
 
       if (cycleDetails && cycleDetails.track && currentProgress) {
-        const sections = await mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
+        // const sections = await mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
 
-        // console.log('Dados enriquecidos para as seções:', JSON.stringify(sections, null, 2));
+        // // console.log('Dados enriquecidos para as seções:', JSON.stringify(sections, null, 2));
         
+        // setEnrichedSections(sections);
+        // setTrailData(cycleDetails.track);
+        // setTrackProgressId(currentProgress.id);
+        let sections = await mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
+        let hasDesync = false;
+
+        // Percorre as seções caçando quizzes aprovados que estão com status atrasado no backend
+        for (const section of sections) {
+          for (const seq of (section.sequence || [])) {
+            if (seq.form && seq.isPassed && seq.rawBackendStatus !== 'completed' && seq.quizSubmissionId && currentProgress.id) {
+              try {
+                await completeQuizSequence(currentProgress.id, seq.id, seq.quizSubmissionId);
+                hasDesync = true;
+              } catch (err) {
+                console.error('Erro ao sincronizar quiz com a trilha', err);
+              }
+            }
+          }
+        }
+
+        // Se precisou arrumar algo, refaz a mesclagem com os novos dados desbloqueados pelo backend
+        if (hasDesync) {
+          const updatedProgressResp: any = await getTrackProgress(participationId, cycleId);
+          currentProgress = updatedProgressResp?.data || updatedProgressResp;
+          sections = await mergeTrailWithProgress(cycleDetails.track, currentProgress, userSubmissions);
+        }
+
         setEnrichedSections(sections);
         setTrailData(cycleDetails.track);
         setTrackProgressId(currentProgress.id);

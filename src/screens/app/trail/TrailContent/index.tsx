@@ -107,14 +107,13 @@ export default function TrailContent({ route, navigation }: Props) {
           <TouchableOpacity 
             style={styles.buttonContainer} 
             onPress={() => {
+              navigation.popToTop();
               (navigation as any).navigate('Inicio', { screen: 'Home' });
-              setTimeout(() => {
-                if (navigation.canGoBack()) {
-                  navigation.popToTop();
-                } else {
-                  navigation.navigate('Home');
-                }
-              }, 100);
+              // if (navigation.canGoBack()) {
+              //   navigation.popToTop();
+              // } else {
+              //   navigation.navigate('Home');
+              // }
             }}
             activeOpacity={0.8}
           >

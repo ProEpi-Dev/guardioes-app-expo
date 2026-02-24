@@ -53,7 +53,7 @@ export function QuizResultScreen() {
             end={{ x: 1, y: 0 }}   // Termina na direita
             style={styles.returnButtonGradient}
           >
-            <Text style={styles.returnButtonText}>Retornar para os quizzes</Text>
+            <Text style={styles.returnButtonText}>Retornar para a trilha</Text>
           </LinearGradient>
         </TouchableOpacity>
         

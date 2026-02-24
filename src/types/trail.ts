@@ -47,6 +47,8 @@ export interface Section {
 }
 
 export interface Sequence {
+  rawBackendStatus: string;
+  quizSubmissionId: number;
   id: number;
   sectionId: number;
   contentId: number | null;

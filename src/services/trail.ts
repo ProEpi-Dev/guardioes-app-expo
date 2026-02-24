@@ -91,38 +91,52 @@ export const mergeTrailWithProgress = async (trailFullData: any, progressData: a
             let realScore = null;
             let attemptNumber = 0;
             let isPassed = false;
+            let quizSubmissionId = null;
 
             if (isQuiz) {
-                // Encontra a melhor/última submissão para este formulário ordenando por data
-                const quizSub = submissions
+                // CORREÇÃO: Pega todas as tentativas, da mais nova para a mais velha
+                const formSubmissions = submissions
                     .filter((s: any) => s.formVersion?.form?.id === seq.form.id)
-                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+                    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                
+                // CORREÇÃO: Prioriza sempre a tentativa que foi aprovada!
+                const passedSub = formSubmissions.find((s: any) => s.isPassed);
+                // Se não tem nenhuma aprovada, aí sim mostra a mais recente
+                const quizSub = passedSub || formSubmissions[0];
                 
                 if (quizSub) {
                     realScore = quizSub.score;
-                    attemptNumber = quizSub.attemptNumber || 0; // Usando a chave correta do seu log
-                    isPassed = quizSub.isPassed; // Usando a chave correta do seu log
+                    attemptNumber = quizSub.attemptNumber || 0; 
+                    isPassed = quizSub.isPassed; 
+                    quizSubmissionId = quizSub.id; // Guarda o ID para a autocorreção que fizemos antes
                 }
             } else {
                 // Se for artigo, a aprovação é o status concluído do progressItem
                 isPassed = progressItem?.status === 'completed';
             }
 
-            // Se for quiz e não tiver nota, forçamos o status para 'not_started' para ele não ficar verde atoa
+            // CORREÇÃO: Garante a bolinha verde (completed) na interface se o quiz estiver aprovado
             let progressStatus = progressItem?.status || 'not_started';
-            if (isQuiz && realScore === null) {
-                progressStatus = 'not_started';
+            const rawBackendStatus = progressItem?.status || 'not_started';
+            if (isQuiz) {
+                if (realScore === null) {
+                    progressStatus = 'not_started';
+                } else if (isPassed) {
+                    progressStatus = 'completed';
+                }
             }
 
             return {
                 ...seq,
                 isLocked: isLocked !== undefined ? isLocked : true,
                 progressStatus: progressStatus,
+                rawBackendStatus: rawBackendStatus,
                 score: realScore, 
                 isPassed: isPassed,
                 attemptNumber: attemptNumber,
                 passingScore,
                 maxAttempts,
+                quizSubmissionId
             };
         });
 
