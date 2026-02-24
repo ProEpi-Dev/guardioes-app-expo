@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, BackHandler } from 'react-native';
+import { ScrollView, View, Text, ActivityIndicator, TouchableOpacity, BackHandler, DeviceEventEmitter } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -15,7 +15,7 @@ import { getItemStatus } from '../../../../utils/trailContentStatus';
 import { colors } from '../../../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
-import { useFocusEffect } from '@react-navigation/native';
+import { CommonActions, StackActions, useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
@@ -31,17 +31,16 @@ export default function TrailContent({ route, navigation }: Props) {
 
   const handleBackBehavior = useCallback(() => {
     if (!isCompliant) {
-      // 1. Navega para a tela Inicial (Mapa)
+      // 1. Navega para a aba Inicial (Mapa)
       (navigation as any).navigate('Inicio', { screen: 'Home' });
       
-      // 2. Reseta o stack atual (Trilha) de forma segura em background
-      setTimeout(() => {
-        if (navigation.canGoBack()) {
-          navigation.popToTop();
-        } else {
-          navigation.navigate('Home'); // Retorna ao TrailCard (Listagem)
-        }
-      }, 100); // <-- Adicionado o setTimeout aqui
+      // 2. Reseta silenciosamente a pilha atual para a listagem (sem animações conflitantes)
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Home' }], // "Home" aqui é o TrailCard definido no seu TrailStack
+        })
+      );
       
       return true; 
     }
@@ -107,13 +106,19 @@ export default function TrailContent({ route, navigation }: Props) {
           <TouchableOpacity 
             style={styles.buttonContainer} 
             onPress={() => {
-              navigation.popToTop();
+              // 1. Avisa o BottomNavigator para mostrar a barra na mesma hora!
+              DeviceEventEmitter.emit('force_compliance_update', true);
+              // 3. Substitui silenciosamente o histórico da aba atual para a listagem (TrailCard)
+              navigation.dispatch(
+                CommonActions.reset({
+                  index: 0,
+                  routes: [{ name: 'Home' }],
+                })
+              );
+
+              // 2. Navega para a aba Início (Mapa)
               (navigation as any).navigate('Inicio', { screen: 'Home' });
-              // if (navigation.canGoBack()) {
-              //   navigation.popToTop();
-              // } else {
-              //   navigation.navigate('Home');
-              // }
+
             }}
             activeOpacity={0.8}
           >

@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Alert, DeviceEventEmitter } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { useUserLocationQuery } from './useUserLocationQuery';
 import { useSentimentMap } from './useSentimentMap';
@@ -16,6 +16,14 @@ export const useSentimentLogic = () => {
   
   // Estado de conformidade (inicia true para não bloquear durante o carregamento)
   const [isCompliant, setIsCompliant] = useState(true);
+
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('force_compliance_update', (status) => {
+      setIsCompliant(status);
+      lastComplianceCheck.current = 0; // Zera o timer para a próxima busca no servidor ser imediata
+    });
+    return () => subscription.remove();
+  }, []);
 
   // Estados Locais
   const [showForm, setShowForm] = useState(false);

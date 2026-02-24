@@ -23,6 +23,7 @@ interface MapWithFeelingProps {
   points?: MapPoint[];
   loading?: boolean;
   bottomOffset?: number;
+  isCompliant?: boolean;
 }
 
 const DEFAULT_REGION: Region = {
@@ -38,6 +39,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   points = [],
   loading = false,
   bottomOffset = 0,
+  isCompliant = false,
 }) => {
   const location = userLocation;
   const insets = useSafeAreaInsets();
@@ -46,7 +48,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   const [region, setRegion] = useState<Region>(DEFAULT_REGION);
   const [isMapReady, setIsMapReady] = useState(false);
   const hasCenteredOnUser = useRef(false);
-  const { isCompliant } = useSentimentLogic();
+  // const { isCompliant } = useSentimentLogic();
 
   // Centralizar mapa quando tivermos localização e mapa pronto (ordem não importa)
   useEffect(() => {

@@ -1,5 +1,5 @@
-import React from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { DeviceEventEmitter, StatusBar, StyleSheet, View } from 'react-native';
 import { MapWithFeeling } from '../../../components/MapWithFeeling';
 import { SentimentModal } from '../../../components/SentimentModal';
 import { useSentimentLogic } from '../../../hooks/useSentimentLogic';
@@ -13,9 +13,8 @@ export function MapaSentimento() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
-
   const { location } = useUserLocationQuery();
-
+  
   const {
     mapPoints,
     loadingPoints,
@@ -27,9 +26,22 @@ export function MapaSentimento() {
     sending,
     setFormValues,
     handleSubmitForm,
-    isCompliant
+    isCompliant: logicCompliant
   } = useSentimentLogic();
+  
+  const [isCompliant, setIsCompliant] = useState(logicCompliant);
 
+  useEffect(() => {
+    setIsCompliant(logicCompliant);
+  }, [logicCompliant]);
+  
+  useEffect(() => {
+    const subscription = DeviceEventEmitter.addListener('force_compliance_update', (status) => {
+      setIsCompliant(status);
+    });
+    return () => subscription.remove();
+  }, []);
+  
   return (
     <View style={{ flex: 1, backgroundColor: 'transparent' }}>
       <StatusBar translucent backgroundColor="transparent" barStyle="light-content"/>
@@ -41,6 +53,7 @@ export function MapaSentimento() {
           points={mapPoints}
           loading={loadingPoints}
           bottomOffset={TAB_BAR_HEIGHT}
+          isCompliant={isCompliant}
         />
       </View>
 

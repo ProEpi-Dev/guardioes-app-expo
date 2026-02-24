@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Feather } from '@expo/vector-icons';
+import { AntDesign, Feather } from '@expo/vector-icons';
 import { 
   ButtonBack, 
   CustomSelector, 
@@ -126,15 +126,23 @@ export function FinishProfile() {
               onSubmitEditing={handleSubmit}
             /> */}
             
-            <Text style={{ 
-              color: branco, 
-              fontSize: scale(12), 
-              marginLeft: scale(5), 
-              marginTop: scale(5),
-              opacity: 0.9 
-            }}>
-              Insira seu número de matrícula, CPF ou outro identificador
-            </Text>
+            <View style={{ 
+              flexDirection: 'row', 
+              alignItems: 'center',
+              width: '80%',}}
+            >
+              <AntDesign name="info-circle" size={24} color="#fff" />
+              <Text style={{ 
+                color: branco, 
+                fontSize: scale(12), 
+                marginLeft: scale(5), 
+                marginTop: scale(5),
+                opacity: 0.9 
+              }}>
+                Insira seu número de matrícula, CPF ou outro identificador
+              </Text>
+            </View>
+
           </FormSeparator>
 
           <FormSeparator>
