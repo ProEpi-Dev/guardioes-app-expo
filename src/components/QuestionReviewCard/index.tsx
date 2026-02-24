@@ -25,8 +25,8 @@ export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question
   );
 
   let feedbackText = selectedOption?.feedback;
-  if (!feedbackText && qAny.feedback?.incorrect) {
-    feedbackText = qAny.feedback.incorrect;
+  if (!feedbackText) {
+    feedbackText = isCorrect ? qAny.feedback?.correct : qAny.feedback?.incorrect;
   }
 
   const answerLabel = selectedOption ? selectedOption.label : String(userAnswer || 'Sem resposta');

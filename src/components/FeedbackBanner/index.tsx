@@ -20,9 +20,11 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ question, userAn
     normalize(opt.value) === normalize(userAnswer)
   );
 
+  const isCorrect = hasCorrectAnswer ? normalize(userAnswer) === normalize(correctAnswer) : false;
+
   let feedbackText = selectedOption?.feedback;
-  if (!feedbackText && question.feedback?.incorrect) {
-    feedbackText = question.feedback.incorrect;
+  if (!feedbackText) {
+    feedbackText = isCorrect ? question.feedback?.correct : question.feedback?.incorrect;
   }
 
   // If no "correct answer" is defined in backend, treat as generic submission
@@ -37,8 +39,6 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ question, userAn
       </View>
     );
   }
-
-  const isCorrect = normalize(userAnswer) === normalize(correctAnswer);
   const color = isCorrect ? "#2E7D32" : "#C62828";
   const bg = isCorrect ? '#D1F4E0' : '#FDECEA';
 
