@@ -183,9 +183,10 @@ export const CustomSelector = ({ lightMode = false, data, initValue, onChange, p
 };
 
 export const UserInfoCard = styled.View`
-    background-color: #fff; /* Troquei backgroundColor e a vírgula */
+    background-color: #fff;
     width: 80%;
-    padding-vertical: ${scale(17)}px; /* paddingVertical funciona no styled-components/native, mas precisa de ; */
+    padding-vertical: ${scale(17)}px;
+    margin-bottom: 20px;
     align-items: center;
     justify-content: center;
     border-radius: ${scale(15)}px;

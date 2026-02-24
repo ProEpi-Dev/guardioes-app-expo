@@ -30,18 +30,7 @@ export default function DrawerNavigator() {
       <Drawer.Screen 
         name="Perfil" 
         component={ProfileStack}
-        options={({ route }) => {
-          const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
-          const shouldShowHeader = routeName === 'Home';
-
-          return {
-            headerTitle: 'Perfil',
-            headerShown: shouldShowHeader,
-            headerTitleAlign: 'center',
-            headerRight: () => <View />,
-             headerTransparent: true, 
-          };
-        }}
+        options={{ headerShown: false }}
       />
       {/* <Drawer.Screen 
         name="Cluster" 

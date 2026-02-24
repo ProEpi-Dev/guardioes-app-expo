@@ -1,19 +1,21 @@
 import { StyleSheet } from "react-native";
+import { colors } from "../../../utils/colors";
+import { scale } from "../../../utils/scalling";
 
  export const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5', paddingTop: 50 },
+  container: { flex: 1, backgroundColor: '#f5f5f5'},
   scrollContent: { padding: 20 },
   
   headerProfile: { alignItems: 'center', marginBottom: 24 },
   avatarContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: '#e0f7fa', justifyContent: 'center', alignItems: 'center', marginBottom: 12, borderWidth: 2, borderColor: '#348eac' },
-  headerName: { fontSize: 20, fontWeight: 'bold', color: '#333' },
-  headerEmail: { fontSize: 14, color: '#666' },
+  headerName: { fontSize: 22, fontWeight: 'bold', color: colors.principal },
+  headerEmail: { fontSize: 16, color: '#666' },
 
   section: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, elevation: 2 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#333' },
+  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: colors.principal },
   sectionDescription: { fontSize: 14, color: '#666', marginBottom: 16 },
-  editLink: { color: '#348eac', fontWeight: 'bold' },
+  editLink: { color: colors.principal, fontWeight: 'bold' },
 
   formGroup: { marginBottom: 12 },
   label: { fontSize: 14, color: '#666', marginBottom: 4 },
@@ -30,6 +32,22 @@ import { StyleSheet } from "react-native";
   saveButton: { backgroundColor: '#348eac', paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8 },
   saveText: { color: '#fff', fontWeight: 'bold' },
 
-  editDetailsButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', padding: 12, borderWidth: 1, borderColor: '#348eac', borderRadius: 8, borderStyle: 'dashed' },
-  editDetailsText: { color: '#348eac', fontWeight: 'bold', marginLeft: 8 },
+  buttonContainer: {
+    marginTop: 5,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    overflow: 'hidden',
+  },
+  buttonGradient: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    flexDirection: 'row',
+    gap: 8,
+  },
+  returnButtonText: { color: '#FFF', fontSize: scale(16), fontWeight: 'bold' },
 });

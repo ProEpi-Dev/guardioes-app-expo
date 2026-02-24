@@ -7,6 +7,9 @@ import { updateUser as updateUserApi } from '../../../services/user';
 import { EditProfileModal } from '../../../components/EditProfileModal';
 import { styles } from './styles';
 import { ChangePasswordModal } from '../../../components/ChangePasswordModal';
+import { CustomHeader } from '../../../components/CustomHeader';
+import { colors } from '../../../utils/colors';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function ProfileScreen() {
   const { user, updateUserLocal } = useAuth(); 
@@ -75,7 +78,8 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
+      <CustomHeader userName={user?.name} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Cabeçalho */}
@@ -94,7 +98,10 @@ export default function ProfileScreen() {
             <Text style={styles.sectionTitle}>Informações Básicas</Text>
             {!isEditingBasic && (
               <TouchableOpacity onPress={() => setIsEditingBasic(true)}>
-                <Text style={styles.editLink}>Editar</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Feather name="edit" size={24} color={colors.principal} />
+                  <Text style={styles.editLink}>Editar</Text>
+                </View>
               </TouchableOpacity>
             )}
           </View>
@@ -156,11 +163,19 @@ export default function ProfileScreen() {
           </Text>
           
           <TouchableOpacity 
-            style={styles.editDetailsButton}
+            style={styles.buttonContainer} 
             onPress={() => setShowPasswordModal(true)}
+            activeOpacity={0.8}
           >
-            <Feather name="edit-3" size={20} color="#348eac" />
-            <Text style={styles.editDetailsText}>Atualizar Senha</Text>
+            <LinearGradient
+              colors={[colors.azulClaro, colors.azulEscuro]}
+              start={{ x: 0, y: 0 }} // Começa na esquerda
+              end={{ x: 1, y: 0 }}   // Termina na direita
+              style={styles.buttonGradient}
+            >
+              <Feather name="edit" size={24} color={"#fff"} />
+              <Text style={styles.returnButtonText}>Atualizar senha</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -169,13 +184,21 @@ export default function ProfileScreen() {
           <Text style={styles.sectionDescription}>
             Gênero, Localização e Matrícula.
           </Text>
-          
+
           <TouchableOpacity 
-            style={styles.editDetailsButton}
+            style={styles.buttonContainer} 
             onPress={() => setShowDetailsModal(true)}
+            activeOpacity={0.8}
           >
-            <Feather name="edit-3" size={20} color="#348eac" />
-            <Text style={styles.editDetailsText}>Editar Dados do Perfil</Text>
+            <LinearGradient
+              colors={[colors.azulClaro, colors.azulEscuro]}
+              start={{ x: 0, y: 0 }} // Começa na esquerda
+              end={{ x: 1, y: 0 }}   // Termina na direita
+              style={styles.buttonGradient}
+            >
+              <Feather name="edit" size={24} color={"#fff"} />
+              <Text style={styles.returnButtonText}>Editar dados</Text>
+            </LinearGradient>
           </TouchableOpacity>
         </View>
 
@@ -197,6 +220,6 @@ export default function ProfileScreen() {
         }}
       />
 
-    </SafeAreaView>
+    </View>
   );
 }

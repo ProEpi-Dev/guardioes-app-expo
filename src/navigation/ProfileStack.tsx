@@ -10,10 +10,7 @@ export default function ProfileStack() {
             <Stack.Screen 
             name="Home" 
             component={ProfileScreen} 
-            options={{
-                headerTitle: '',
-                headerTransparent: true,
-            }}
+            options={{ headerShown: false }}
             />
         </Stack.Navigator>
     );

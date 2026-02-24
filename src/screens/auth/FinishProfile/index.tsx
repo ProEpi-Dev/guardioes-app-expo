@@ -1,16 +1,20 @@
 import React from 'react';
 import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { 
   ButtonBack, 
   CustomSelector, 
+  DarkButton, 
+  DarkButtonLabel, 
   FormSeparator, 
   GradientBackground, 
   KeyboardScrollView, 
   Label, 
   SnowButton, 
   SnowInput, 
+  SolidInput, 
+  SolidSelector, 
   Touch, 
   UserEmail, 
   UserInfoCard,
@@ -19,17 +23,19 @@ import {
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
 import { PageTitle } from '../Login/styles';
-import { Logo } from '../Welcome/styles';
+import { Logo } from './styles';
 import { useFinishProfile } from '../../../hooks/useFinishProfile';
+import { colors } from '../../../utils/colors';
+import { BackButtonContainer, BackButtonText } from '../Register/styles';
 
-const GDSLogoBR = require('../../../../assets/gds-pt-branca.png');
-const GDSLogoES = require('../../../../assets/gds-es-branca.png');
+const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 
 const verde = '#77bfad';
 const azul = '#2E97BE';
 const branco = '#ffffff';
 
 export function FinishProfile() {
+  const insets = useSafeAreaInsets();
   const {
     selectedGenderId, setSelectedGenderId,
     selectedLocationId, setSelectedLocationId,
@@ -45,7 +51,7 @@ export function FinishProfile() {
     email
   } = useFinishProfile();
 
-  const LogoType = translate('lang.code') === 'es' ? GDSLogoES : GDSLogoBR;
+  const LogoType = GDSLogoBR;
 
   if (isLoading) {
     return (
@@ -60,10 +66,11 @@ export function FinishProfile() {
 
   return (
     <>
-      <GradientBackground colors={[azul, verde]}>
+      <GradientBackground colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}>
         <KeyboardScrollView>
+          <View style={{ height: insets.top + 40, width: '100%' }} />
           <Logo source={LogoType} />
-          <PageTitle>{translate('Finalizar Perfil')}</PageTitle> 
+          <PageTitle>Finalize seu perfil</PageTitle> 
 
           <FormSeparator>
 
@@ -72,21 +79,43 @@ export function FinishProfile() {
               <UserEmail>{email}</UserEmail>
             </UserInfoCard>
 
-            <CustomSelector
+            <SolidSelector
               data={genders}
-              placeholder="Selecione o Gênero"
+              placeholder={isLoading ? "Carregando..." : "Selecione o Gênero"}
               initValue={selectedGenderId}
               onChange={(option: any) => setSelectedGenderId(option.value)}
             />
 
-            <CustomSelector
+            {/* <CustomSelector
+              data={genders}
+              placeholder="Selecione o Gênero"
+              initValue={selectedGenderId}
+              onChange={(option: any) => setSelectedGenderId(option.value)}
+            /> */}
+
+            <SolidSelector
+              data={locations}
+              placeholder={isLoading ? "Carregando..." : "Selecione a Localidade"}
+              initValue={selectedLocationId}
+              onChange={(option: any) => setSelectedLocationId(option.value)}
+            />
+            {/* <CustomSelector
               data={locations}
               placeholder="Selecione a Localidade"
               initValue={selectedLocationId}
               onChange={(option: any) => setSelectedLocationId(option.value)}
+            /> */}
+
+            <SolidInput
+              placeholder="Identificador"
+              secureTextEntry
+              maxLength={100}
+              ref={identifierInputRef}
+              value={externalIdentifier}
+              onChangeText={setExternalIdentifier}
             />
 
-            <SnowInput
+            {/* <SnowInput
               placeholder="Identificador (Matrícula, CPF...)"
               keyboardType='default'
               returnKeyType='done'
@@ -95,7 +124,7 @@ export function FinishProfile() {
               onChangeText={setExternalIdentifier}
               ref={identifierInputRef}
               onSubmitEditing={handleSubmit}
-            />
+            /> */}
             
             <Text style={{ 
               color: branco, 
@@ -104,29 +133,32 @@ export function FinishProfile() {
               marginTop: scale(5),
               opacity: 0.9 
             }}>
-              Insira seu número de matrícula, CPF ou outro identificador.
+              Insira seu número de matrícula, CPF ou outro identificador
             </Text>
           </FormSeparator>
 
           <FormSeparator>
             <Touch onPress={handleSubmit} disabled={isSubmitting}>
-              <SnowButton>
+              <DarkButton>
                 {isSubmitting ? (
-                  <ActivityIndicator size="small" color="#32323b" />
+                  <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
-                  <Label>{translate('register.signupButton')}</Label>
+                  <DarkButtonLabel>{translate('register.signupButton')}</DarkButtonLabel>
                 )}
-              </SnowButton>
+              </DarkButton>
             </Touch>
           </FormSeparator>
 
-          <ButtonBack onPress={() => navigation.goBack()}>
+          <BackButtonContainer onPress={() => navigation.goBack()}>
             <Feather
               name='chevron-left'
-              size={scale(40)}
+              size={24}
               color={branco}
             />
-          </ButtonBack>
+            <BackButtonText>Voltar</BackButtonText>
+          </BackButtonContainer>
+  
+          <View style={{ height: insets.bottom + 20, width: '100%' }} />
         </KeyboardScrollView>
       </GradientBackground>
     </>
