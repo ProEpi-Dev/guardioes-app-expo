@@ -25,5 +25,13 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
     textAlign: 'justify'
-  }
+  },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginRight: 12,
+    resizeMode: 'cover',
+    backgroundColor: '#f0f0f0',
+  },
 });

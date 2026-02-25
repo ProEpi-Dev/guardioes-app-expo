@@ -83,6 +83,7 @@ export interface TrailContentData {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  thumbnail_url?: string | null;
 }
 
 export interface TrailForm {
@@ -114,4 +115,7 @@ export interface TrackCycle {
   isClosed?: boolean;
   mandatory_slug?: string | null;
   isMandatoryLock?: boolean;
+  isUpcoming?: boolean; 
+  displayStartDate?: string;
+  displayEndDate?: string | null;
 }

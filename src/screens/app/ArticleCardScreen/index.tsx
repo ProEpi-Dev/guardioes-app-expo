@@ -48,6 +48,7 @@ export default function ArticleListScreen({ navigation }: Props) {
     <ArticleCard
       title={item.title}
       summary={item.summary}
+      thumbnail_url={item.thumbnail_url}
       onPress={() => navigation.navigate('Article', { article: item })}
     />
   ), [navigation]);

@@ -19,6 +19,9 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
   const description = seq.content?.summary || seq.form?.description || 'Teste seus conhecimentos';
   const isQuiz = !!seq.form;
 
+  const isArticle = !!seq.content;
+  const thumbnailUrl = isArticle ? ((seq.content as any).thumbnail_url || (seq.content as any).thumbnailUrl) : null;
+
   const hasScore = seq.score !== null && seq.score !== undefined;
   const hasPassingScore = seq.passingScore !== null && seq.passingScore !== undefined;
   
@@ -55,24 +58,21 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
       </View>
 
       <View style={styles.contentContainer}>
-        <View style={[styles.card, { borderColor: theme.main, opacity: isLocked ? 0.6 : 1 }]}>
+        <View style={[styles.card, { borderColor: theme.main, opacity: isLocked ? 0.6 : 1, flexDirection: 'row', alignItems: 'center' }]}>
           
-          <View style={styles.imageBlock}>
-             <Text style={styles.imageText}>VIGILÂNCIA{"\n"}EM SAÚDE</Text>
-          </View>
+          {thumbnailUrl && (
+            <Image 
+              source={{ uri: thumbnailUrl }} 
+              style={styles.thumbnail} 
+            />
+          )}
 
-          <View style={styles.textContainer}>
-            <Text style={styles.cardTitle}>
-              {title}
-            </Text>
-            
-            <Text style={styles.cardDescription}>
-              {description}
-            </Text>
+          <View style={[styles.textContainer, { flex: 1 }]}>
+            <Text style={styles.cardTitle}>{title}</Text>
+            <Text style={styles.cardDescription}>{description}</Text>
             
             {isQuiz && !isLocked && (
               <View style={styles.metaContainer}>
-                
                 <View style={styles.scoreRow}>
                   <View style={[styles.scoreDot, { backgroundColor: theme.main }]} />
                   <Text style={[styles.scoreText, { color: theme.main }]}>
@@ -87,7 +87,6 @@ export const TimelineItem: React.FC<Props> = ({ seq, isLastItem, onPressQuiz, on
                 <Text style={styles.metaTextSmall}>
                   Tentativa: {attemptNumber}{maxAttempts ? `/${maxAttempts}` : ''}
                 </Text>
-
               </View>
             )}
           </View>

@@ -71,5 +71,23 @@ export const styles = StyleSheet.create({
     },
     emptyRightSpace: {
         width: 30, 
-    }
+    },
+    upcomingCard: {
+        borderColor: '#F59E0B',
+        backgroundColor: '#FFFBEB',
+    },
+    upcomingText: {
+        fontSize: 12,
+        color: '#D97706',
+        marginTop: 8,
+        fontWeight: 'bold',
+        textAlign: 'center',
+    },
+    deadlineText: {
+        fontSize: 12,
+        color: '#6b7280',
+        marginTop: 8,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
 });

@@ -75,18 +75,52 @@ export const useTrails = () => {
                 : [];
 
             const processedCycles = await Promise.all(filteredData.map(async (cycle) => {
-                const endDate = cycle.end_date ? new Date(cycle.end_date) : null;
+                const getMidnightDate = (dateString: string) => {
+                    const [year, month, day] = dateString.split('T')[0].split('-');
+                    return new Date(Number(year), Number(month) - 1, Number(day));
+                };
+
                 const today = new Date();
-                today.setHours(0,0,0,0);
-                const isExpired = endDate ? endDate < today : false;
+                today.setHours(0, 0, 0, 0);
+
+                const cycleStart = getMidnightDate(cycle.start_date);
+                const cycleEnd = getMidnightDate(cycle.end_date);
+
+                let isUpcoming = today < cycleStart;
+                let isExpired = today > cycleEnd;
+                let displayStartDate = cycleStart.toLocaleDateString('pt-BR');
+                let displayEndDate: string | null = cycleEnd.getFullYear() < 2100 ? cycleEnd.toLocaleDateString('pt-BR') : null;
+
+                if (!isUpcoming && cycle.track) {
+                    
+                    const trackStartDate = (cycle.track as any).start_date || cycle.track.startDate;
+                    const trackEndDate = (cycle.track as any).end_date || cycle.track.endDate;
+
+                    if (trackStartDate) {
+                        const trackStart = getMidnightDate(trackStartDate);
+                        if (today < trackStart) {
+                            isUpcoming = true;
+                            displayStartDate = trackStart.toLocaleDateString('pt-BR');
+                        }
+                    }
+
+                    if (trackEndDate) {
+                        const trackEnd = getMidnightDate(trackEndDate);
+                        
+                        displayEndDate = trackEnd.getFullYear() < 2100 ? trackEnd.toLocaleDateString('pt-BR') : null;
+                        
+                        if (today > trackEnd) {
+                            isExpired = true;
+                        }
+                    }
+                }
                 
                 const currentCycleSlug = (cycle as any).mandatory_slug;
-                
                 const isMandatoryLock = !isUserCompliant && 
                                        targetMandatorySlugs.length > 0 && 
                                        !targetMandatorySlugs.includes(currentCycleSlug);
 
-                const isClosed = cycle.status === 'closed' || isExpired || isMandatoryLock;
+                const isClosed = cycle.status === 'closed' || isExpired || isMandatoryLock || isUpcoming;
 
                 let progressInfo = {
                     progress_percentage: 0,
@@ -111,7 +145,10 @@ export const useTrails = () => {
                 return {
                     ...cycle,
                     ...progressInfo,
-                    isExpired,
+                    isExpired, 
+                    isUpcoming, 
+                    displayStartDate,
+                    displayEndDate,
                     isClosed,
                     isMandatoryLock
                 };

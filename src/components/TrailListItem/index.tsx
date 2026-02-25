@@ -13,8 +13,9 @@ interface TrailListItemProps {
 export function TrailListItem({ item, onPress }: TrailListItemProps) {
     const isCompleted = item.user_status === 'completed';
     const isLocked = item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true;
-    
-    const isExpired = item.isClosed && !isCompleted && !isLocked;
+    const isUpcoming = item.isUpcoming;
+    const isExpired = item.isExpired && !isCompleted && !isLocked && !isUpcoming;
+    const isActive = !isCompleted && !isLocked && !isUpcoming && !isExpired;
 
     const getIcon = () => {
         if (isCompleted) {
@@ -22,6 +23,9 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
         }
         if (isLocked) {
             return <Feather name="lock" size={22} color="#D1D5DB" />;
+        }
+        if (isUpcoming) {
+            return <MaterialCommunityIcons name="clock-outline" size={24} color="#F59E0B" />;
         }
         if (isExpired) {
              return <MaterialCommunityIcons name="play-circle-outline" size={24} color="#9CA3AF" />;
@@ -33,16 +37,18 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
         styles.card,
         isCompleted ? styles.completedCard : 
         isLocked ? styles.lockedCard : 
+        isUpcoming ? styles.upcomingCard :
         isExpired ? styles.expiredCard :
         styles.activeCard,
         isExpired && { opacity: 0.6 } 
     ];
+    const isButtonDisabled = isLocked || isUpcoming;
 
     return (
         <TouchableOpacity
             style={cardStyle}
             onPress={() => onPress(item)}
-            disabled={isLocked}
+            disabled={isButtonDisabled}
             activeOpacity={0.7}
         >
             <View style={styles.iconContainer}>
@@ -65,9 +71,22 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
                         Aguardando conclusão da(s) trilha(s) obrigatória(s)
                     </Text>
                 )}
-                {isExpired && (
+
+                {isUpcoming && !item.isMandatoryLock && (
+                    <Text style={styles.upcomingText}>
+                        Disponível em: {item.displayStartDate}
+                    </Text>
+                )}
+
+                {isExpired && !isUpcoming && !item.isMandatoryLock && (
                     <Text style={styles.closedText}>
-                        Prazo encerrado
+                        Prazo encerrado{item.displayEndDate ? ` em: ${item.displayEndDate}` : ''}
+                    </Text>
+                )}
+
+                {isActive && item.displayEndDate && (
+                    <Text style={styles.deadlineText}>
+                        Prazo final: {item.displayEndDate}
                     </Text>
                 )}
             </View>

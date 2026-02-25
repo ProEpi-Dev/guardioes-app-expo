@@ -95,4 +95,12 @@ export const styles = StyleSheet.create({
     color: '#9ca3af',
     marginTop: 1,
   },
+  thumbnail: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    marginLeft: 8,
+    resizeMode: 'cover',
+    backgroundColor: '#f0f0f0',
+  },
 });

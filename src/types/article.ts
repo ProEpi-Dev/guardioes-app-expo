@@ -5,6 +5,7 @@ export interface Article {
   content: string;
   summary: string;
   content_type?: ContentType;
+  thumbnail_url?: string | null;
 }
 
 export type RootStackParamList = {

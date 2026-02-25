@@ -17,7 +17,7 @@ export default function TrailCard({ navigation }: Props) {
     const { cycles, isLoading, isRefreshing, handleRefresh, error } = useTrails();
 
     const handlePress = useCallback((item: TrackCycle) => {
-        if (item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true) {
+        if (item.status === 'draft' || item.status === 'archived' || item.isMandatoryLock === true || item.isUpcoming) {
             return;
         }
 
