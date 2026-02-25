@@ -74,7 +74,8 @@ export function TrailListItem({ item, onPress }: TrailListItemProps) {
 
                 {isUpcoming && !item.isMandatoryLock && (
                     <Text style={styles.upcomingText}>
-                        Disponível em: {item.displayStartDate}
+                        {/* Disponível em: {item.displayStartDate} */}
+                        Em breve
                     </Text>
                 )}
 
