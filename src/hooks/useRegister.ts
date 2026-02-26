@@ -4,6 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { ContextOption, LegalDocument } from '../types/register';
 import { getRegisterData } from '../services/register';
 
+function translate(arg0: string): string {
+    return arg0;
+}
 
 export const useRegister = (navigation: any) => {
   const { register } = useAuth();
@@ -40,43 +43,32 @@ export const useRegister = (navigation: any) => {
   };
 
   const toggleDocument = (doc: LegalDocument) => {
-    if (acceptedDocIds.includes(doc.id)) {
-      setAcceptedDocIds(prev => prev.filter(id => id !== doc.id));
-      return;
-    }
-
-    Alert.alert(
-      doc.title,
-      doc.content,
-      [
-        { text: "Cancelar", style: "cancel" },
-        { 
-          text: "Li e Aceito", 
-          onPress: () => setAcceptedDocIds(prev => [...prev, doc.id]) 
-        }
-      ]
-    );
+    setAcceptedDocIds(prev => {
+      if (prev.includes(doc.id)) {
+        return prev.filter(id => id !== doc.id); // Desmarca
+      } else {
+        return [...prev, doc.id]; // Marca
+      }
+    });
   };
 
   const handleSubmit = async () => {
     Keyboard.dismiss();
 
-    // 1. Validação de Documentos
     const missingDocs = legalDocuments.filter(
       doc => doc.isRequired && !acceptedDocIds.includes(doc.id)
     );
+    
     if (missingDocs.length > 0) {
       Alert.alert("Atenção", "Você precisa aceitar os Termos de Uso e Política de Privacidade para continuar.");
       return;
     }
 
-    // 2. Validação de Campos
     if (!name || !email || !password || password !== confirmPassword) {
       Alert.alert(translate('register.fieldNotBlank'));
       return;
     }
 
-    // 3. Validação de Contexto
     if (!selectedContextId) {
       Alert.alert("Atenção", "Selecione um Contexto.");
       return;
@@ -124,7 +116,3 @@ export const useRegister = (navigation: any) => {
     handleSubmit
   };
 };
-
-function translate(arg0: string): string {
-    throw new Error('Function not implemented.');
-}

@@ -4,20 +4,23 @@ import Feather from '@expo/vector-icons/Feather';
 import { scale } from '../../utils/scalling';
 
 interface Props {
-  label: string;
+  title: string;
   isChecked: boolean;
-  onPress: () => void;
+  onToggle: () => void;
+  onRead: () => void;
 }
 
-export const LegalCheckOption: React.FC<Props> = ({ label, isChecked, onPress }) => (
+export const LegalCheckOption: React.FC<Props> = ({ title, isChecked, onToggle, onRead }) => (
   <View style={styles.container}>
-    <TouchableOpacity onPress={onPress} style={styles.checkbox}>
+    <TouchableOpacity onPress={onToggle} style={styles.checkbox} activeOpacity={0.8}>
       {isChecked && <Feather name="check" size={16} color="#ffffff" />}
     </TouchableOpacity>
-    
-    <TouchableOpacity onPress={onPress} style={styles.textContainer}>
-      <Text style={styles.label}>{label}</Text>
-    </TouchableOpacity>
+    <View style={styles.textContainer}>
+      <Text style={styles.baseText}>Li e aceito: </Text>
+      <TouchableOpacity onPress={onRead} activeOpacity={0.7}>
+        <Text style={styles.linkText}>{title}</Text>
+      </TouchableOpacity>
+    </View>
   </View>
 );
 
@@ -25,7 +28,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    width: '80%',
+    width: '90%',
     marginTop: 15,
     marginBottom: 5
   },
@@ -39,11 +42,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10
   },
-  textContainer: { flex: 1 },
-  label: {
+  textContainer: { 
+    flex: 1, 
+    flexDirection: 'row', 
+    flexWrap: 'wrap',
+    alignItems: 'center'
+  },
+  baseText: {
     color: '#ffffff',
-    fontFamily: 'System',
     fontSize: scale(14),
-    textDecorationLine: 'underline'
+    lineHeight: scale(20),
+  },
+  linkText: {
+    color: '#ffffff',
+    fontSize: scale(14),
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    lineHeight: scale(20),
   }
 });
