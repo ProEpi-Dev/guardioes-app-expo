@@ -28,6 +28,7 @@ export const useSentimentLogic = () => {
   // Estados Locais
   const [showForm, setShowForm] = useState(false);
   const [formDefinition, setFormDefinition] = useState<any>(null);
+  const [formTitle, setFormTitle] = useState<string>('');
   const [currentFormVersionId, setCurrentFormVersionId] = useState<number | null>(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
   
@@ -110,7 +111,7 @@ export const useSentimentLogic = () => {
           occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
         });
         
-        Alert.alert('Sucesso', 'Obrigado por reportar!');
+        Alert.alert('Obrigado por reportar!');
         setTimeout(refreshPoints, 500);
       }
     } catch (e) {
@@ -131,6 +132,7 @@ export const useSentimentLogic = () => {
       if (version?.definition) {
         setFormDefinition(version.definition);
         setCurrentFormVersionId(version.id);
+        setFormTitle(latestForm.title);
       } else {
         throw new Error('Definição ausente');
       }
@@ -178,7 +180,7 @@ export const useSentimentLogic = () => {
         occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
       });
       
-      Alert.alert('Sucesso', 'Formulário enviado!');
+      Alert.alert('Obrigado por reportar!');
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
@@ -196,6 +198,7 @@ export const useSentimentLogic = () => {
     showForm,
     setShowForm,
     formDefinition,
+    formTitle,
     loadingForm,
     sending,
     onFeelingSelected,

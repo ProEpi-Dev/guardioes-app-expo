@@ -45,7 +45,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
         newPassword: password,
       });
       
-      Alert.alert('Sucesso', 'Senha atualizada');
+      Alert.alert('Senha atualizada');
       onSuccess();
       onClose();
     } catch (error: any) {

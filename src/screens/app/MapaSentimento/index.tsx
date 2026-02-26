@@ -22,6 +22,7 @@ export function MapaSentimento() {
     showForm,
     setShowForm,
     formDefinition,
+    formTitle,
     loadingForm,
     sending,
     setFormValues,
@@ -76,6 +77,7 @@ export function MapaSentimento() {
           formDefinition={formDefinition}
           onFormChange={setFormValues}
           onSubmit={handleSubmitForm}
+          title={formTitle}
         />
       </View>
     </View>

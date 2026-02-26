@@ -49,7 +49,7 @@ export const CustomHeader = ({ userName, showBackButton, showButton=true, onBack
       )}
 
       {/* paddingRight compensa o tamanho do ícone à esquerda para manter o texto centralizado */}
-      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', paddingRight: 38 }}>
+      <View style={{ flex: 1, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', paddingRight: 38, paddingLeft: 15 }}>
         <Image source={require('../../../assets/icone_g_branca.png')} style={{ width: 50, height: 55 }} />
         <Text style={{ color: 'white', marginLeft: 15, fontSize: 17 }}>Olá, {userName}!</Text>
       </View>

@@ -70,7 +70,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         externalIdentifier
       });
       
-      Alert.alert('Sucesso', 'Dados atualizados!');
+      Alert.alert('Dados atualizados!');
       onSuccess();
       onClose();
     } catch (error) {
