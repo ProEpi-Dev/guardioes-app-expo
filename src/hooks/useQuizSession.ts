@@ -1,19 +1,30 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Alert, BackHandler } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { FormField } from '../types/form';
 import { QuizStepState } from '../types/quiz';
 import { getQuizDetails, submitQuizAttempt } from '../services/quiz';
-
+import { completeQuizSequence } from '../services/trail';
 
 interface UseQuizSessionProps {
   quizId: number;
   timeLimitMinutes?: number | null;
   participationId: number | null;
   title: string;
+  trackProgressId?: number;
+  sequenceId?: number;
+  isCycleExpired?: boolean;
 }
 
-export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, title }: UseQuizSessionProps) => {
+export const useQuizSession = ({ 
+  quizId, 
+  timeLimitMinutes, 
+  participationId, 
+  title, 
+  trackProgressId, 
+  sequenceId, 
+  isCycleExpired 
+}: UseQuizSessionProps) => {
   const navigation = useNavigation<any>();
   
   const [loading, setLoading] = useState(true);
@@ -30,6 +41,7 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
   const versionIdRef = useRef<number | null>(null);
   const startedAtRef = useRef<string>(new Date().toISOString());
 
+  // Bloqueio de botão voltar
   useEffect(() => {
     const onBackPress = () => {
       Alert.alert(
@@ -44,6 +56,7 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
     return () => sub.remove();
   }, []);
 
+  // Timer
   useEffect(() => {
     if (loading || !timeLimitMinutes) return;
     const interval = setInterval(() => {
@@ -68,6 +81,7 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
     );
   };
 
+  // Carregamento inicial
   useEffect(() => {
     loadQuiz();
   }, []);
@@ -110,22 +124,23 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
     setCurrentIndex((prev) => prev + 1);
   };
 
-  const submitQuiz = async () => {
-    if (!versionIdRef.current) return;
-    setSubmitting(true);
-
+  // Função auxiliar para processar o envio após as validações
+  const processSubmission = async (payload: any, finalAnswers: any) => {
     try {
-      const finalAnswers = { ...allAnswersRef.current, ...currentResponse };
-      
-      const payload = {
-        formVersionId: versionIdRef.current,
-        participationId,
-        startedAt: startedAtRef.current,
-        completedAt: new Date().toISOString(),
-        quizResponse: { ...finalAnswers, _isValid: true }
-      };
-
       const result = await submitQuizAttempt(payload);
+
+      // Lógica de Trilha:
+      // Só marca como completo na trilha se:
+      // 1. Passou no quiz
+      // 2. Tem os IDs de contexto da trilha
+      // 3. O ciclo NÃO está expirado (!isCycleExpired)
+      if (result.isPassed && trackProgressId && sequenceId && !isCycleExpired) {
+         try {
+           await completeQuizSequence(trackProgressId, sequenceId, result.id);
+         } catch (seqError) {
+           console.error("Erro ao vincular progresso na trilha", seqError);
+         }
+      }
 
       navigation.replace('QuizResultScreen', {
         resultData: { score: result.score, isPassed: result.isPassed },
@@ -141,6 +156,45 @@ export const useQuizSession = ({ quizId, timeLimitMinutes, participationId, titl
       setSubmitting(false);
     }
   };
+
+  const submitQuiz = async () => {
+    if (!versionIdRef.current) return;
+    setSubmitting(true);
+
+    const finalAnswers = { ...allAnswersRef.current, ...currentResponse };
+    
+    const payload = {
+      formVersionId: versionIdRef.current,
+      participationId,
+      startedAt: startedAtRef.current,
+      completedAt: new Date().toISOString(),
+      quizResponse: { ...finalAnswers, _isValid: true }
+    };
+
+    // VERIFICAÇÃO DE PRAZO
+    if (isCycleExpired) {
+      Alert.alert(
+        "Prazo Encerrado",
+        "O prazo para este ciclo já encerrou. Você pode enviar suas respostas, mas este quiz não contará para o progresso da trilha.",
+        [
+          { 
+            text: "Cancelar", 
+            style: "cancel", 
+            onPress: () => setSubmitting(false) 
+          },
+          { 
+            text: "Enviar mesmo assim", 
+            onPress: () => processSubmission(payload, finalAnswers) 
+          }
+        ]
+      );
+      return;
+    }
+
+    // Se estiver dentro do prazo, envia direto
+    await processSubmission(payload, finalAnswers);
+  };
+
   const handleAction = () => {
     const isLast = currentIndex === fields.length - 1;
     if (stepState === 'answering') confirmAnswer();

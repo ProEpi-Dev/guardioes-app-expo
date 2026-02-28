@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { DropdownOption } from '../types/finishProfile';
-import { getGenders, getLocations, getNameEmail, getProfileStatus, updateUserProfile } from '../services/finishProfile';
+import { getGenders, getLocations, getProfileStatus, updateUserProfile } from '../services/finishProfile';
 import { useParticipation } from '../contexts/ParticipationContext';
+import { useAuth } from '../contexts/AuthContext'; // 1. Importe o useAuth
 
 export const useFinishProfile = () => {
   const { participationId } = useParticipation();
+  const { user } = useAuth(); // 2. Pegue o usuário do contexto
   const navigation = useNavigation<any>();
 
   // Estados do Formulário
@@ -16,7 +18,7 @@ export const useFinishProfile = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   
-  // Dados das Listas (Formatados)
+  // Dados das Listas
   const [genders, setGenders] = useState<DropdownOption[]>([]);
   const [locations, setLocations] = useState<DropdownOption[]>([]);
 
@@ -27,27 +29,31 @@ export const useFinishProfile = () => {
   const identifierInputRef = useRef<any>(null);
 
   useEffect(() => {
-    loadInitialData();
-  }, []);
+    // Carrega se tiver participationId ou se tiver apenas o usuário logado (para casos de pré-participação)
+    if (participationId || user) {
+       loadInitialData();
+    }
+  }, [participationId, user]);
 
   const loadInitialData = async () => {
     try {
       setIsLoading(true);
+      
+      // 3. Preenche nome e email direto do AuthContext (Sem chamada de API errada)
+      if (user) {
+          setName(user.name || '');
+          setEmail(user.email || '');
+      }
 
       // 1. Verificar Status do Perfil
       const statusData = await getProfileStatus();
-      if (participationId) {
-          const {name, email} = await getNameEmail(participationId);
-          setName(name);
-          setEmail(email);
-      }
 
       if (statusData?.isComplete) {
         navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
         return;
       }
 
-      // Preencher dados existentes
+      // Preencher dados existentes do perfil (se houver)
       if (statusData?.profile) {
         if (statusData.profile.genderId) setSelectedGenderId(statusData.profile.genderId);
         if (statusData.profile.locationId) setSelectedLocationId(statusData.profile.locationId);
@@ -60,7 +66,6 @@ export const useFinishProfile = () => {
         getLocations()
       ]);
 
-      // 3. Transformar dados para o Dropdown (API -> { label, value })
       const formattedGenders = rawGenders
         .filter((g: any) => g.active)
         .map((g: any) => ({ key: g.id, label: g.name, value: g.id }));
@@ -72,8 +77,14 @@ export const useFinishProfile = () => {
       setGenders(formattedGenders);
       setLocations(formattedLocations);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao carregar dados:', error);
+      
+      // Proteção contra token inválido/usuário não encontrado
+      if (error?.status === 404) {
+         return; // Ignora ou redireciona para login se crítico
+      }
+
       Alert.alert('Erro', 'Falha ao carregar informações. Verifique sua conexão.');
     } finally {
       setIsLoading(false);

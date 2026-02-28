@@ -40,7 +40,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const isValid = authStorage.isTokenValid(storedToken, 5);
         
         if (!isValid) {
-          console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
+          // console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
           // Token está expirando em menos de 5 minutos, fazer logout
           await logout();
           return;
@@ -239,14 +239,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (response.data && response.data.length > 0) {
         const firstForm = response.data[0];
         setForm(firstForm);
-        console.log('Form carregado:', firstForm);
+        // console.log('Form carregado:', firstForm);
       } else {
-        console.log('Nenhum form disponível');
+        // console.log('Nenhum form disponível');
         setForm(null);
       }
     } catch (error) {
       console.error('Erro ao buscar forms:', error);
       setForm(null);
+    }
+  };
+
+  const updateUserLocal = async (userData: User): Promise<void> => {
+    try {
+      await authStorage.storeUser(userData);
+      setUser(userData);
+    } catch (error) {
+      console.error('Erro ao atualizar dados locais do usuário:', error);
     }
   };
 
@@ -260,6 +269,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateUser,
+    updateUserLocal,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

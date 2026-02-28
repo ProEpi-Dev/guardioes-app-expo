@@ -14,24 +14,28 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.meuapp.demo",
+      "bundleIdentifier": "com.guardioes.proepi",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa."
       }
     },
     "android": {
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+      "package": "com.guardioes.proepi",
       "edgeToEdgeEnabled": true,
-      "package": "com.meuapp.demo"
+      "permissions": ["android.permission.POST_NOTIFICATIONS"]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-localization",
+      "@react-native-firebase/app",
+      "@react-native-firebase/messaging",
       "./plugins/withGoogleMapsApiKey.js",
       "./plugins/withAndroidLocalProperties.js"
     ]

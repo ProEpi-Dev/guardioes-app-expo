@@ -4,6 +4,8 @@ export interface Article {
   image: string;
   content: string;
   summary: string;
+  content_type?: ContentType;
+  thumbnail_url?: string | null;
 }
 
 export type RootStackParamList = {
@@ -21,3 +23,13 @@ export interface ArticleProps {
 export type ArticleWebViewProps = {
   content: string;
 };
+
+export interface ContentType {
+  id: number;
+  name: string;
+  description?: string | null;
+  color: string;
+  created_at?: string;
+  updated_at?: string;
+  active?: boolean;
+}

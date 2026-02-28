@@ -1,6 +1,6 @@
 export type RootTrailParamList = {
   Home: undefined;
-  Accordion: { trail: Trail };
+  Accordion: { cycleId: number; title: string; isCycleExpired: boolean; };
   Article: { article: TrailContentData };
   QuizzInfoScreen: { 
       quizId: number; 
@@ -22,6 +22,7 @@ export type RootTrailParamList = {
 export interface Trail {
   id: number;
   name: string;
+  slug: string;
   description: string;
   contextId?: number | null;
   controlPeriod: boolean;
@@ -46,6 +47,8 @@ export interface Section {
 }
 
 export interface Sequence {
+  rawBackendStatus: string;
+  quizSubmissionId: number;
   id: number;
   sectionId: number;
   contentId: number | null;
@@ -63,6 +66,8 @@ export interface Sequence {
   passingScore?: number | null;
   maxAttempts?: number | null;
   timeLimitMinutes?: number | null;
+  isLocked?: boolean;
+  progressStatus?: 'not_started' | 'in_progress' | 'completed';
 }
 
 export interface TrailContentData {
@@ -78,6 +83,7 @@ export interface TrailContentData {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  thumbnail_url?: string | null;
 }
 
 export interface TrailForm {
@@ -90,4 +96,26 @@ export interface TrailForm {
   createdAt: string;
   updatedAt: string;
   active: boolean;
+}
+
+export interface TrackCycle {
+  id: number;
+  track_id: number;
+  context_id: number;
+  name: string;
+  description: string | null;
+  status: 'draft' | 'active' | 'closed' | 'archived';
+  start_date: string;
+  end_date: string;
+  active: boolean;
+  track: Trail;
+  progress_percentage?: number;
+  user_status?: string;
+  isExpired?: boolean;
+  isClosed?: boolean;
+  mandatory_slug?: string | null;
+  isMandatoryLock?: boolean;
+  isUpcoming?: boolean; 
+  displayStartDate?: string;
+  displayEndDate?: string | null;
 }

@@ -6,4 +6,5 @@ export interface SentimentModalProps {
   formDefinition: any;
   onFormChange: (val: any) => void;
   onSubmit: () => void;
+  title?: string;
 }

@@ -4,7 +4,10 @@ import MapView, { Region, Marker, Heatmap } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Supercluster from 'supercluster';
 import type { ClusterFeature, PointFeature } from 'supercluster';
+import type { LocationObject } from 'expo-location';
 import translate from '../../locales/i18n';
+import { colors } from '../../utils/colors';
+import { useSentimentLogic } from '../../hooks/useSentimentLogic';
 
 interface MapPoint {
   id?: number;
@@ -15,20 +18,61 @@ interface MapPoint {
 }
 
 interface MapWithFeelingProps {
+  userLocation?: LocationObject | null;
   onFeelingSelected?: (feeling: 'good' | 'bad') => void;
   points?: MapPoint[];
   loading?: boolean;
+  bottomOffset?: number;
+  isCompliant?: boolean;
 }
 
-export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelected, points = [], loading = false }) => {
+const DEFAULT_REGION: Region = {
+  latitude: -15.8194724,
+  longitude: -47.924146,
+  latitudeDelta: 1.0,
+  longitudeDelta: 1.0,
+};
+
+export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
+  userLocation = null,
+  onFeelingSelected,
+  points = [],
+  loading = false,
+  bottomOffset = 0,
+  isCompliant = false,
+}) => {
+  const location = userLocation;
   const insets = useSafeAreaInsets();
-  const [region, setRegion] = useState<Region>({
-    // Brasília como centro padrão
-    latitude: -15.8194724,
-    longitude: -47.924146,
-    latitudeDelta: 1.0,
-    longitudeDelta: 1.0,
-  });
+  const mapRef = useRef<MapView>(null);
+
+  const [region, setRegion] = useState<Region>(DEFAULT_REGION);
+  const [isMapReady, setIsMapReady] = useState(false);
+  const hasCenteredOnUser = useRef(false);
+  // const { isCompliant } = useSentimentLogic();
+
+  // Centralizar mapa quando tivermos localização e mapa pronto (ordem não importa)
+  useEffect(() => {
+    if (hasCenteredOnUser.current || !location?.coords || !isMapReady) return;
+    const { latitude, longitude } = location.coords;
+    const userRegion: Region = { latitude, longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 };
+    setRegion(userRegion);
+    let attempts = 0;
+    const tryAnimate = () => {
+      if (hasCenteredOnUser.current) return;
+      if (mapRef.current) {
+        hasCenteredOnUser.current = true;
+        mapRef.current.animateToRegion(userRegion, 600);
+        return;
+      }
+      if (attempts < 20) {
+        attempts += 1;
+        setTimeout(tryAnimate, 150);
+      }
+    };
+    tryAnimate();
+  }, [location, isMapReady]);
+
+  const handleMapReady = () => setIsMapReady(true);
 
   // Separar pontos por tipo (POSITIVE e NEGATIVE)
   const { pointsPositive, pointsNegative } = useMemo(() => {
@@ -320,13 +364,16 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
   return (
     <View style={styles.container}>
       <MapView
+        ref={mapRef}
         style={styles.map}
-        initialRegion={region}
+        initialRegion={DEFAULT_REGION}
+        region={region}
+        onMapReady={handleMapReady}
         onRegionChangeComplete={setRegion}
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="standard"
-        provider='google'
+        provider="google"
       >
         {/* {clusters.map((point: ClusterFeature<any> | PointFeature<any>) => {
           const isCluster = 'cluster' in point.properties && point.properties.cluster === true;
@@ -422,8 +469,8 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({ onFeelingSelecte
         </View>
       )}
 
-      <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) }]}>
-        <View style={styles.card}>
+      <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset}]}>
+        <View style={[styles.card, !isCompliant && { opacity: 0.5 }]}>
           <Text style={styles.cardTitle}>
             {translate('home.userHowYouFelling') || 'Como você se sente hoje?'}
           </Text>
@@ -471,7 +518,7 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 25,
     padding: 20,
     shadowColor: '#000',
     shadowOffset: {
@@ -497,14 +544,14 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 12,
+    borderRadius: 15,
     marginHorizontal: 4,
   },
   goodButton: {
-    backgroundColor: '#2E97BE',
+    backgroundColor: colors.botãoBem,
   },
   badButton: {
-    backgroundColor: '#dd821a',
+    backgroundColor: colors.botãoMal,
   },
   buttonText: {
     fontSize: 18,

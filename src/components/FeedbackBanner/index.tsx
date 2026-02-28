@@ -20,9 +20,11 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ question, userAn
     normalize(opt.value) === normalize(userAnswer)
   );
 
+  const isCorrect = hasCorrectAnswer ? normalize(userAnswer) === normalize(correctAnswer) : false;
+
   let feedbackText = selectedOption?.feedback;
-  if (!feedbackText && question.feedback?.incorrect) {
-    feedbackText = question.feedback.incorrect;
+  if (!feedbackText) {
+    feedbackText = isCorrect ? question.feedback?.correct : question.feedback?.incorrect;
   }
 
   // If no "correct answer" is defined in backend, treat as generic submission
@@ -37,22 +39,22 @@ export const FeedbackBanner: React.FC<FeedbackBannerProps> = ({ question, userAn
       </View>
     );
   }
-
-  const isCorrect = normalize(userAnswer) === normalize(correctAnswer);
   const color = isCorrect ? "#2E7D32" : "#C62828";
-  const bg = isCorrect ? '#E8F5E9' : '#FFEBEE';
+  const bg = isCorrect ? '#D1F4E0' : '#FDECEA';
 
   return (
-    <View style={[styles.banner, { backgroundColor: bg }]}>
+    <View style={[styles.banner, { backgroundColor: bg, borderColor: color }]}>
       <View style={styles.header}>
-        <Feather name={isCorrect ? "check-circle" : "x-circle"} size={24} color={color} />
+        <Feather name={isCorrect ? "check-circle" : "x-circle"} size={28} color={color} />
         <Text style={[styles.title, { color }]}>
-          {isCorrect ? "Resposta Correta!" : "Resposta Incorreta"}
+          {isCorrect ? "Resposta correta" : "Resposta Incorreta"}
         </Text>
       </View>
-      {feedbackText && <Text style={styles.text}>{feedbackText}</Text>}
-      {!isCorrect && (
-        <Text style={styles.correctText}>Resposta esperada: {String(correctAnswer)}</Text>
+      {feedbackText && <Text style={[styles.text, { color }]}>{feedbackText}</Text>}
+      {hasCorrectAnswer && (
+        <Text style={[styles.correctText, { color }]}>
+          Resposta certa: {String(correctAnswer)}
+        </Text>
       )}
     </View>
   );

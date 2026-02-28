@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { QuizInfoRouteParams } from '../types/quizInfoRouteParams';
-import { getContentById } from '../services/contents';
+import { getContentById } from '../services/article';
 
 type QuizzInfoScreenRouteProp = RouteProp<{ params: QuizInfoRouteParams }, 'params'>;
 
@@ -16,7 +16,10 @@ export const useQuizInfo = () => {
     currentAttempt, 
     linkedArticle, 
     maxAttempts, 
-    timeLimitMinutes 
+    timeLimitMinutes,
+    trackProgressId,
+    sequenceId,
+    passingScore
   } = route.params;
 
   const [loadingContent, setLoadingContent] = useState(false);
@@ -25,7 +28,9 @@ export const useQuizInfo = () => {
     navigation.navigate('QuizzQuestionsScreen', { 
       quizId, 
       title, 
-      timeLimitMinutes 
+      timeLimitMinutes,
+      trackProgressId,
+      sequenceId
     });
   };
 
@@ -61,6 +66,7 @@ export const useQuizInfo = () => {
     linkedArticle,
     loadingContent,
     handleStartQuiz,
-    handleGoToContent
+    handleGoToContent,
+    passingScore
   };
 };

@@ -11,7 +11,7 @@ export const useSplashScreen = () => {
                 await SplashScreen.preventAutoHideAsync()
                 
                 // Simulate loading time (like the original app)
-                await new Promise(resolve => setTimeout(resolve, 3000))
+                await authStorage.getToken();
             } catch (e) {
                 console.warn(e)
             } finally {

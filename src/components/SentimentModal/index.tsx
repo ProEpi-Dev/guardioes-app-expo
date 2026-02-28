@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { SentimentModalProps } from '../../types/sentimentModal';
 import { styles } from './styles';
 
-export function SentimentModal({ visible, onClose, loading, sending, formDefinition, onFormChange, onSubmit }: SentimentModalProps) {
+export function SentimentModal({ visible, onClose, loading, sending, formDefinition, onFormChange, onSubmit, title }: SentimentModalProps) {
   const azul = '#2E97BE';
 
   if (!visible) return null;
@@ -19,8 +19,9 @@ export function SentimentModal({ visible, onClose, loading, sending, formDefinit
           
           {/* Header */}
           <View style={styles.header}>
+            <Text style={styles.title}>{title}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Feather name="x" size={28} color="#000" />
+              <Feather name="x" size={24} color="#000" />
             </TouchableOpacity>
           </View>
 

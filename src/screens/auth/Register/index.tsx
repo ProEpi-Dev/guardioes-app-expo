@@ -1,36 +1,35 @@
-import React from 'react';
-import { StatusBar, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { ActivityIndicator, View } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import {
   GradientBackground,
   KeyboardScrollView,
-  ButtonBack,
   FormSeparator,
-  SnowInput,
+  SolidInput,
   Touch,
-  SnowButton,
-  Label,
-  CustomSelector
+  DarkButton,
+  DarkButtonLabel,
+  SolidSelector
 } from '../../../components/SnowForms';
-import { Logo, PageTitle } from '../Login/styles';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { Logo, PageTitle, BackButtonContainer, BackButtonText } from './styles';
 import translate from '../../../locales/i18n';
-import { scale } from '../../../utils/scalling';
 import { RootStackParamList } from '../../../types/auth';
 import { useRegister } from '../../../hooks/useRegister';
 import { LegalCheckOption } from '../../../components/LegalCheckOption';
+import { LegalDocumentModal } from '../../../components/LegalDocumentModal';
+import { colors } from '../../../utils/colors';
 
-const GDSLogoBR = require('../../../../assets/gds-pt-branca.png');
-const GDSLogoES = require('../../../../assets/gds-es-branca.png');
-const verde = '#77bfad';
-const azul = '#2E97BE';
+const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 const branco = '#ffffff';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export function Register({ navigation }: Props) {
+  const insets = useSafeAreaInsets();
   const {
     nameInput,
     passwordInput,
@@ -48,92 +47,72 @@ export function Register({ navigation }: Props) {
     handleSubmit
   } = useRegister(navigation);
 
-  const LogoType = translate('lang.code') === 'es' ? GDSLogoES : GDSLogoBR;
+  const [docToRead, setDocToRead] = useState<any>(null);
+
+  const handleAcceptDocument = () => {
+    if (docToRead && !acceptedDocIds.includes(docToRead.id)) {
+      toggleDocument(docToRead);
+    }
+    setDocToRead(null);
+  };
 
   return (
-    <>
-      <SafeAreaView style={{ flex: 0, backgroundColor: azul }} />
-      <StatusBar backgroundColor={verde} barStyle='light-content' />
-      <GradientBackground colors={[azul, verde]}>
-        <KeyboardScrollView>
-          <Logo source={LogoType} />
-          <PageTitle>{translate('register.title')}</PageTitle>
+    <GradientBackground colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}>
+      <KeyboardScrollView>
+        <View style={{ height: insets.top + 40, width: '100%' }} />
+        <Logo source={GDSLogoBR} />
+        <PageTitle>{translate('register.title')}</PageTitle>
 
-          <FormSeparator>
-            <SnowInput
-              placeholder={translate('register.name')}
-              keyboardType='default'
-              returnKeyType='next'
-              maxLength={100}
-              value={name}
-              onChangeText={setName}
-              onSubmitEditing={() => nameInput.current?.focus()}
-            />
-            <SnowInput
-              placeholder={translate('login.email')}
-              keyboardType='email-address'
-              returnKeyType='next'
-              maxLength={100}
-              value={email}
-              onChangeText={setEmail}
-            />
-            <CustomSelector
-              data={contexts}
-              placeholder={isLoadingData ? "Carregando..." : "Selecione o Contexto"}
-              initValue={null}
-              onChange={(option: any) => setSelectedContextId(option.value)}
-            />
-            <SnowInput
-              placeholder={translate('login.password')}
-              secureTextEntry
-              maxLength={100}
-              ref={passwordInput}
-              value={password}
-              onChangeText={setPassword}
-              onSubmitEditing={handleSubmit}
-            />
-            <SnowInput
-              placeholder={translate('changePwd.confirmPwd')}
-              secureTextEntry
-              maxLength={100}
-              value={confirmPassword}
-              onChangeText={setConfirmPassword}
-              onSubmitEditing={handleSubmit}
-            />
-          </FormSeparator>
+        <FormSeparator>
+          <SolidInput placeholder={translate('register.name')} keyboardType='default' returnKeyType='next' maxLength={100} value={name} onChangeText={setName} onSubmitEditing={() => nameInput.current?.focus()} />
+          <SolidInput placeholder={translate('login.email')} keyboardType='email-address' returnKeyType='next' maxLength={100} value={email} onChangeText={setEmail} />
+          <SolidSelector data={contexts} placeholder={isLoadingData ? "Carregando..." : "Selecione o contexto"} initValue={null} onChange={(option: any) => setSelectedContextId(option.value)} />
+          <SolidInput placeholder={translate('login.password')} secureTextEntry maxLength={100} ref={passwordInput} value={password} onChangeText={setPassword} />
+          <SolidInput placeholder={"Confirme sua senha"} secureTextEntry maxLength={100} value={confirmPassword} onChangeText={setConfirmPassword} onSubmitEditing={handleSubmit} />
+        </FormSeparator>
 
-          <FormSeparator>
-            {legalDocuments.map((doc) => (
-              <LegalCheckOption
-                key={doc.id}
-                label={`Li e aceito: ${doc.title}`}
-                isChecked={acceptedDocIds.includes(doc.id)}
-                onPress={() => toggleDocument(doc)}
-              />
-            ))}
-          </FormSeparator>
-
-          <FormSeparator>
-            <Touch onPress={handleSubmit} disabled={isRegistering}>
-              <SnowButton>
-                {isRegistering ? (
-                  <ActivityIndicator size="small" color="#32323b" />
-                ) : (
-                  <Label>{translate('register.signupButton')}</Label>
-                )}
-              </SnowButton>
-            </Touch>
-          </FormSeparator>
-
-          <ButtonBack onPress={() => navigation.goBack()}>
-            <Feather
-              name='chevron-left'
-              size={scale(40)}
-              color={branco}
+        <FormSeparator>
+          {legalDocuments.map((doc) => (
+            <LegalCheckOption
+              key={doc.id}
+              title={doc.title}
+              isChecked={acceptedDocIds.includes(doc.id)}
+              onToggle={() => {
+                if (!acceptedDocIds.includes(doc.id)) {
+                  setDocToRead(doc);
+                } else {
+                  toggleDocument(doc);
+                }
+              }}
+              onRead={() => setDocToRead(doc)}
             />
-          </ButtonBack>
-        </KeyboardScrollView>
-      </GradientBackground>
-    </>
+          ))}
+        </FormSeparator>
+
+        <FormSeparator>
+          <Touch onPress={handleSubmit} disabled={isRegistering}>
+            <DarkButton>
+              {isRegistering ? <ActivityIndicator size="small" color="#ffffff" /> : <DarkButtonLabel>{translate('register.signupButton')}</DarkButtonLabel>}
+            </DarkButton>
+          </Touch>
+        </FormSeparator>
+
+        <BackButtonContainer onPress={() => navigation.goBack()}>
+          <Feather name='chevron-left' size={24} color={branco} />
+          <BackButtonText>Voltar</BackButtonText>
+        </BackButtonContainer>
+
+        <View style={{ height: insets.bottom + 20, width: '100%' }} />
+
+      </KeyboardScrollView>
+
+      <LegalDocumentModal 
+        visible={!!docToRead}
+        document={docToRead}
+        onClose={() => setDocToRead(null)}
+        onAccept={handleAcceptDocument}
+      />
+
+    </GradientBackground>
   );
 }

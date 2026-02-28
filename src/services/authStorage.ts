@@ -148,13 +148,13 @@ export const isTokenValid = (token: string, minMinutesRemaining: number = 5): bo
     const timeRemaining = expirationTime - currentTime;
     const minutesRemaining = timeRemaining / (1000 * 60);
 
-    console.log('🔐 [Token] Verificação de validade:', {
-      expirationTime: new Date(expirationTime).toISOString(),
-      currentTime: new Date(currentTime).toISOString(),
-      minutesRemaining: minutesRemaining.toFixed(2),
-      minRequired: minMinutesRemaining,
-      isValid: minutesRemaining > minMinutesRemaining,
-    });
+    // console.log('🔐 [Token] Verificação de validade:', {
+    //   expirationTime: new Date(expirationTime).toISOString(),
+    //   currentTime: new Date(currentTime).toISOString(),
+    //   minutesRemaining: minutesRemaining.toFixed(2),
+    //   minRequired: minMinutesRemaining,
+    //   isValid: minutesRemaining > minMinutesRemaining,
+    // });
 
     return minutesRemaining > minMinutesRemaining;
   } catch (error) {

@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Quizes } from '../types/quiz';
@@ -9,8 +9,16 @@ export const useQuizList = (participationId: number | null) => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
+  const lastFetchTime = useRef<number>(0);
+  const CACHE_DURATION = 60 * 1000;
+
   const loadData = useCallback(async (isRefresh = false) => {
     if (!participationId) return;
+
+    const now = Date.now();
+    if (!isRefresh && (now - lastFetchTime.current < CACHE_DURATION) && content.length > 0) {
+        return; 
+    }
     
     try {
       if (!isRefresh) setLoading(true);
@@ -51,7 +59,7 @@ export const useQuizList = (participationId: number | null) => {
       });
 
       setContent(mergedContent);
-
+      lastFetchTime.current = Date.now();
     } catch (error) {
       console.error(error);
       Alert.alert('Erro', 'Não foi possível carregar os quizzes.');
@@ -59,7 +67,7 @@ export const useQuizList = (participationId: number | null) => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [participationId]);
+  }, [participationId, content.length]);
 
   useFocusEffect(
     useCallback(() => {

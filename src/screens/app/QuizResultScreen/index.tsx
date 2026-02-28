@@ -1,20 +1,29 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useResultNavigation } from '../../../hooks/useResultNavigation';
 import { ScoreHeader } from '../../../components/ScoreHeader';
 import { QuestionReviewCard } from '../../../components/QuestionReviewCard';
 import { styles } from './styles';
+import { CustomHeader } from '../../../components/CustomHeader';
+import { useAuth } from '../../../contexts/AuthContext';
+import { LinearGradient } from 'expo-linear-gradient';
+import { colors } from '../../../utils/colors';
 
 
 export function QuizResultScreen() {
+  const { user } = useAuth();
   const { params, handleReturnToHome } = useResultNavigation();
   const { resultData, userAnswers, questions, title } = params;
+  const insets = useSafeAreaInsets();
+
+  const bottomBarHeight = 60 + insets.bottom;
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+    <View style={styles.container}>
+      <CustomHeader userName={user?.name} showButton={false}/>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: bottomBarHeight + 20 }]}>
         
         <ScoreHeader 
           title={title} 
@@ -33,14 +42,23 @@ export function QuizResultScreen() {
           />
         ))}
 
+      <TouchableOpacity 
+          style={styles.buttonContainer} 
+          onPress={handleReturnToHome}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={[colors.azulClaro, colors.azulEscuro]}
+            start={{ x: 0, y: 0 }} // Começa na esquerda
+            end={{ x: 1, y: 0 }}   // Termina na direita
+            style={styles.returnButtonGradient}
+          >
+            <Text style={styles.returnButtonText}>Retornar para a trilha</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        
       </ScrollView>
 
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.returnButton} onPress={handleReturnToHome}>
-          <Text style={styles.returnButtonText}>Retornar para os Quizzes</Text>
-          <Feather name="list" size={20} color="#FFF" />
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+    </View>
   );
 }

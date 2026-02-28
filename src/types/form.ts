@@ -1,6 +1,6 @@
 // Tipos para formulários dinâmicos
 
-export type FieldType = 'text' | 'number' | 'boolean' | 'select' | 'multiselect' | 'date';
+export type FieldType = 'text' | 'number' | 'boolean' | 'select' | 'radio' | 'multiselect' | 'date';
 
 export type ConditionOperator = 
   | 'equals' 
