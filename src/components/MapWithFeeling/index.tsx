@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
 import MapView, { Region, Marker, Heatmap } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Supercluster from 'supercluster';
@@ -373,7 +373,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="standard"
-        provider="google"
+        provider={Platform.OS === 'android' ? 'google' : undefined}
       >
         {/* {clusters.map((point: ClusterFeature<any> | PointFeature<any>) => {
           const isCluster = 'cluster' in point.properties && point.properties.cluster === true;
