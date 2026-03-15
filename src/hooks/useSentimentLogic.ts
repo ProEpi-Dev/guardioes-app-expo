@@ -147,14 +147,18 @@ export const useSentimentLogic = () => {
           formResponse: {},
           occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
         });
+
+        DeviceEventEmitter.emit('report_created');
         
-        setCurrentStreakCount(status.streak + 1); // +1 porque acabou de reportar
+        setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
         setTimeout(refreshPoints, 500);
       }
     } catch (e) {
       console.error(e);
       Alert.alert('Erro', 'Falha ao registrar sentimento.');
+    } finally {
+      setSending(false); 
     }
   };
 
@@ -219,8 +223,9 @@ export const useSentimentLogic = () => {
         formResponse: cleanData,
         occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
       });
+
+      DeviceEventEmitter.emit('report_created');
       
-      Alert.alert('Obrigado por reportar!');
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
@@ -229,7 +234,7 @@ export const useSentimentLogic = () => {
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
       } else {
-        Alert.alert('Obrigado por reportar!', 'Seu registro de sintomas foi enviado.');
+        Alert.alert('Obrigado por participar!', 'Seu registro de sintomas foi enviado.');
       }
 
     } catch (e) {

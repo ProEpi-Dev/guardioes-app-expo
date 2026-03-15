@@ -1,5 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { DeviceEventEmitter } from 'react-native';
 import { getReportStreaks } from '../services/streaks';
+
+const CACHE_DURATION = 60 * 1000;
 
 export function useStreaks(contextId: number, participationId: number) {
   const [streakData, setStreakData] = useState<any>({ 
@@ -10,12 +13,18 @@ export function useStreaks(contextId: number, participationId: number) {
   const [markedDates, setMarkedDates] = useState<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
   
-  const [loadedMonths, setLoadedMonths] = useState<Set<string>>(new Set());
+  const loadedMonthsRef = useRef<Record<string, number>>({});
 
-  const fetchMonthData = useCallback(async (year: number, month: number) => {
-    const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+  const fetchMonthData = useCallback(async (year: number, month: number, forceRefresh = false) => {
+    if (!contextId || !participationId) return;
     
-    if (loadedMonths.has(monthKey)) return;
+    const monthKey = `${year}-${String(month).padStart(2, '0')}`;
+    const now = Date.now();
+    const lastFetchTime = loadedMonthsRef.current[monthKey] || 0;
+    
+    if (!forceRefresh && (now - lastFetchTime < CACHE_DURATION)) {
+      return;
+    }
 
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
     const lastDay = new Date(year, month, 0).getDate();
@@ -54,18 +63,22 @@ export function useStreaks(contextId: number, participationId: number) {
         });
       }
 
-      setLoadedMonths((prev) => new Set(prev).add(monthKey));
+      loadedMonthsRef.current[monthKey] = Date.now();
 
     } catch (error) {
       console.error('Erro ao buscar calendário:', error);
     } finally {
       setLoading(false);
     }
-  }, [contextId, participationId, loadedMonths]);
+  }, [contextId, participationId]);
 
   useEffect(() => {
-    const hoje = new Date();
-    fetchMonthData(hoje.getFullYear(), hoje.getMonth() + 1);
+    const subscription = DeviceEventEmitter.addListener('report_created', () => {
+      loadedMonthsRef.current = {};
+      const hoje = new Date();
+      fetchMonthData(hoje.getFullYear(), hoje.getMonth() + 1, true);
+    });
+    return () => subscription.remove();
   }, [fetchMonthData]);
 
   return { 
