@@ -24,7 +24,7 @@ export function StreakCalendar({ markedDates, loading, onMonthChange }: StreakCa
                 <ActivityIndicator size="small" color="#2ECC71" style={styles.loadingIndicator} />
             )}
             <Calendar
-                markingType={'custom'}
+                markingType={'period'}
                 markedDates={markedDates}
                 hideExtraDays={true}
                 onMonthChange={(month: any) => onMonthChange(month.year, month.month)}
