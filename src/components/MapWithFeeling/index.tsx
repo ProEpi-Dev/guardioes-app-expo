@@ -367,13 +367,12 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
         ref={mapRef}
         style={styles.map}
         initialRegion={DEFAULT_REGION}
-        region={region}
         onMapReady={handleMapReady}
         onRegionChangeComplete={setRegion}
         showsUserLocation={true}
         showsMyLocationButton={true}
         mapType="standard"
-        provider={Platform.OS === 'android' ? 'google' : undefined}
+        provider="google"
       >
         {/* {clusters.map((point: ClusterFeature<any> | PointFeature<any>) => {
           const isCluster = 'cluster' in point.properties && point.properties.cluster === true;
@@ -439,27 +438,40 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
             </Marker>
           );
         })} */}
-        {points.length && <Heatmap
-          points={(points || []).map(item => ({ latitude: item.latitude, longitude: item.longitude, weight: item.reportType == "POSITIVE" ? 1 : 0 }))}
-          radius={50}
-          opacity={0.8}
-          gradient={{
-            colors: ["rgba(255,0,0,1)"], // verde → vermelho
-            startPoints: [1],
-            colorMapSize: 256,
-          }}
-        />}
 
-        {points.length && <Heatmap
-          points={(points || []).map(item => ({ latitude: item.latitude, longitude: item.longitude, weight: item.reportType == "NEGATIVE" ? 1 : 0 }))}
-          radius={50}
-          opacity={0.8}
-          gradient={{
-            colors: ["rgba(0, 255, 47, 1)"], // verde → vermelho
-            startPoints: [1],
-            colorMapSize: 256,
-          }}
-        />}
+        {points.length > 0 && (
+          <>
+            <Heatmap
+              points={(points || []).map(item => ({
+                latitude: item.latitude,
+                longitude: item.longitude,
+                weight: item.reportType == "POSITIVE" ? 1 : 0
+              }))}
+              radius={50}
+              opacity={0.8}
+              gradient={{
+                colors: ["rgba(255,0,0,1)"],
+                startPoints: [1],
+                colorMapSize: 256,
+              }}
+            />
+
+            <Heatmap
+              points={(points || []).map(item => ({
+                latitude: item.latitude,
+                longitude: item.longitude,
+                weight: item.reportType == "NEGATIVE" ? 1 : 0
+              }))}
+              radius={50}
+              opacity={0.8}
+              gradient={{
+                colors: ["rgba(0, 255, 47, 1)"],
+                startPoints: [1],
+                colorMapSize: 256,
+              }}
+            />
+          </>
+        )}
 
       </MapView>
 
