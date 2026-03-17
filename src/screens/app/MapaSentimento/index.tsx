@@ -99,7 +99,7 @@ export function MapaSentimento() {
           <Animated.View style={[styles.successCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             <Text style={styles.successEmoji}>✅</Text>
             <Text style={styles.successTitle}>{diaCapitalizado} Marcado!</Text>
-            <Text style={styles.successSubtitle}>Ofensiva atual: {currentStreakCount} dia(s) 🔥</Text>
+            <Text style={styles.successSubtitle}>Sequência atual: {currentStreakCount} dia(s) 🔥</Text>
           </Animated.View>
         </View>
       )}

@@ -24,6 +24,8 @@ export function SequenceScreen() {
 
     const textoDia = currentStreak === 1 ? 'dia' : 'dias';
     const textoSeguido = currentStreak === 1 ? 'seguido' : 'seguidos';
+    const textoMaior = longestStreak === 1 ? 'dia' : 'dias';
+    const textoTotal = totalReports === 1 ? 'dia' : 'dias';
 
     const currentMonthRef = useRef({
         year: new Date().getFullYear(),
@@ -62,8 +64,8 @@ export function SequenceScreen() {
                 />
 
                 <View style={styles.statsContainer}>
-                    <StatCard label="Maior Sequência" value={`${longestStreak || 0} 🏆`} />
-                    <StatCard label="Total de Dias" value={`${totalReports || 0} 📅`} />
+                    <StatCard label="Maior Sequência" value={`${longestStreak || 0} ${textoMaior}`} />
+                    <StatCard label="Participação Total" value={`${totalReports || 0} ${textoTotal}`} />
                 </View>
 
             </ScrollView>

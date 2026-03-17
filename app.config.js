@@ -42,13 +42,13 @@ module.exports = ({ config }) => {
       slug: 'guardioes-expo',
       version: '4.0.0',
       orientation: 'portrait',
-      icon: './assets/icon.png',
+      icon: './assets/514x514_ícone_gs.jpg',
       userInterfaceStyle: 'light',
       newArchEnabled: true,
       splash: {
-        image: './src/img/logos/gds-pt-branca@2x.png',
+        image: './assets/logo_gds_completa_branca.png',
         resizeMode: 'contain',
-        backgroundColor: '#000000',
+        backgroundColor: '#2E97BE',
       },
       ios: {
         googleServicesFile: './GoogleService-Info.plist',
@@ -68,7 +68,7 @@ module.exports = ({ config }) => {
       android: {
         googleServicesFile: './google-services.json',
         adaptiveIcon: {
-          foregroundImage: './assets/adaptive-icon.png',
+          foregroundImage: './assets/1024x1024_ícone_gs.jpg',
           backgroundColor: '#ffffff',
         },
         package: 'com.guardioesapp',
@@ -76,7 +76,7 @@ module.exports = ({ config }) => {
         permissions: ['android.permission.POST_NOTIFICATIONS'],
       },
       web: {
-        favicon: './assets/favicon.png',
+        favicon: './assets/1024x1024_ícone_gs.jpg',
       },
       plugins: [
         'expo-localization',

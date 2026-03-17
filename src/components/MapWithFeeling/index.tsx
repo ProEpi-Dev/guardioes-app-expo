@@ -450,7 +450,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
               radius={50}
               opacity={0.8}
               gradient={{
-                colors: ["rgba(255,0,0,1)"],
+                colors: ["rgba(0, 255, 47, 1)"],
                 startPoints: [1],
                 colorMapSize: 256,
               }}
@@ -465,7 +465,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
               radius={50}
               opacity={0.8}
               gradient={{
-                colors: ["rgba(0, 255, 47, 1)"],
+                colors: ["rgba(255,0,0,1)"],
                 startPoints: [1],
                 colorMapSize: 256,
               }}

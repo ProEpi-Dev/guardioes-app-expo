@@ -40,16 +40,6 @@ export default function ProfileScreen() {
       return;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert("Erro", "O campo Nova Senha e Confirme a nova Senha possuem valores diferentes");
-      return;
-    }
-    
-    if (password.length <= 5) {
-      Alert.alert("Erro", "A nova senha deve ter mínimo de 6 caracteres");
-      return;
-    }
-
     setLoading(true);
     try {
       const payload: any = { name, email };
