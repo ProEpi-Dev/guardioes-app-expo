@@ -1,15 +1,12 @@
 import axios from 'axios';
 import * as authStorage from '../services/authStorage';
 
-// Configuração da API
-export const API_BASE_URL = 'https://devapi.gds.proepi.org.br';
-
 // Token em memória (evita buscar do storage a cada requisição)
 let currentToken = null;
 
 // Criar instância do axios
 const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
