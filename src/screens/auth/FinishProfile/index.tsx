@@ -108,7 +108,7 @@ export function FinishProfile() {
 
             <SolidInput
               placeholder="Identificador"
-              secureTextEntry
+              // secureTextEntry
               maxLength={100}
               ref={identifierInputRef}
               value={externalIdentifier}
