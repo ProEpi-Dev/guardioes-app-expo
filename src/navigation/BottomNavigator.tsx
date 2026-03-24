@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { TouchableOpacity, DeviceEventEmitter } from 'react-native'; // DeviceEventEmitter ADICIONADO
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MapaSentimento } from '../screens/app/MapaSentimento';
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import CardStack from './CardStack';
 import { useNavigation } from '@react-navigation/native';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -10,6 +10,7 @@ import TrailStack from './TrailStack';
 import { colors } from '../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSentimentLogic } from '../hooks/useSentimentLogic';
+import { SequenceScreen } from '../screens/app/SequenceScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -87,13 +88,24 @@ export function BottomNavigation() {
                 </TouchableOpacity>
             ),
             tabBarIcon: ({ focused, color }) => (
-                <Feather
-                    name={"home"} 
-                    size={24} 
-                    color={color} 
-                />
+              <Feather
+              name={"home"} 
+              size={24} 
+              color={color} 
+              />
             ),
-         }}
+          }}
+      />
+
+      <Tab.Screen 
+        name="Dias"
+        component={SequenceScreen}
+        options={{ 
+            tabBarLabel: 'Dias',
+            tabBarIcon: ({ focused, color }) => (
+                <FontAwesome5 name="calendar-alt" size={24} color={color} />
+            ),
+        }}
       />
 
       <Tab.Screen 

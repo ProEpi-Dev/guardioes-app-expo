@@ -7,12 +7,16 @@ import { getLatestSignalForm } from '../services/forms';
 import { createReport } from '../services/reports';
 import { checkMandatoryCompliance } from '../services/trail';
 import { useFocusEffect } from '@react-navigation/native';
+import { getReportStreaks } from '../services/streaks';
 
 export const useSentimentLogic = () => {
   // Hooks Externos
-  const { participationId } = useParticipation();
+  const { contextId, participationId } = useParticipation();
   const { location, refetch: refetchLocation } = useUserLocationQuery();
   const { mapPoints, loadingPoints, refreshPoints } = useSentimentMap();
+
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [currentStreakCount, setCurrentStreakCount] = useState(0);
   
   // Estado de conformidade (inicia true para não bloquear durante o carregamento)
   const [isCompliant, setIsCompliant] = useState(true);
@@ -93,11 +97,44 @@ export const useSentimentLogic = () => {
     }, [participationId])
   );
 
+  const checkHasReportedToday = async () => {
+    if (!contextId || !participationId) return { hasReported: false, streak: 0 };
+    
+    // Pega a data local de hoje no formato YYYY-MM-DD
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    const todayLocal = (new Date(Date.now() - tzOffset)).toISOString().split('T')[0];
+
+    try {
+      const data = await getReportStreaks({ 
+        contextId, 
+        participationId, 
+        startDate: todayLocal, 
+        endDate: todayLocal 
+      });
+      const hasReported = data?.reportedDays && data.reportedDays.length > 0;
+      return { hasReported, streak: data?.currentStreak || 0 };
+    } catch (e) {
+      console.error("Erro ao verificar ofensiva:", e);
+      return { hasReported: false, streak: 0 };
+    }
+  };
+
   // 1. Fluxo do Sentimento Positivo
   const handlePositiveSentiment = async () => {
     if (!participationId) return Alert.alert('Aguarde', 'Carregando perfil...');
 
     try {
+      setSending(true);
+      const status = await checkHasReportedToday();
+
+      if (status.hasReported) {
+        Alert.alert(
+          'Tudo certo por hoje! ✨', 
+          'Você já registrou seu estado de saúde!'
+        );
+        return;
+      }
+
       const latestForm = await getLatestSignalForm();
       const versionId = latestForm.latestVersion?.id;
       const loc = await getLocation();
@@ -110,13 +147,18 @@ export const useSentimentLogic = () => {
           formResponse: {},
           occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
         });
+
+        DeviceEventEmitter.emit('report_created');
         
-        Alert.alert('Obrigado por reportar!');
+        setCurrentStreakCount(status.streak + 1);
+        setShowSuccessAnimation(true);
         setTimeout(refreshPoints, 500);
       }
     } catch (e) {
       console.error(e);
       Alert.alert('Erro', 'Falha ao registrar sentimento.');
+    } finally {
+      setSending(false); 
     }
   };
 
@@ -169,6 +211,8 @@ export const useSentimentLogic = () => {
 
     setSending(true);
     try {
+      const status = await checkHasReportedToday();
+
       const { _isValid, ...cleanData } = formValues;
       const loc = await getLocation();
 
@@ -179,11 +223,20 @@ export const useSentimentLogic = () => {
         formResponse: cleanData,
         occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
       });
+
+      DeviceEventEmitter.emit('report_created');
       
-      Alert.alert('Obrigado por reportar!');
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
+
+      if (!status.hasReported) {
+        setCurrentStreakCount(status.streak + 1);
+        setShowSuccessAnimation(true);
+      } else {
+        Alert.alert('Obrigado por participar!', 'Seu registro de sintomas foi enviado.');
+      }
+
     } catch (e) {
       console.error(e);
       Alert.alert('Erro', 'Falha no envio.');
@@ -204,6 +257,9 @@ export const useSentimentLogic = () => {
     onFeelingSelected,
     setFormValues,
     handleSubmitForm,
-    isCompliant
+    isCompliant,
+    showSuccessAnimation,
+    setShowSuccessAnimation,
+    currentStreakCount
   };
 };

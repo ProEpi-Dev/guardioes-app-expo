@@ -1,43 +1,53 @@
 {
   "expo": {
-    "name": "guardioes-expo",
+    "name": "Guardiões da Saúde",
     "slug": "guardioes-expo",
     "version": "4.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/514x514_ícone_gs.jpg",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo_gds_completa_branca.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#2E97BE"
     },
     "ios": {
+      "googleServicesFile": "./GoogleService-Info.plist",
       "supportsTablet": true,
       "bundleIdentifier": "com.guardioesapp",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa."
+        "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/1024x1024_ícone_gs.jpg",
         "backgroundColor": "#ffffff"
       },
       "package": "com.guardioesapp",
       "edgeToEdgeEnabled": true,
-      "permissions": ["android.permission.POST_NOTIFICATIONS"]
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/1024x1024_ícone_gs.jpg"
     },
     "plugins": [
       "expo-localization",
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
+      "./plugins/withIosFirebasePodfile.js",
       "./plugins/withGoogleMapsApiKey.js",
       "./plugins/withAndroidLocalProperties.js"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "80b44ef1-f17e-4e58-a13b-f140c23d6e3a"
+      }
+    }
   }
 }
