@@ -8,6 +8,8 @@ import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlertModal } from '../../../components/AlertModal';
+import { useStreaks } from '../../../hooks/useStreaks';
+import { useParticipation } from '../../../contexts/ParticipationContext';
 
 export function MapaSentimento() {
   const { user } = useAuth();
@@ -32,6 +34,13 @@ export function MapaSentimento() {
     setShowSuccessAnimation,
     currentStreakCount
   } = useSentimentLogic();
+
+  const { contextId, participationId } = useParticipation();
+
+  const { currentStreak } = useStreaks(
+    contextId || 0, 
+    participationId || 0
+  );
   
   const [isCompliant, setIsCompliant] = useState(logicCompliant);
 
@@ -99,7 +108,7 @@ export function MapaSentimento() {
           <Animated.View style={[styles.successCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
             <Text style={styles.successEmoji}>✅</Text>
             <Text style={styles.successTitle}>{diaCapitalizado} Marcado!</Text>
-            <Text style={styles.successSubtitle}>Sequência atual: {currentStreakCount} dia(s) 🔥</Text>
+            <Text style={styles.successSubtitle}>Sequência atual: {currentStreak} dia(s) 🔥</Text>
           </Animated.View>
         </View>
       )}
