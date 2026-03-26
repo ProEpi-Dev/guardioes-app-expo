@@ -15,6 +15,7 @@ export interface LoginResponse {
     token?: string;
     accessToken?: string;
     user?: User;
+    refreshToken?: any;
   };
   id?: number;
   email?: string;

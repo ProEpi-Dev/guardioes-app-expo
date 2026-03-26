@@ -3,6 +3,7 @@ import { User } from '../types/auth';
 
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'user_data';
+const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
 // Armazenar token
 export const storeToken = async (token: string): Promise<boolean> => {
@@ -11,6 +12,32 @@ export const storeToken = async (token: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Erro ao armazenar token:', error);
+    return false;
+  }
+};
+
+export const storeRefreshToken = async (token: string): Promise<boolean> => {
+  try {
+    await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
+    return true;
+  } catch (error) {
+    return false;
+  }
+};
+
+export const getRefreshToken = async (): Promise<string | null> => {
+  try {
+    return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch (error) {
+    return null;
+  }
+};
+
+export const removeRefreshToken = async (): Promise<boolean> => {
+  try {
+    await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+    return true;
+  } catch (error) {
     return false;
   }
 };
@@ -72,7 +99,7 @@ export const removeUser = async (): Promise<boolean> => {
 
 // Limpar todos os dados de autenticação
 export const clearAuthData = async (): Promise<void> => {
-  await Promise.all([removeToken(), removeUser()]);
+  await Promise.all([removeToken(), removeRefreshToken(), removeUser()]);
 };
 
 // Função para decodificar base64 no React Native (substitui atob)

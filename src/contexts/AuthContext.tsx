@@ -2,6 +2,7 @@ import React, { createContext, useState, useEffect, useContext, ReactNode } from
 import { apiClient, updateAuthToken, initializeAuthToken } from '../utils/api';
 import * as authStorage from '../services/authStorage';
 import { User, RegisterData, LoginResponse, LoginResult, AuthContextType, ApiError, Form, PaginatedResponse } from '../types/auth';
+import axios from 'axios';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -34,26 +35,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Inicializar token no axios (busca do storage e atualiza defaults)
       const storedToken = await initializeAuthToken();
       const storedUser = await authStorage.getUser();
+      
+      // NOVA VERIFICAÇÃO: Garantir que também temos o refresh token
+      const storedRefreshToken = await authStorage.getRefreshToken();
 
-      if (storedToken && storedUser) {
-        // Verificar se o token tem mais de 5 minutos de validade
-        const isValid = authStorage.isTokenValid(storedToken, 5);
+      // Se temos o token principal, o usuário E o refresh token, o usuário está logado!
+      if (storedToken && storedUser && storedRefreshToken) {
         
-        if (!isValid) {
-          // console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
-          // Token está expirando em menos de 5 minutos, fazer logout
-          await logout();
-          return;
-        }
+        // A verificação de 5 minutos (isTokenValid) FOI REMOVIDA DAQUI!
+        // Se o storedToken estiver expirado, o interceptor do Axios 
+        // no arquivo api.js vai tratar o erro 401 e renová-lo automaticamente.
 
-        // Token válido, manter autenticação
         setToken(storedToken);
         setUser(storedUser);
         setIsAuthenticated(true);
+        
         // Buscar forms se já estiver autenticado
         await fetchForms();
       } else {
-        // Não há token ou usuário salvo, garantir que está deslogado
+        // Faltam dados na memória, garantir que está deslogado
         setIsAuthenticated(false);
         setToken(null);
         setUser(null);
@@ -107,7 +107,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
 
       // Armazenar token e dados do usuário
+      const refreshToken = response.refreshToken || response.data?.refreshToken;
+
+      // Armazenar token, refresh token e dados do usuário
       await authStorage.storeToken(authToken);
+      if (refreshToken) {
+        await authStorage.storeRefreshToken(refreshToken);
+      }
       await authStorage.storeUser(finalUserData);
       
       // Atualizar token no axios interceptor
@@ -169,8 +175,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           email: data.email,
           name: data.name
         };
+        
+        const refreshToken = response.refreshToken || response.data?.refreshToken;
 
         await authStorage.storeToken(authToken);
+        if (refreshToken) {
+           await authStorage.storeRefreshToken(refreshToken);
+        }
         await authStorage.storeUser(finalUserData);
         await updateAuthToken(authToken);
 
@@ -206,18 +217,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = async (): Promise<void> => {
-    try {
-      await authStorage.clearAuthData();
-      // Remover token do axios interceptor
-      await updateAuthToken(null);
-      setToken(null);
-      setUser(null);
-      setForm(null);
-      setIsAuthenticated(false);
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
+  try {
+    const currentRefreshToken = await authStorage.getRefreshToken();
+    
+    // Avisa o servidor para revogar a sessão usando o endpoint correto
+    if (currentRefreshToken) {
+      try {
+        await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/logout`, {
+          refreshToken: currentRefreshToken
+        });
+      } catch (e) {
+        console.warn('Erro ao avisar o servidor do logout', e);
+      }
     }
-  };
+
+    await authStorage.clearAuthData();
+    await updateAuthToken(null);
+    setToken(null);
+    setUser(null);
+    setForm(null);
+    setIsAuthenticated(false);
+  } catch (error) {
+    console.error('Erro ao fazer logout:', error);
+  }
+};
 
   const updateUser = async (userData: User): Promise<void> => {
     try {
