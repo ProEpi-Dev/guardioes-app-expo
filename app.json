@@ -18,7 +18,11 @@
       "bundleIdentifier": "com.guardioesapp",
       "infoPlist": {
         "NSLocationWhenInUseUsageDescription": "Precisamos da sua localização para mostrar sua posição no mapa.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "remote-notification",
+          "fetch"
+        ]
       }
     },
     "android": {
