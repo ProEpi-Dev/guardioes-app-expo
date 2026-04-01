@@ -64,8 +64,13 @@ export const useRegister = (navigation: any) => {
       return;
     }
 
-    if (!name || !email || !password || password !== confirmPassword) {
-      Alert.alert(translate('register.fieldNotBlank'));
+    if (!name || !email || !password || !confirmPassword) {
+      Alert.alert(translate('Campos obrigatórios não preenchidos'));
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      Alert.alert(translate('Senha e Confirmar Senha devem ser iguais'));
       return;
     }
 

@@ -22,8 +22,8 @@ export const usePasswordRecover = () => {
       await forgotPassword(email);
       
       Alert.alert(
-        "Sucesso",
-        "Verifique o seu email para recuperar a senha",
+        "Recuperação de Senha",
+        "Se o email informado estiver cadastrado, você receberá o email para redefinição de senha",
         [{ text: "OK", onPress: () => navigation.navigate('Login') }]
       );
     } catch (error) {
