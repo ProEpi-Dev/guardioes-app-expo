@@ -16,6 +16,7 @@ Um dos componentes mais críticos do projeto. A vigilância epidemiológica exig
 - O aplicativo suporta uma trilha de conteúdos interativos (como módulos de curso).
 - O backend alimenta um estado lido pelos hooks `useTrail.ts` e `useQuizList.ts`.
 - Componentes como `TrailListItem`, `QuizCard` e `ScoreHeader` ajudam a exibir o progresso do usuário no aprendizado das práticas de saúde e da doença avaliada.
+- Os componentes `StatCard` e `StreakCalendar` são responsáveis por exibir a parte de gamificação de sequência de dias seguidos que o usuário está reportando dentro do aplicativo.
 
 ## 4. Internacionalização (i18n)
 Toda a aplicação possui as strings isoladas em `src/locales/`. 
@@ -27,3 +28,8 @@ import translate from '../../locales/i18n';
     {translate('home.userHowYouFelling')}
 </Text>
 ```
+
+## 5. Conteúdos
+Principal meio de comunicação que o aplicativo utiliza para transmitir um ensinamento sobre saúde.
+- O componente `ArticleWebView` é o responsável por rendenizar o conteúdo vindo da API.
+- O app aproveita da ferramenta WebView para que um texto customizado possa ser redigido com links, sendo todos rendenizados dentro do aplicativo.
