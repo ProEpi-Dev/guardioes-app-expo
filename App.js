@@ -59,6 +59,7 @@ export const navigationRef = React.createRef();
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
+    shouldShowAlert: true,
     shouldShowBanner: true,
     shouldShowList: true,
     shouldPlaySound: true,
@@ -228,7 +229,7 @@ function AppContent() {
                 },
               }),
             },
-            trigger: null,
+            trigger: Platform.OS === 'ios' ? { seconds: 1 } : null,
           });
         }
       });

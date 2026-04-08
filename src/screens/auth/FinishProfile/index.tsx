@@ -81,7 +81,7 @@ export function FinishProfile() {
 
             <SolidSelector
               data={genders}
-              placeholder={isLoading ? "Carregando..." : "Selecione o Gênero"}
+              placeholder={isLoading ? "Carregando..." : "Selecione o Sexo"}
               initValue={selectedGenderId}
               onChange={(option: any) => setSelectedGenderId(option.value)}
             />

@@ -172,7 +172,7 @@ export default function ProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Dados Complementares</Text>
           <Text style={styles.sectionDescription}>
-            Gênero, Localização e Matrícula.
+            Sexo, Localização e Matrícula.
           </Text>
 
           <TouchableOpacity 

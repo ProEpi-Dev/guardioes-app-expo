@@ -96,12 +96,12 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         ) : (
           <ScrollView contentContainerStyle={styles.content}>
             
-            <Text style={styles.label}>Gênero</Text>
+            <Text style={styles.label}>Sexo</Text>
             <CustomSelector 
               lightMode={true}
               data={genders}
               initValue={selectedGenderId}
-              placeholder="Selecione seu gênero"
+              placeholder="Selecione seu Sexo"
               onChange={(item: DropdownOption) => setSelectedGenderId(Number(item.value))}
             />
 
