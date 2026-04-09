@@ -11,7 +11,8 @@
     "prebuild": "expo prebuild",
     "prebuild:clean": "expo prebuild --clean",
     "prebuild:android": "expo prebuild --platform android",
-    "prebuild:ios": "expo prebuild --platform ios"
+    "prebuild:ios": "expo prebuild --platform ios",
+    "eas-build-pre-install": "node setup-firebase.js"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
