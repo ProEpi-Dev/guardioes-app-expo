@@ -3,14 +3,11 @@ import { StyleSheet } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { ArticleWebViewProps } from '../../types/article';
 
-export function ArticleWebView({
-  content,
-}: ArticleWebViewProps) {
-
+export function ArticleWebView({ content }: ArticleWebViewProps) {
   const htmlContent = useMemo(() => {
     let processedContent = content
-      .replace(/<p><br><\/p>/g, "")
-      .replace(/<br><br>/g, "<br>"); 
+      .replace(/<p><br><\/p>/g, '')
+      .replace(/<br><br>/g, '<br>');
 
     return `
       <!DOCTYPE html>
@@ -157,7 +154,7 @@ export function ArticleWebView({
     <WebView
       style={styles.container}
       originWhitelist={['*']}
-      source={{ html: htmlContent, baseUrl: "https://www.google.com"}}
+      source={{ html: htmlContent, baseUrl: 'https://www.google.com' }}
       javaScriptEnabled={true}
       domStorageEnabled={true}
       allowsFullscreenVideo={true}

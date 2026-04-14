@@ -9,15 +9,15 @@ export interface Quizes {
     id: number;
     versionNumber: number;
     passingScore?: number | null;
-    maxAttempts?: number | null; 
+    maxAttempts?: number | null;
     timeLimitMinutes?: number | null;
   };
   score?: number | null;
-  isPassed?: boolean;    
+  isPassed?: boolean;
   attemptNumber?: number;
-  linkedArticle?: LinkedArticle | null; 
+  linkedArticle?: LinkedArticle | null;
   passingScore?: number | null;
-  maxAttempts?: number | null; 
+  maxAttempts?: number | null;
   timeLimitMinutes?: number | null;
 }
 
@@ -29,18 +29,18 @@ export interface UserQuizProgress {
   score: number;
   isPassed: boolean;
   attemptNumber: number;
-  active: boolean; 
+  active: boolean;
 }
 
 export type QuizStackParamList = {
   Home: undefined;
-  QuizzInfoScreen: { 
-      quizId: number; 
-      title: string; 
-      currentAttempt: number; 
+  QuizzInfoScreen: {
+    quizId: number;
+    title: string;
+    currentAttempt: number;
   };
-  Article: { article: Article }; 
-  QuizzQuestionsScreen: { quizId: number; title: string; };
+  Article: { article: Article };
+  QuizzQuestionsScreen: { quizId: number; title: string };
   QuizResultScreen: {
     resultData: { score: number; isPassed: boolean };
     userAnswers: Record<string, any>;

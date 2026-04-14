@@ -14,7 +14,7 @@ const queryClient = new QueryClient({
   },
 });
 import { Platform, PermissionsAndroid } from 'react-native';
-import * as Notifications from 'expo-notifications'; 
+import * as Notifications from 'expo-notifications';
 import {
   getMessaging,
   getToken,
@@ -49,10 +49,13 @@ async function waitForApnsDeviceToken(timeoutMs = 45000, intervalMs = 250) {
 
 setBackgroundMessageHandler(messaging, async (remoteMessage) => {
   if (__DEV__) {
-    console.log('[FCM] background handler:', remoteMessage?.messageId, remoteMessage?.data);
+    console.log(
+      '[FCM] background handler:',
+      remoteMessage?.messageId,
+      remoteMessage?.data
+    );
   }
 });
-
 
 // Referência para navegação
 export const navigationRef = React.createRef();
@@ -86,16 +89,20 @@ function AppContent() {
       }
 
       if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('high_importance_channel', {
-          name: 'Notificações Urgentes',
-          importance: Notifications.AndroidImportance.MAX,
-          vibrationPattern: [0, 250, 250, 250],
-          lightColor: '#FF231F7C',
-          sound: 'default',
-          enableVibrate: true,
-          lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
-          bypassDnd: true,
-        });
+        await Notifications.setNotificationChannelAsync(
+          'high_importance_channel',
+          {
+            name: 'Notificações Urgentes',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+            sound: 'default',
+            enableVibrate: true,
+            lockscreenVisibility:
+              Notifications.AndroidNotificationVisibility.PUBLIC,
+            bypassDnd: true,
+          }
+        );
       }
       if (Platform.OS === 'ios') {
         await Notifications.requestPermissionsAsync({
@@ -116,7 +123,7 @@ function AppContent() {
         console.warn(
           '[FCM] notification permission not granted. authStatus=',
           authStatus,
-          '( -1 not determined, 0 denied )',
+          '( -1 not determined, 0 denied )'
         );
       }
 
@@ -141,7 +148,7 @@ function AppContent() {
                 console.log('[FCM] APNs device token received');
               } else {
                 console.warn(
-                  '[FCM] No APNs token within timeout. Simulator often never receives one; use a physical iPhone, or check Push capability + signing.',
+                  '[FCM] No APNs token within timeout. Simulator often never receives one; use a physical iPhone, or check Push capability + signing.'
                 );
               }
             }
@@ -173,13 +180,17 @@ function AppContent() {
               console.warn(
                 '[FCM] getToken returned empty. iOS APNs token present:',
                 !!apnsHint,
-                '| Configure APNs key in Firebase Console (Project settings → Cloud Messaging).',
+                '| Configure APNs key in Firebase Console (Project settings → Cloud Messaging).'
               );
             }
           }
         } catch (error) {
           if (__DEV__) {
-            console.warn('[FCM] getToken failed:', error?.message || error, error?.code);
+            console.warn(
+              '[FCM] getToken failed:',
+              error?.message || error,
+              error?.code
+            );
           }
         }
       }
@@ -192,7 +203,10 @@ function AppContent() {
 
       const unsubscribe = onMessage(messaging, async (remoteMessage) => {
         if (__DEV__) {
-          console.log('[FCM] foreground message:', JSON.stringify(remoteMessage));
+          console.log(
+            '[FCM] foreground message:',
+            JSON.stringify(remoteMessage)
+          );
         }
 
         const { notification, data } = remoteMessage;
@@ -254,7 +268,7 @@ function AppContent() {
     // Aguardar o carregamento terminar antes de navegar
     if (!isLoading && navigationRef.current && !hasNavigated.current) {
       hasNavigated.current = true;
-      
+
       if (isAuthenticated) {
         // Se estiver autenticado, navegar para Home
         // console.log('🔐 [App] Usuário autenticado, navegando para Home');

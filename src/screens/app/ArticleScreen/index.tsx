@@ -16,11 +16,9 @@ export default function ArticleScreen({ route }: Props) {
 
   return (
     <>
-      <CustomHeader userName={user?.name} showBackButton={true}/>
+      <CustomHeader userName={user?.name} showBackButton={true} />
       <View style={{ flex: 1, paddingBottom: insets.bottom + 90 }}>
-        <ArticleWebView
-          content={article.content}
-        />
+        <ArticleWebView content={article.content} />
       </View>
     </>
   );

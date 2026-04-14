@@ -42,10 +42,9 @@ export const SelectorModal: React.FC<SelectorModalProps> = ({
   cancelStyle,
   cancelTextStyle,
 }) => {
-  
   const renderItem: ListRenderItem<Option> = ({ item }) => (
-    <TouchableOpacity 
-      style={[styles.defaultOption, optionStyle]} 
+    <TouchableOpacity
+      style={[styles.defaultOption, optionStyle]}
       onPress={() => onSelect(item)}
     >
       <Text style={optionTextStyle}>{item.label}</Text>
@@ -70,8 +69,8 @@ export const SelectorModal: React.FC<SelectorModalProps> = ({
         </View>
 
         <View style={cancelContainerStyle}>
-          <TouchableOpacity 
-            style={[styles.defaultCancel, cancelStyle]} 
+          <TouchableOpacity
+            style={[styles.defaultCancel, cancelStyle]}
             onPress={onClose}
           >
             <Text style={cancelTextStyle}>{cancelText}</Text>

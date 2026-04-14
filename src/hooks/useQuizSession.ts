@@ -16,23 +16,25 @@ interface UseQuizSessionProps {
   isCycleExpired?: boolean;
 }
 
-export const useQuizSession = ({ 
-  quizId, 
-  timeLimitMinutes, 
-  participationId, 
-  title, 
-  trackProgressId, 
-  sequenceId, 
-  isCycleExpired 
+export const useQuizSession = ({
+  quizId,
+  timeLimitMinutes,
+  participationId,
+  title,
+  trackProgressId,
+  sequenceId,
+  isCycleExpired,
 }: UseQuizSessionProps) => {
   const navigation = useNavigation<any>();
-  
+
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [fields, setFields] = useState<FormField[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [stepState, setStepState] = useState<QuizStepState>('answering');
-  const [currentResponse, setCurrentResponse] = useState<Record<string, any>>({});
+  const [currentResponse, setCurrentResponse] = useState<Record<string, any>>(
+    {}
+  );
   const [timeLeft, setTimeLeft] = useState<number | null>(
     timeLimitMinutes ? Number(timeLimitMinutes) * 60 : null
   );
@@ -45,9 +47,9 @@ export const useQuizSession = ({
   useEffect(() => {
     const onBackPress = () => {
       Alert.alert(
-        "Atenção",
-        "Você deve concluir o quiz para sair. Responda todas as questões ou aguarde o tempo acabar.",
-        [{ text: "Continuar Quiz", onPress: () => {} }],
+        'Atenção',
+        'Você deve concluir o quiz para sair. Responda todas as questões ou aguarde o tempo acabar.',
+        [{ text: 'Continuar Quiz', onPress: () => {} }],
         { cancelable: false }
       );
       return true;
@@ -74,9 +76,9 @@ export const useQuizSession = ({
 
   const handleTimeExpired = () => {
     Alert.alert(
-      "Tempo Esgotado!",
-      "O tempo acabou. Vamos calcular sua pontuação.",
-      [{ text: "Ver Resultado", onPress: () => submitQuiz() }],
+      'Tempo Esgotado!',
+      'O tempo acabou. Vamos calcular sua pontuação.',
+      [{ text: 'Ver Resultado', onPress: () => submitQuiz() }],
       { cancelable: false }
     );
   };
@@ -95,7 +97,7 @@ export const useQuizSession = ({
       versionIdRef.current = version.id;
     } catch (error) {
       console.error(error);
-      Alert.alert("Erro", "Não foi possível carregar o quiz.");
+      Alert.alert('Erro', 'Não foi possível carregar o quiz.');
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -111,9 +113,12 @@ export const useQuizSession = ({
     const answer = currentResponse[currentField.name];
 
     if (answer === undefined || answer === null || answer === '') {
-      return Alert.alert("Atenção", "Por favor, responda a pergunta para continuar.");
+      return Alert.alert(
+        'Atenção',
+        'Por favor, responda a pergunta para continuar.'
+      );
     }
-    
+
     allAnswersRef.current = { ...allAnswersRef.current, ...currentResponse };
     setStepState('feedback');
   };
@@ -135,23 +140,25 @@ export const useQuizSession = ({
       // 2. Tem os IDs de contexto da trilha
       // 3. O ciclo NÃO está expirado (!isCycleExpired)
       if (result.isPassed && trackProgressId && sequenceId && !isCycleExpired) {
-         try {
-           await completeQuizSequence(trackProgressId, sequenceId, result.id);
-         } catch (seqError) {
-           console.error("Erro ao vincular progresso na trilha", seqError);
-         }
+        try {
+          await completeQuizSequence(trackProgressId, sequenceId, result.id);
+        } catch (seqError) {
+          console.error('Erro ao vincular progresso na trilha', seqError);
+        }
       }
 
       navigation.replace('QuizResultScreen', {
         resultData: { score: result.score, isPassed: result.isPassed },
         userAnswers: finalAnswers,
         questions: fields,
-        title
+        title,
       });
-
     } catch (error: any) {
       console.error(error);
-      Alert.alert("Erro no Envio", "Não foi possível enviar o quiz. Tente novamente.");
+      Alert.alert(
+        'Erro no Envio',
+        'Não foi possível enviar o quiz. Tente novamente.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -162,30 +169,30 @@ export const useQuizSession = ({
     setSubmitting(true);
 
     const finalAnswers = { ...allAnswersRef.current, ...currentResponse };
-    
+
     const payload = {
       formVersionId: versionIdRef.current,
       participationId,
       startedAt: startedAtRef.current,
       completedAt: new Date().toISOString(),
-      quizResponse: { ...finalAnswers, _isValid: true }
+      quizResponse: { ...finalAnswers, _isValid: true },
     };
 
     // VERIFICAÇÃO DE PRAZO
     if (isCycleExpired) {
       Alert.alert(
-        "Prazo Encerrado",
-        "O prazo para este ciclo já encerrou. Você pode enviar suas respostas, mas este quiz não contará para o progresso da trilha.",
+        'Prazo Encerrado',
+        'O prazo para este ciclo já encerrou. Você pode enviar suas respostas, mas este quiz não contará para o progresso da trilha.',
         [
-          { 
-            text: "Cancelar", 
-            style: "cancel", 
-            onPress: () => setSubmitting(false) 
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+            onPress: () => setSubmitting(false),
           },
-          { 
-            text: "Enviar mesmo assim", 
-            onPress: () => processSubmission(payload, finalAnswers) 
-          }
+          {
+            text: 'Enviar mesmo assim',
+            onPress: () => processSubmission(payload, finalAnswers),
+          },
         ]
       );
       return;

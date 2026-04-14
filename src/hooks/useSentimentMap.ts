@@ -10,8 +10,8 @@ export function useSentimentMap() {
     try {
       const today = new Date();
       const startDaysAgo = new Date();
-      
-      startDaysAgo.setDate(today.getDate() - 7); 
+
+      startDaysAgo.setDate(today.getDate() - 7);
 
       const formatDate = (d: Date) => d.toISOString().split('T')[0];
 
@@ -19,8 +19,8 @@ export function useSentimentMap() {
         `/v1/reports/points?startDate=${formatDate(startDaysAgo)}&endDate=${formatDate(today)}`,
         { method: 'GET' }
       );
-      
-      const points = Array.isArray(response) ? response : (response.data || []);
+
+      const points = Array.isArray(response) ? response : response.data || [];
       setMapPoints(points);
     } catch (error) {
       console.error('Erro points:', error);
@@ -29,7 +29,9 @@ export function useSentimentMap() {
     }
   }, []);
 
-  useEffect(() => { fetchPoints(); }, [fetchPoints]);
+  useEffect(() => {
+    fetchPoints();
+  }, [fetchPoints]);
 
   return { mapPoints, loadingPoints, refreshPoints: fetchPoints };
 }

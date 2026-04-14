@@ -1,16 +1,20 @@
 export type RootTrailParamList = {
   Home: undefined;
-  Accordion: { cycleId: number; title: string; isCycleExpired: boolean; };
+  Accordion: { cycleId: number; title: string; isCycleExpired: boolean };
   Article: { article: TrailContentData };
-  QuizzInfoScreen: { 
-      quizId: number; 
-      title: string; 
-      currentAttempt: number; 
-      linkedArticle?: any; 
-      maxAttempts?: number | null; 
-      timeLimitMinutes?: number | null; 
+  QuizzInfoScreen: {
+    quizId: number;
+    title: string;
+    currentAttempt: number;
+    linkedArticle?: any;
+    maxAttempts?: number | null;
+    timeLimitMinutes?: number | null;
   };
-  QuizzQuestionsScreen: { quizId: number; title: string; timeLimitMinutes?: number | null };
+  QuizzQuestionsScreen: {
+    quizId: number;
+    title: string;
+    timeLimitMinutes?: number | null;
+  };
   QuizResultScreen: {
     resultData: { score: number; isPassed: boolean };
     userAnswers: Record<string, any>;
@@ -59,7 +63,7 @@ export interface Sequence {
   active: boolean;
   content?: TrailContentData | null;
   form?: TrailForm | null;
-  
+
   score?: number | null;
   isPassed?: boolean;
   attemptNumber?: number;
@@ -115,7 +119,7 @@ export interface TrackCycle {
   isClosed?: boolean;
   mandatory_slug?: string | null;
   isMandatoryLock?: boolean;
-  isUpcoming?: boolean; 
+  isUpcoming?: boolean;
   displayStartDate?: string;
   displayEndDate?: string | null;
 }

@@ -7,7 +7,7 @@ export const styles = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   scrollContent: { paddingVertical: 10, paddingBottom: 40 },
   emptyText: { textAlign: 'center', marginTop: 20, color: '#666' },
-  
+
   trailHeader: {
     alignItems: 'center',
     paddingVertical: 16,
@@ -23,15 +23,15 @@ export const styles = StyleSheet.create({
 
   sectionContainer: { marginBottom: 24, paddingHorizontal: 16 },
   sectionHeader: { marginBottom: 12 },
-  sectionTitle: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     color: colors.secundaria, // Cor azul principal
-    marginBottom: 8 
+    marginBottom: 8,
   },
-  sectionDivider: { 
-    height: 1, 
-    backgroundColor: '#cbd5e1', 
+  sectionDivider: {
+    height: 1,
+    backgroundColor: '#cbd5e1',
     width: '100%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },

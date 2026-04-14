@@ -35,10 +35,15 @@ function detectAndroidSdkPath() {
     );
   } else if (platform === 'win32') {
     // Windows
-    const localAppData = process.env.LOCALAPPDATA || path.join(homeDir, 'AppData', 'Local');
+    const localAppData =
+      process.env.LOCALAPPDATA || path.join(homeDir, 'AppData', 'Local');
     commonPaths.push(
       path.join(localAppData, 'Android', 'Sdk'),
-      path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Android', 'android-sdk')
+      path.join(
+        process.env.PROGRAMFILES || 'C:\\Program Files',
+        'Android',
+        'android-sdk'
+      )
     );
   } else {
     // Linux
@@ -64,7 +69,11 @@ function detectAndroidSdkPath() {
  * Generates android/local.properties file with SDK path
  */
 function generateLocalProperties(projectRoot) {
-  const localPropertiesPath = path.join(projectRoot, 'android', 'local.properties');
+  const localPropertiesPath = path.join(
+    projectRoot,
+    'android',
+    'local.properties'
+  );
   const androidDir = path.join(projectRoot, 'android');
 
   // Ensure android directory exists
@@ -75,8 +84,12 @@ function generateLocalProperties(projectRoot) {
   const sdkPath = detectAndroidSdkPath();
 
   if (!sdkPath) {
-    console.warn('⚠️  Android SDK path not found. Please set ANDROID_HOME environment variable.');
-    console.warn('   Or create android/local.properties manually with: sdk.dir=/path/to/android/sdk');
+    console.warn(
+      '⚠️  Android SDK path not found. Please set ANDROID_HOME environment variable.'
+    );
+    console.warn(
+      '   Or create android/local.properties manually with: sdk.dir=/path/to/android/sdk'
+    );
     return;
   }
 
@@ -95,15 +108,17 @@ sdk.dir=${normalizedPath}
 const withAndroidLocalProperties = (config) => {
   // Generate local.properties during prebuild
   const projectRoot = config._internal?.projectRoot || process.cwd();
-  
+
   try {
     generateLocalProperties(projectRoot);
   } catch (error) {
-    console.warn('⚠️  Failed to generate android/local.properties:', error.message);
+    console.warn(
+      '⚠️  Failed to generate android/local.properties:',
+      error.message
+    );
   }
 
   return config;
 };
 
 module.exports = withAndroidLocalProperties;
-

@@ -9,7 +9,10 @@ import { FormBuilderDefinition } from '../../../types/form';
 import { QuizRouteParams } from '../../../types/quiz';
 import { useQuizSession } from '../../../hooks/useQuizSession';
 import { styles } from './styles';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import { FeedbackBanner } from '../../../components/FeedbackBanner';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
@@ -22,8 +25,9 @@ export function QuizQuestionsScreen() {
 
   const insets = useSafeAreaInsets();
   const bottomBarHeight = 60 + insets.bottom;
-  
-  const { quizId, timeLimitMinutes, title, trackProgressId, sequenceId } = route.params as QuizRouteParams;
+
+  const { quizId, timeLimitMinutes, title, trackProgressId, sequenceId } =
+    route.params as QuizRouteParams;
   const { participationId } = useParticipation();
 
   const {
@@ -37,14 +41,14 @@ export function QuizQuestionsScreen() {
     timeLeft,
     currentResponse,
     handleAnswerChange,
-    handleAction
-  } = useQuizSession({ 
-      quizId, 
-      timeLimitMinutes, 
-      participationId, 
-      title,
-      trackProgressId, 
-      sequenceId 
+    handleAction,
+  } = useQuizSession({
+    quizId,
+    timeLimitMinutes,
+    participationId,
+    title,
+    trackProgressId,
+    sequenceId,
   });
 
   const formatTime = (seconds: number) => {
@@ -66,53 +70,58 @@ export function QuizQuestionsScreen() {
 
   const questionDefinition: FormBuilderDefinition = {
     fields: [{ ...currentQuestion, type: 'radio' as any }],
-    title: undefined, description: undefined
+    title: undefined,
+    description: undefined,
   };
 
   return (
     <View style={styles.container}>
-      <CustomHeader userName={user?.name} showButton={false}/>
+      <CustomHeader userName={user?.name} showButton={false} />
 
       <View style={styles.header}>
         <Text style={styles.trailTitle}>{title}</Text>
         <Text style={styles.progressText}>
           Questão {currentIndex + 1} de {fields.length}
         </Text>
-        
+
         <View style={styles.progressBarBg}>
-          <View 
-            style={[styles.progressBarFill, { width: `${((currentIndex + 1) / fields.length) * 100}%` }]} 
+          <View
+            style={[
+              styles.progressBarFill,
+              { width: `${((currentIndex + 1) / fields.length) * 100}%` },
+            ]}
           />
         </View>
 
         {timeLeft !== null && (
-          <Text style={styles.timerText}>
-            {formatTime(timeLeft)}
-          </Text>
+          <Text style={styles.timerText}>{formatTime(timeLeft)}</Text>
         )}
       </View>
 
       <View style={styles.contentContainer}>
         {stepState === 'feedback' && (
-          <FeedbackBanner 
-            question={currentQuestion} 
-            userAnswer={currentResponse[currentQuestion.name]} 
+          <FeedbackBanner
+            question={currentQuestion}
+            userAnswer={currentResponse[currentQuestion.name]}
           />
         )}
-        
-        <FormRenderer 
-          key={currentIndex} 
+
+        <FormRenderer
+          key={currentIndex}
           definition={questionDefinition}
           initialValues={currentResponse}
           onChange={handleAnswerChange}
-          readOnly={stepState === 'feedback'} 
+          readOnly={stepState === 'feedback'}
         />
       </View>
 
       {/* Botão com Gradiente */}
       <View style={[styles.footer, { paddingBottom: bottomBarHeight + 10 }]}>
-        <TouchableOpacity 
-          style={[styles.actionButtonContainer, submitting && styles.disabledButton]}
+        <TouchableOpacity
+          style={[
+            styles.actionButtonContainer,
+            submitting && styles.disabledButton,
+          ]}
           onPress={handleAction}
           disabled={submitting}
           activeOpacity={0.8}
@@ -124,16 +133,19 @@ export function QuizQuestionsScreen() {
             style={styles.actionButtonGradient}
           >
             {submitting ? (
-               <ActivityIndicator color="#FFF" />
+              <ActivityIndicator color="#FFF" />
             ) : (
-               <Text style={styles.actionButtonText}>
-                 {stepState === 'answering' ? 'Responder' : (isLastQuestion ? 'Concluir' : 'Próxima pergunta')}
-               </Text>
+              <Text style={styles.actionButtonText}>
+                {stepState === 'answering'
+                  ? 'Responder'
+                  : isLastQuestion
+                    ? 'Concluir'
+                    : 'Próxima pergunta'}
+              </Text>
             )}
           </LinearGradient>
         </TouchableOpacity>
       </View>
-
     </View>
   );
 }

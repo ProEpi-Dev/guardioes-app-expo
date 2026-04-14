@@ -5,13 +5,13 @@ import { ProfileStackParamList } from '../types/profile';
 const Stack = createNativeStackNavigator<ProfileStackParamList>();
 
 export default function ProfileStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen 
-            name="Home" 
-            component={ProfileScreen} 
-            options={{ headerShown: false }}
-            />
-        </Stack.Navigator>
-    );
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={ProfileScreen}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
 }

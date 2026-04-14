@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../utils/scalling";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../utils/scalling';
 
 export const styles = StyleSheet.create({
   card: {
@@ -9,24 +9,24 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 3
+    elevation: 3,
   },
   title: {
     fontSize: scale(16),
     fontWeight: 'bold',
     marginLeft: 12,
     marginRight: 12,
-    textAlign: 'justify'
+    textAlign: 'justify',
   },
   attemptText: {
     fontSize: scale(10),
     color: '#666',
-    marginTop: 2
+    marginTop: 2,
   },
   passingScoreText: {
     fontSize: scale(10),
     color: '#888',
     marginTop: 2,
-    fontStyle: 'italic'
-  }
+    fontStyle: 'italic',
+  },
 });

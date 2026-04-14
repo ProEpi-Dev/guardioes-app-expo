@@ -4,7 +4,7 @@ import Welcome from '../screens/auth/Welcome';
 import Login from '../screens/auth/Login';
 import DrawerNavigator from './DrawerNavigator';
 import { useAuth } from '../contexts/AuthContext';
-import { Register } from '../screens/auth/Register'
+import { Register } from '../screens/auth/Register';
 import { RootStackParamList } from '../types/auth';
 import { FinishProfile } from '../screens/auth/FinishProfile';
 import { PasswordRecover } from '../screens/auth/PasswordRecover';
@@ -16,7 +16,7 @@ export default function RootNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? "Home" : "Login"}
+      initialRouteName={isAuthenticated ? 'Home' : 'Login'}
       screenOptions={{
         headerShown: false,
       }}

@@ -28,13 +28,8 @@ const azul = '#2E97BE';
 const branco = '#ffffff';
 
 export function PasswordRecover() {
-  const { 
-    email, 
-    setEmail, 
-    loading, 
-    handleSubmit, 
-    navigation 
-  } = usePasswordRecover();
+  const { email, setEmail, loading, handleSubmit, navigation } =
+    usePasswordRecover();
 
   const LogoType = GDSLogoBR;
 
@@ -44,14 +39,15 @@ export function PasswordRecover() {
         <KeyboardScrollView>
           <Logo source={LogoType} />
           <PageTitle>
-            Digite o E-Mail cadastrado para receber o link da redefinição de senha
+            Digite o E-Mail cadastrado para receber o link da redefinição de
+            senha
           </PageTitle>
 
           <FormSeparator>
             <SolidInput
               placeholder={translate('login.email')}
-              keyboardType='email-address'
-              returnKeyType='next'
+              keyboardType="email-address"
+              returnKeyType="next"
               maxLength={100}
               value={email}
               onChangeText={setEmail}
@@ -61,7 +57,9 @@ export function PasswordRecover() {
 
           <FormSeparator>
             <Touch onPress={handleSubmit} disabled={loading}>
-              <GradientButtonContainer colors={[colors.azulClaro, colors.azulEscuro]}>
+              <GradientButtonContainer
+                colors={[colors.azulClaro, colors.azulEscuro]}
+              >
                 {loading ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
@@ -72,7 +70,7 @@ export function PasswordRecover() {
           </FormSeparator>
 
           <ButtonBack onPress={() => navigation.goBack()}>
-            <Feather name='chevron-left' size={scale(40)} color={branco} />
+            <Feather name="chevron-left" size={scale(40)} color={branco} />
           </ButtonBack>
         </KeyboardScrollView>
       </GradientBackground>

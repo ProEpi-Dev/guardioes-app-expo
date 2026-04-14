@@ -4,7 +4,7 @@ import { percentage, scale } from '../../utils/scalling';
 export const styles = StyleSheet.create({
   drawerItemBlue: {
     backgroundColor: '#348eac',
-    marginBottom: 13
+    marginBottom: 13,
   },
   header: {
     marginBottom: 20,
@@ -37,9 +37,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
   },
   redeSocial: {
-    width: scale(52), 
+    width: scale(52),
     height: scale(52),
-    borderRadius: scale(26), 
+    borderRadius: scale(26),
     justifyContent: 'center',
     alignItems: 'center',
     shadowOpacity: 0.4,
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'space-between',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   closeContainer: {
     justifyContent: 'center',
@@ -71,13 +71,6 @@ export const styles = StyleSheet.create({
     marginHorizontal: 15,
     marginBottom: 20,
   },
-
-
-
-
-
-
-
 
   botao: {
     paddingHorizontal: 20,
@@ -98,11 +91,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     gap: 10,
-    paddingLeft: 50
+    paddingLeft: 50,
   },
-  actionButtonText: { 
-    color: '#FFF', 
-    fontSize: scale(15), 
-    fontWeight: 'bold' 
+  actionButtonText: {
+    color: '#FFF',
+    fontSize: scale(15),
+    fontWeight: 'bold',
   },
 });

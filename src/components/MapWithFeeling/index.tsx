@@ -1,5 +1,13 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Alert, ActivityIndicator, Platform } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  Platform,
+} from 'react-native';
 import MapView, { Region, Marker, Heatmap } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Supercluster from 'supercluster';
@@ -54,7 +62,12 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   useEffect(() => {
     if (hasCenteredOnUser.current || !location?.coords || !isMapReady) return;
     const { latitude, longitude } = location.coords;
-    const userRegion: Region = { latitude, longitude, latitudeDelta: 0.02, longitudeDelta: 0.02 };
+    const userRegion: Region = {
+      latitude,
+      longitude,
+      latitudeDelta: 0.02,
+      longitudeDelta: 0.02,
+    };
     setRegion(userRegion);
     let attempts = 0;
     const tryAnimate = () => {
@@ -82,12 +95,14 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
     points.forEach((point, index) => {
       if (!point.latitude || !point.longitude) return;
 
-      const latitude = typeof point.latitude === 'number'
-        ? point.latitude
-        : parseFloat(point.latitude);
-      const longitude = typeof point.longitude === 'number'
-        ? point.longitude
-        : parseFloat(point.longitude);
+      const latitude =
+        typeof point.latitude === 'number'
+          ? point.latitude
+          : parseFloat(point.latitude);
+      const longitude =
+        typeof point.longitude === 'number'
+          ? point.longitude
+          : parseFloat(point.longitude);
 
       if (isNaN(latitude) || isNaN(longitude)) return;
 
@@ -203,8 +218,12 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
         if (allClusterCoords.length > 1) {
           for (let i = 0; i < allClusterCoords.length; i++) {
             for (let j = i + 1; j < allClusterCoords.length; j++) {
-              const latDiff = Math.abs(allClusterCoords[i][1] - allClusterCoords[j][1]);
-              const lngDiff = Math.abs(allClusterCoords[i][0] - allClusterCoords[j][0]);
+              const latDiff = Math.abs(
+                allClusterCoords[i][1] - allClusterCoords[j][1]
+              );
+              const lngDiff = Math.abs(
+                allClusterCoords[i][0] - allClusterCoords[j][0]
+              );
               // Usar distância euclidiana simples
               const distance = Math.sqrt(latDiff * latDiff + lngDiff * lngDiff);
               maxDistance = Math.max(maxDistance, distance);
@@ -336,7 +355,9 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   }, [region, clustererPositive, clustererNegative, pointsLoaded]);
 
   // Função para obter cor do cluster baseado no tipo
-  const getClusterColor = (clusterType?: 'positive' | 'negative' | 'combined'): string => {
+  const getClusterColor = (
+    clusterType?: 'positive' | 'negative' | 'combined'
+  ): string => {
     if (clusterType === 'combined') {
       return '#348eac'; // Azul para cluster combinado
     }
@@ -354,9 +375,10 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
       onFeelingSelected(feeling);
     } else {
       // Comportamento padrão se não houver callback
-      const message = feeling === 'good'
-        ? translate('report.goodChoice') || 'BEM'
-        : translate('report.badChoice') || 'MAL';
+      const message =
+        feeling === 'good'
+          ? translate('report.goodChoice') || 'BEM'
+          : translate('report.badChoice') || 'MAL';
       Alert.alert('Sentimento registrado', `Você selecionou: ${message}`);
     }
   };
@@ -442,37 +464,36 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
         {points.length > 0 && (
           <>
             <Heatmap
-              points={(points || []).map(item => ({
+              points={(points || []).map((item) => ({
                 latitude: item.latitude,
                 longitude: item.longitude,
-                weight: item.reportType == "POSITIVE" ? 1 : 0
+                weight: item.reportType == 'POSITIVE' ? 1 : 0,
               }))}
               radius={50}
               opacity={0.8}
               gradient={{
-                colors: ["rgba(0, 255, 47, 1)"],
+                colors: ['rgba(0, 255, 47, 1)'],
                 startPoints: [1],
                 colorMapSize: 256,
               }}
             />
 
             <Heatmap
-              points={(points || []).map(item => ({
+              points={(points || []).map((item) => ({
                 latitude: item.latitude,
                 longitude: item.longitude,
-                weight: item.reportType == "NEGATIVE" ? 1 : 0
+                weight: item.reportType == 'NEGATIVE' ? 1 : 0,
               }))}
               radius={50}
               opacity={0.8}
               gradient={{
-                colors: ["rgba(255,0,0,1)"],
+                colors: ['rgba(255,0,0,1)'],
                 startPoints: [1],
                 colorMapSize: 256,
               }}
             />
           </>
         )}
-
       </MapView>
 
       {loading && (
@@ -481,7 +502,12 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
         </View>
       )}
 
-      <View style={[styles.cardContainer, { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset}]}>
+      <View
+        style={[
+          styles.cardContainer,
+          { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset },
+        ]}
+      >
         <View style={[styles.card, !isCompliant && { opacity: 0.5 }]}>
           <Text style={styles.cardTitle}>
             {translate('home.userHowYouFelling') || 'Como você se sente hoje?'}
@@ -581,4 +607,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-

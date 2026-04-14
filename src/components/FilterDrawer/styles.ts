@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../utils/scalling";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../utils/scalling';
 
 export const styles = StyleSheet.create({
   modalOverlay: {

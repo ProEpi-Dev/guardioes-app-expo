@@ -31,13 +31,16 @@ export const CustomSelector: React.FC<CustomSelectorProps> = (props) => {
     setModalVisible(false);
   };
 
-  const handleSelect = useCallback((option: Option) => {
-    setSelectedLabel(option.label);
-    if (onChange) {
-      onChange(option);
-    }
-    setModalVisible(false);
-  }, [onChange]);
+  const handleSelect = useCallback(
+    (option: Option) => {
+      setSelectedLabel(option.label);
+      if (onChange) {
+        onChange(option);
+      }
+      setModalVisible(false);
+    },
+    [onChange]
+  );
 
   return (
     <View style={style}>

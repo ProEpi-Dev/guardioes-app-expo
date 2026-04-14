@@ -11,7 +11,12 @@ interface LegalDocumentModalProps {
   onAccept: () => void;
 }
 
-export function LegalDocumentModal({ visible, document, onClose, onAccept }: LegalDocumentModalProps) {
+export function LegalDocumentModal({
+  visible,
+  document,
+  onClose,
+  onAccept,
+}: LegalDocumentModalProps) {
   if (!document) return null;
 
   return (
@@ -23,7 +28,6 @@ export function LegalDocumentModal({ visible, document, onClose, onAccept }: Leg
     >
       <View style={styles.overlay}>
         <View style={styles.alertBox}>
-          
           {/* Cabeçalho */}
           <View style={styles.header}>
             <Text style={styles.title}>{document.title}</Text>
@@ -47,7 +51,6 @@ export function LegalDocumentModal({ visible, document, onClose, onAccept }: Leg
               <Text style={styles.acceptText}>Li e Aceito</Text>
             </TouchableOpacity>
           </View>
-
         </View>
       </View>
     </Modal>
@@ -56,16 +59,16 @@ export function LegalDocumentModal({ visible, document, onClose, onAccept }: Leg
 
 const styles = StyleSheet.create({
   overlay: {
-    flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.6)', 
-    justifyContent: 'center', 
-    alignItems: 'center'
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   alertBox: {
-    width: '90%', 
-    height: '75%', 
-    backgroundColor: '#ffffff', 
-    borderRadius: 16, 
+    width: '90%',
+    height: '75%',
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
     overflow: 'hidden',
     elevation: 5,
     shadowColor: '#000',
@@ -74,44 +77,44 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   header: {
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    padding: 16, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#E0E0E0'
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   title: {
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: colors.principal, 
-    flex: 1
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: colors.principal,
+    flex: 1,
   },
   closeButton: {
-    padding: 4
+    padding: 4,
   },
   content: {
-    flex: 1, 
-    backgroundColor: '#F5F5F5'
+    flex: 1,
+    backgroundColor: '#F5F5F5',
   },
   footer: {
-    flexDirection: 'row', 
-    justifyContent: 'flex-end', 
-    alignItems: 'center', 
-    padding: 12, 
-    borderTopWidth: 1, 
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    padding: 12,
+    borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   cancelButton: {
-    paddingVertical: 10, 
-    paddingHorizontal: 20, 
-    marginRight: 10
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginRight: 10,
   },
   cancelText: {
-    color: '#757575', 
-    fontSize: 16, 
-    fontWeight: 'bold'
+    color: '#757575',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   acceptButton: {
     backgroundColor: colors.principal,
@@ -120,8 +123,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   acceptText: {
-    color: '#fff', 
-    fontSize: 16, 
-    fontWeight: 'bold'
-  }
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });

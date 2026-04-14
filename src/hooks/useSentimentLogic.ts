@@ -17,15 +17,18 @@ export const useSentimentLogic = () => {
 
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
   const [currentStreakCount, setCurrentStreakCount] = useState(0);
-  
+
   // Estado de conformidade (inicia true para não bloquear durante o carregamento)
   const [isCompliant, setIsCompliant] = useState(true);
 
   useEffect(() => {
-    const subscription = DeviceEventEmitter.addListener('force_compliance_update', (status) => {
-      setIsCompliant(status);
-      lastComplianceCheck.current = 0; // Zera o timer para a próxima busca no servidor ser imediata
-    });
+    const subscription = DeviceEventEmitter.addListener(
+      'force_compliance_update',
+      (status) => {
+        setIsCompliant(status);
+        lastComplianceCheck.current = 0; // Zera o timer para a próxima busca no servidor ser imediata
+      }
+    );
     return () => subscription.remove();
   }, []);
 
@@ -33,9 +36,11 @@ export const useSentimentLogic = () => {
   const [showForm, setShowForm] = useState(false);
   const [formDefinition, setFormDefinition] = useState<any>(null);
   const [formTitle, setFormTitle] = useState<string>('');
-  const [currentFormVersionId, setCurrentFormVersionId] = useState<number | null>(null);
+  const [currentFormVersionId, setCurrentFormVersionId] = useState<
+    number | null
+  >(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
-  
+
   // Estados de Loading
   const [loadingForm, setLoadingForm] = useState(false);
   const [sending, setSending] = useState(false);
@@ -59,23 +64,23 @@ export const useSentimentLogic = () => {
 
         const now = Date.now();
         if (now - lastComplianceCheck.current < CACHE_DURATION) {
-            return;
+          return;
         }
 
         try {
           const response: any = await checkMandatoryCompliance(participationId);
-          
+
           if (isActive) {
             const data = response?.data || response;
             let userIsCompliant = true;
 
             // Verifica a nova estrutura (contadores)
             if (data && typeof data.totalRequired === 'number') {
-                userIsCompliant = data.completedCount >= data.totalRequired;
-            } 
+              userIsCompliant = data.completedCount >= data.totalRequired;
+            }
             // Fallback para a estrutura antiga
             else if (data?.is_compliant !== undefined) {
-                userIsCompliant = data.is_compliant;
+              userIsCompliant = data.is_compliant;
             }
 
             // console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
@@ -83,7 +88,7 @@ export const useSentimentLogic = () => {
             lastComplianceCheck.current = Date.now();
           }
         } catch (err) {
-          console.error("Erro no compliance:", err);
+          console.error('Erro no compliance:', err);
           // Em caso de erro, por segurança, não bloqueamos (ou decida sua regra de negócio)
           if (isActive) setIsCompliant(true);
         }
@@ -98,23 +103,26 @@ export const useSentimentLogic = () => {
   );
 
   const checkHasReportedToday = async () => {
-    if (!contextId || !participationId) return { hasReported: false, streak: 0 };
-    
+    if (!contextId || !participationId)
+      return { hasReported: false, streak: 0 };
+
     // Pega a data local de hoje no formato YYYY-MM-DD
-    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
-    const todayLocal = (new Date(Date.now() - tzOffset)).toISOString().split('T')[0];
+    const tzOffset = new Date().getTimezoneOffset() * 60000;
+    const todayLocal = new Date(Date.now() - tzOffset)
+      .toISOString()
+      .split('T')[0];
 
     try {
-      const data = await getReportStreaks({ 
-        contextId, 
-        participationId, 
-        startDate: todayLocal, 
-        endDate: todayLocal 
+      const data = await getReportStreaks({
+        contextId,
+        participationId,
+        startDate: todayLocal,
+        endDate: todayLocal,
       });
       const hasReported = data?.reportedDays && data.reportedDays.length > 0;
       return { hasReported, streak: data?.currentStreak || 0 };
     } catch (e) {
-      console.error("Erro ao verificar ofensiva:", e);
+      console.error('Erro ao verificar ofensiva:', e);
       return { hasReported: false, streak: 0 };
     }
   };
@@ -129,7 +137,7 @@ export const useSentimentLogic = () => {
 
       if (status.hasReported) {
         Alert.alert(
-          'Tudo certo por hoje! ✨', 
+          'Tudo certo por hoje! ✨',
           'Você já registrou seu estado de saúde!'
         );
         return;
@@ -145,11 +153,13 @@ export const useSentimentLogic = () => {
           formVersionId: versionId,
           reportType: 'POSITIVE',
           formResponse: {},
-          occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
+          occurrenceLocation: loc
+            ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
+            : null,
         });
 
         DeviceEventEmitter.emit('report_created');
-        
+
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
         setTimeout(refreshPoints, 500);
@@ -158,7 +168,7 @@ export const useSentimentLogic = () => {
       console.error(e);
       Alert.alert('Erro', 'Falha ao registrar sentimento.');
     } finally {
-      setSending(false); 
+      setSending(false);
     }
   };
 
@@ -166,7 +176,7 @@ export const useSentimentLogic = () => {
   const handleNegativeSentiment = async () => {
     setLoadingForm(true);
     setShowForm(true);
-    
+
     try {
       const latestForm = await getLatestSignalForm();
       const version = latestForm.latestVersion;
@@ -191,12 +201,12 @@ export const useSentimentLogic = () => {
   const onFeelingSelected = (feeling: 'good' | 'bad') => {
     // Bloqueio explícito se isCompliant for false
     if (isCompliant === false) {
-        return Alert.alert(
-            "Acesso Bloqueado", 
-            "Conclua sua trilha obrigatória para poder registrar seu estado de saúde."
-        );
+      return Alert.alert(
+        'Acesso Bloqueado',
+        'Conclua sua trilha obrigatória para poder registrar seu estado de saúde.'
+      );
     }
-    
+
     if (feeling === 'good') {
       handlePositiveSentiment();
     } else {
@@ -206,7 +216,8 @@ export const useSentimentLogic = () => {
 
   // 4. Envio do Formulário Negativo
   const handleSubmitForm = async () => {
-    if (!formValues._isValid) return Alert.alert('Atenção', 'Preencha os campos obrigatórios.');
+    if (!formValues._isValid)
+      return Alert.alert('Atenção', 'Preencha os campos obrigatórios.');
     if (!currentFormVersionId || !participationId) return;
 
     setSending(true);
@@ -221,11 +232,13 @@ export const useSentimentLogic = () => {
         formVersionId: currentFormVersionId,
         reportType: 'NEGATIVE',
         formResponse: cleanData,
-        occurrenceLocation: loc ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude } : null
+        occurrenceLocation: loc
+          ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
+          : null,
       });
 
       DeviceEventEmitter.emit('report_created');
-      
+
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
@@ -234,9 +247,11 @@ export const useSentimentLogic = () => {
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
       } else {
-        Alert.alert('Obrigado por participar!', 'Seu registro de sintomas foi enviado.');
+        Alert.alert(
+          'Obrigado por participar!',
+          'Seu registro de sintomas foi enviado.'
+        );
       }
-
     } catch (e) {
       console.error(e);
       Alert.alert('Erro', 'Falha no envio.');
@@ -260,6 +275,6 @@ export const useSentimentLogic = () => {
     isCompliant,
     showSuccessAnimation,
     setShowSuccessAnimation,
-    currentStreakCount
+    currentStreakCount,
   };
 };

@@ -9,12 +9,16 @@ if (secretValue) {
   // Cenário 1: O EAS baixou o arquivo e a variável contém o caminho temporário
   if (fs.existsSync(secretValue)) {
     fs.copyFileSync(secretValue, destPath);
-    console.log('✅ GoogleService-Info.plist copiado do EAS Secret File com sucesso!');
-  } 
+    console.log(
+      '✅ GoogleService-Info.plist copiado do EAS Secret File com sucesso!'
+    );
+  }
   // Cenário 2: A variável contém a string Base64
   else {
     fs.writeFileSync(destPath, Buffer.from(secretValue, 'base64'));
-    console.log('✅ GoogleService-Info.plist criado a partir da string Base64 com sucesso!');
+    console.log(
+      '✅ GoogleService-Info.plist criado a partir da string Base64 com sucesso!'
+    );
   }
 } else {
   console.warn('⚠️ Variável GoogleServicePlist não encontrada no ambiente.');

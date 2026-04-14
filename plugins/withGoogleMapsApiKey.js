@@ -1,7 +1,7 @@
 /**
  * Expo plugin to inject Google Maps API Key from .env file into AndroidManifest.xml
  * The key is read from: process.env.GOOGLE_MAPS_API_KEY (.env file)
- * 
+ *
  * This plugin runs during 'expo prebuild' and automatically injects
  * the key from .env into the generated AndroidManifest.xml.
  */
@@ -14,7 +14,7 @@ const path = require('path');
  */
 function loadEnvFile() {
   const envPath = path.join(__dirname, '..', '.env');
-  
+
   if (!fs.existsSync(envPath)) {
     return {};
   }
@@ -48,7 +48,9 @@ try {
   try {
     withAndroidManifest = require('expo/config-plugins').withAndroidManifest;
   } catch (e2) {
-    console.warn('⚠️  @expo/config-plugins not found. The plugin may not work correctly.');
+    console.warn(
+      '⚠️  @expo/config-plugins not found. The plugin may not work correctly.'
+    );
     // Return empty function if unable to import
     module.exports = (config) => config;
   }
@@ -58,12 +60,13 @@ if (withAndroidManifest) {
   const withGoogleMapsApiKey = (config) => {
     return withAndroidManifest(config, async (config) => {
       const androidManifest = config.modResults;
-      
+
       // Load variables from .env
       const envVars = loadEnvFile();
-      
+
       // Try to get the key from .env or environment variables
-      const apiKey = process.env.GOOGLE_MAPS_API_KEY || envVars.GOOGLE_MAPS_API_KEY;
+      const apiKey =
+        process.env.GOOGLE_MAPS_API_KEY || envVars.GOOGLE_MAPS_API_KEY;
 
       if (!apiKey) {
         console.error('❌ Google Maps API Key not found!');
@@ -84,7 +87,8 @@ if (withAndroidManifest) {
       // Check if meta-data already exists
       const existingMetaData = application['meta-data'] || [];
       const googleMapsMetaDataIndex = existingMetaData.findIndex(
-        (meta) => meta.$ && meta.$['android:name'] === 'com.google.android.geo.API_KEY'
+        (meta) =>
+          meta.$ && meta.$['android:name'] === 'com.google.android.geo.API_KEY'
       );
 
       const metaData = {
@@ -113,4 +117,3 @@ if (withAndroidManifest) {
 
   module.exports = withGoogleMapsApiKey;
 }
-

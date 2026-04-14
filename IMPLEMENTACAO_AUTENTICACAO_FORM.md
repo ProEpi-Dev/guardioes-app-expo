@@ -18,6 +18,7 @@ Este documento resume todas as implementações realizadas para autenticação e
 ### Arquivos Criados
 
 #### `src/contexts/AuthContext.tsx`
+
 - Context API para gerenciar estado de autenticação
 - Funções principais:
   - `login(email, password)`: Realiza login e busca forms automaticamente
@@ -31,6 +32,7 @@ Este documento resume todas as implementações realizadas para autenticação e
   - `form`: Primeiro form disponível (carregado após login)
 
 #### `src/services/authStorage.ts`
+
 - Serviço para armazenamento seguro usando AsyncStorage
 - Funções:
   - `storeToken(token)`: Armazena token
@@ -41,6 +43,7 @@ Este documento resume todas as implementações realizadas para autenticação e
   - `clearAuthData()`: Limpa todos os dados de autenticação
 
 #### `src/types/auth.ts`
+
 - Tipos TypeScript para autenticação:
   - `User`: Interface para dados do usuário
   - `LoginResponse`: Resposta da API de login
@@ -75,6 +78,7 @@ Este documento resume todas as implementações realizadas para autenticação e
 ### Arquivo: `src/components/MapWithFeeling/index.tsx`
 
 **Características:**
+
 - Mapa em tela cheia usando `react-native-maps`
 - Card fixo na parte inferior com pergunta de sentimento
 - Dois botões: "BEM" (azul) e "MAL" (laranja)
@@ -82,6 +86,7 @@ Este documento resume todas as implementações realizadas para autenticação e
 - Callback `onFeelingSelected` para tratar seleção
 
 **Props:**
+
 ```typescript
 interface MapWithFeelingProps {
   onFeelingSelected?: (feeling: 'good' | 'bad') => void;
@@ -89,6 +94,7 @@ interface MapWithFeelingProps {
 ```
 
 **Uso:**
+
 ```typescript
 <MapWithFeeling onFeelingSelected={(feeling) => {
   // Tratar seleção
@@ -102,7 +108,9 @@ interface MapWithFeelingProps {
 ### Arquivos Criados
 
 #### `src/types/form.ts`
+
 Tipos TypeScript para formulários:
+
 - `FieldType`: Tipos de campos suportados (text, number, boolean, select, multiselect)
 - `ConditionOperator`: Operadores de condição
 - `FormField`: Estrutura de um campo
@@ -110,9 +118,11 @@ Tipos TypeScript para formulários:
 - `FormVersion`: Versão do formulário com definition
 
 #### `src/components/FormRenderer/index.tsx`
+
 Componente principal para renderizar formulários dinâmicos.
 
 **Funcionalidades:**
+
 1. **Tipos de Campos Suportados:**
    - ✅ Text: Campo de texto simples
    - ✅ Number: Campo numérico com validação min/max
@@ -139,6 +149,7 @@ Componente principal para renderizar formulários dinâmicos.
    - Reavaliação automática quando valores mudam
 
 4. **Props:**
+
 ```typescript
 interface FormRendererProps {
   definition: FormBuilderDefinition;
@@ -149,6 +160,7 @@ interface FormRendererProps {
 ```
 
 **Exemplo de Uso:**
+
 ```typescript
 <FormRenderer
   definition={formDefinition}
@@ -189,6 +201,7 @@ interface FormRendererProps {
    - TODO: Implementar chamada à API para criar report
 
 **Estrutura Visual:**
+
 ```
 ┌─────────────────────────┐
 │                    [X]  │  ← Header (azul, botão fechar)
@@ -209,6 +222,7 @@ interface FormRendererProps {
 ### Arquivo: `src/utils/api.js`
 
 **Configuração:**
+
 - URL Base: `https://devapi.gds.proepi.org.br`
 - Cliente HTTP básico: `apiClient(endpoint, options)`
 - Cliente autenticado: `authenticatedApiClient(endpoint, token, options)`
@@ -236,6 +250,7 @@ interface FormRendererProps {
 ### Arquivo: `src/screens/Home/index.js`
 
 **Mudanças:**
+
 - Integrado com `useAuth()` para acessar dados do usuário
 - Exibe nome do usuário logado dinamicamente
 - Lógica de capitalização:
@@ -259,6 +274,7 @@ interface FormRendererProps {
 ## 🔄 Fluxo Completo
 
 ### 1. Login
+
 ```
 Usuário faz login
   ↓
@@ -272,6 +288,7 @@ Navegação para tela Home
 ```
 
 ### 2. Seleção de Sentimento
+
 ```
 Usuário na tela Mapa Sentimento
   ↓
@@ -367,4 +384,3 @@ src/
 ---
 
 **Última atualização:** Implementação completa de autenticação e sistema de formulários dinâmicos.
-

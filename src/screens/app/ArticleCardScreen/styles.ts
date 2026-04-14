@@ -1,13 +1,13 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../../utils/scalling";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../../utils/scalling';
 
 export const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
-  contentContainer: { 
+  contentContainer: {
     padding: 20,
-    paddingBottom: 20
+    paddingBottom: 20,
   },
   centerContainer: {
     flex: 1,
@@ -44,9 +44,9 @@ export const styles = StyleSheet.create({
     paddingVertical: 16,
     gap: 10,
   },
-  actionButtonText: { 
-    color: '#FFF', 
-    fontSize: scale(15), 
-    fontWeight: 'bold' 
+  actionButtonText: {
+    color: '#FFF',
+    fontSize: scale(15),
+    fontWeight: 'bold',
   },
 });

@@ -63,10 +63,7 @@ module.exports = ({ config }) => {
           NSLocationWhenInUseUsageDescription:
             'Precisamos da sua localização para mostrar sua posição no mapa.',
           ITSAppUsesNonExemptEncryption: false,
-          UIBackgroundModes: [
-            'remote-notification',
-            'fetch'
-          ],
+          UIBackgroundModes: ['remote-notification', 'fetch'],
         },
       },
       android: {

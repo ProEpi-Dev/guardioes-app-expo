@@ -1,5 +1,5 @@
-import { StyleSheet } from "react-native";
-import { colors } from "../../../../utils/colors";
+import { StyleSheet } from 'react-native';
+import { colors } from '../../../../utils/colors';
 
 export const styles = StyleSheet.create({
   container: {
@@ -9,10 +9,10 @@ export const styles = StyleSheet.create({
   list: {
     flex: 1,
   },
-  contentContainer: { 
+  contentContainer: {
     paddingHorizontal: 20,
     paddingTop: 10,
-    paddingBottom: 90 // Espaço para a BottomNavigation
+    paddingBottom: 90, // Espaço para a BottomNavigation
   },
   centerContainer: {
     flex: 1,
@@ -40,5 +40,5 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 8,
-  }
+  },
 });

@@ -5,7 +5,7 @@ import { ContextOption, LegalDocument } from '../types/register';
 import { getRegisterData } from '../services/register';
 
 function translate(arg0: string): string {
-    return arg0;
+  return arg0;
 }
 
 export const useRegister = (navigation: any) => {
@@ -16,7 +16,9 @@ export const useRegister = (navigation: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [selectedContextId, setSelectedContextId] = useState<number | null>(null);
+  const [selectedContextId, setSelectedContextId] = useState<number | null>(
+    null
+  );
   const [acceptedDocIds, setAcceptedDocIds] = useState<number[]>([]);
   const [contexts, setContexts] = useState<ContextOption[]>([]);
   const [legalDocuments, setLegalDocuments] = useState<LegalDocument[]>([]);
@@ -36,16 +38,16 @@ export const useRegister = (navigation: any) => {
       setLegalDocuments(docs);
     } catch (error) {
       console.error(error);
-      Alert.alert("Erro", "Falha ao carregar dados iniciais.");
+      Alert.alert('Erro', 'Falha ao carregar dados iniciais.');
     } finally {
       setIsLoadingData(false);
     }
   };
 
   const toggleDocument = (doc: LegalDocument) => {
-    setAcceptedDocIds(prev => {
+    setAcceptedDocIds((prev) => {
       if (prev.includes(doc.id)) {
-        return prev.filter(id => id !== doc.id); // Desmarca
+        return prev.filter((id) => id !== doc.id); // Desmarca
       } else {
         return [...prev, doc.id]; // Marca
       }
@@ -56,11 +58,14 @@ export const useRegister = (navigation: any) => {
     Keyboard.dismiss();
 
     const missingDocs = legalDocuments.filter(
-      doc => doc.isRequired && !acceptedDocIds.includes(doc.id)
+      (doc) => doc.isRequired && !acceptedDocIds.includes(doc.id)
     );
-    
+
     if (missingDocs.length > 0) {
-      Alert.alert("Atenção", "Você precisa aceitar os Termos de Uso e Política de Privacidade para continuar.");
+      Alert.alert(
+        'Atenção',
+        'Você precisa aceitar os Termos de Uso e Política de Privacidade para continuar.'
+      );
       return;
     }
 
@@ -75,7 +80,7 @@ export const useRegister = (navigation: any) => {
     }
 
     if (!selectedContextId) {
-      Alert.alert("Atenção", "Selecione um Contexto.");
+      Alert.alert('Atenção', 'Selecione um Contexto.');
       return;
     }
 
@@ -87,11 +92,11 @@ export const useRegister = (navigation: any) => {
         email,
         password,
         contextId: selectedContextId,
-        acceptedLegalDocumentIds: acceptedDocIds
+        acceptedLegalDocumentIds: acceptedDocIds,
       };
 
       const result = await register(payload);
-      
+
       if (result.success) {
         navigation.navigate('Login');
       } else {
@@ -107,17 +112,22 @@ export const useRegister = (navigation: any) => {
   return {
     nameInput,
     passwordInput,
-    name, setName,
-    email, setEmail,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
-    selectedContextId, setSelectedContextId,
+    name,
+    setName,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
+    selectedContextId,
+    setSelectedContextId,
     acceptedDocIds,
     contexts,
     legalDocuments,
     isLoadingData,
     isRegistering,
     toggleDocument,
-    handleSubmit
+    handleSubmit,
   };
 };

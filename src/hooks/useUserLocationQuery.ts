@@ -11,7 +11,9 @@ async function fetchUserLocation(): Promise<LocationObject | null> {
     if (current !== 'granted') {
       const res = await Promise.race([
         Location.requestForegroundPermissionsAsync(),
-        new Promise<never>((_, rej) => setTimeout(() => rej(new Error('timeout')), 15000)),
+        new Promise<never>((_, rej) =>
+          setTimeout(() => rej(new Error('timeout')), 15000)
+        ),
       ]);
       status = res.status;
     }

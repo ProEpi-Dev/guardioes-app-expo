@@ -109,31 +109,33 @@ const base64Decode = (str: string): string => {
     if (typeof Buffer !== 'undefined') {
       return Buffer.from(str, 'base64').toString('utf-8');
     }
-    
+
     // Fallback: usar implementação manual de base64
     // Substituir caracteres base64url para base64 padrão
     const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
     // Adicionar padding se necessário
     const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-    
+
     // Decodificar manualmente
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
     let result = '';
     let i = 0;
-    
+
     while (i < padded.length) {
       const encoded1 = chars.indexOf(padded.charAt(i++));
       const encoded2 = chars.indexOf(padded.charAt(i++));
       const encoded3 = chars.indexOf(padded.charAt(i++));
       const encoded4 = chars.indexOf(padded.charAt(i++));
-      
-      const bitmap = (encoded1 << 18) | (encoded2 << 12) | (encoded3 << 6) | encoded4;
-      
+
+      const bitmap =
+        (encoded1 << 18) | (encoded2 << 12) | (encoded3 << 6) | encoded4;
+
       result += String.fromCharCode((bitmap >> 16) & 255);
       if (encoded3 !== 64) result += String.fromCharCode((bitmap >> 8) & 255);
       if (encoded4 !== 64) result += String.fromCharCode(bitmap & 255);
     }
-    
+
     return result;
   } catch (error) {
     console.error('Erro ao decodificar base64:', error);
@@ -162,7 +164,10 @@ export const decodeJWT = (token: string): any => {
 };
 
 // Verificar se o token tem mais de X minutos de validade
-export const isTokenValid = (token: string, minMinutesRemaining: number = 5): boolean => {
+export const isTokenValid = (
+  token: string,
+  minMinutesRemaining: number = 5
+): boolean => {
   try {
     const decoded = decodeJWT(token);
     if (!decoded || !decoded.exp) {
@@ -189,6 +194,3 @@ export const isTokenValid = (token: string, minMinutesRemaining: number = 5): bo
     return false;
   }
 };
-
-
-

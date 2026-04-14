@@ -7,7 +7,7 @@ let isRefreshing = false;
 let failedQueue = [];
 
 const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
+  failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
@@ -35,23 +35,31 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config;
 
     // Se o erro for 401 e a requisição ainda não tiver sido repetida
-    if (error.response && error.response.status === 401 && !originalRequest._retry) {
-      
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
       // Evita loops infinitos se o próprio endpoint de refresh der 401
-      if (originalRequest.url.includes('/auth/refresh') || originalRequest.url.includes('/auth/login')) {
+      if (
+        originalRequest.url.includes('/auth/refresh') ||
+        originalRequest.url.includes('/auth/login')
+      ) {
         return Promise.reject(error);
       }
 
       // Se já existe um refresh acontecendo, coloca a requisição na fila de espera
       if (isRefreshing) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function (resolve, reject) {
           failedQueue.push({ resolve, reject });
-        }).then(token => {
-          originalRequest.headers['Authorization'] = 'Bearer ' + token;
-          return axiosInstance(originalRequest);
-        }).catch(err => {
-          return Promise.reject(err);
-        });
+        })
+          .then((token) => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
       }
 
       originalRequest._retry = true;
@@ -59,17 +67,21 @@ axiosInstance.interceptors.response.use(
 
       try {
         const refreshToken = await authStorage.getRefreshToken();
-        
+
         if (!refreshToken) {
-          throw new Error("Refresh token não encontrado");
+          throw new Error('Refresh token não encontrado');
         }
 
         // Faz a chamada de refresh
-        const refreshResponse = await axios.post(`${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/refresh`, {
-          refreshToken: refreshToken
-        });
+        const refreshResponse = await axios.post(
+          `${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/refresh`,
+          {
+            refreshToken: refreshToken,
+          }
+        );
 
-        const { token: newToken, refreshToken: newRefreshToken } = refreshResponse.data;
+        const { token: newToken, refreshToken: newRefreshToken } =
+          refreshResponse.data;
 
         // Atualiza os tokens
         await updateAuthToken(newToken);
@@ -81,13 +93,12 @@ axiosInstance.interceptors.response.use(
         // Refaz a requisição
         originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
         return axiosInstance(originalRequest);
-        
       } catch (refreshError) {
         processQueue(refreshError, null);
-        
+
         await authStorage.clearAuthData();
         delete axiosInstance.defaults.headers.common['Authorization'];
-        
+
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -127,16 +138,20 @@ export const initializeAuthToken = async () => {
 
 export const apiClient = async (endpoint, options = {}) => {
   const { method = 'GET', headers = {}, body, ...restOptions } = options;
-  
+
   try {
     const response = await axiosInstance({
       url: endpoint,
       method,
       headers,
-      data: body ? (typeof body === 'string' ? JSON.parse(body) : body) : undefined,
+      data: body
+        ? typeof body === 'string'
+          ? JSON.parse(body)
+          : body
+        : undefined,
       ...restOptions,
     });
-    
+
     return response;
   } catch (error) {
     throw error;

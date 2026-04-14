@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, TextInput, Alert, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Alert,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { getGenders, getLocations, getProfileStatus, updateUserProfile } from '../../services/finishProfile';
+import {
+  getGenders,
+  getLocations,
+  getProfileStatus,
+  updateUserProfile,
+} from '../../services/finishProfile';
 import { CustomSelector } from '../SnowForms';
 import { DropdownOption } from '../../types/finishProfile';
 import { percentage } from '../../utils/scalling';
@@ -15,12 +30,14 @@ interface Props {
 export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  
+
   const [genders, setGenders] = useState<DropdownOption[]>([]);
   const [locations, setLocations] = useState<DropdownOption[]>([]);
-  
+
   const [selectedGenderId, setSelectedGenderId] = useState<number | null>(null);
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+    null
+  );
   const [externalIdentifier, setExternalIdentifier] = useState('');
 
   useEffect(() => {
@@ -32,7 +49,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   const loadData = async () => {
     try {
       setLoading(true);
-      
+
       const status = await getProfileStatus();
       if (status?.profile) {
         setSelectedGenderId(status.profile.genderId ?? null);
@@ -42,12 +59,19 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
 
       const [rawGenders, rawLocations] = await Promise.all([
         getGenders(),
-        getLocations()
+        getLocations(),
       ]);
 
-      setGenders(rawGenders.filter((g: any) => g.active).map((g: any) => ({ key: g.id, label: g.name, value: g.id })));
-      setLocations(rawLocations.filter((l: any) => l.active).map((l: any) => ({ key: l.id, label: l.name, value: l.id })));
-
+      setGenders(
+        rawGenders
+          .filter((g: any) => g.active)
+          .map((g: any) => ({ key: g.id, label: g.name, value: g.id }))
+      );
+      setLocations(
+        rawLocations
+          .filter((l: any) => l.active)
+          .map((l: any) => ({ key: l.id, label: l.name, value: l.id }))
+      );
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível carregar os dados.');
       onClose();
@@ -67,9 +91,9 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
       await updateUserProfile({
         genderId: selectedGenderId,
         locationId: selectedLocationId,
-        externalIdentifier
+        externalIdentifier,
       });
-      
+
       Alert.alert('Dados atualizados!');
       onSuccess();
       onClose();
@@ -92,25 +116,32 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 50 }} />
+          <ActivityIndicator
+            size="large"
+            color="#0000ff"
+            style={{ marginTop: 50 }}
+          />
         ) : (
           <ScrollView contentContainerStyle={styles.content}>
-            
             <Text style={styles.label}>Sexo</Text>
-            <CustomSelector 
+            <CustomSelector
               lightMode={true}
               data={genders}
               initValue={selectedGenderId}
               placeholder="Selecione seu Sexo"
-              onChange={(item: DropdownOption) => setSelectedGenderId(Number(item.value))}
+              onChange={(item: DropdownOption) =>
+                setSelectedGenderId(Number(item.value))
+              }
             />
 
             <Text style={styles.label}>Localização (Campus/Unidade)</Text>
-            <CustomSelector 
+            <CustomSelector
               lightMode={true}
               data={locations}
               initValue={selectedLocationId}
-              onChange={(item: DropdownOption) => setSelectedLocationId(Number(item.value))}
+              onChange={(item: DropdownOption) =>
+                setSelectedLocationId(Number(item.value))
+              }
               placeholder="Selecione sua localização"
             />
 
@@ -122,10 +153,17 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               placeholder="Digite sua matrícula"
             />
 
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={saving}>
-              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={styles.saveText}>Salvar Alterações</Text>}
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSave}
+              disabled={saving}
+            >
+              {saving ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.saveText}>Salvar Alterações</Text>
+              )}
             </TouchableOpacity>
-
           </ScrollView>
         )}
       </View>
@@ -135,11 +173,37 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
   title: { fontSize: 18, fontWeight: 'bold' },
   content: { padding: 20 },
-  label: { fontSize: 16, color: '#333', marginBottom: 0, marginTop: 16, fontWeight: '500' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 16, marginTop: percentage(4) },
-  saveButton: { backgroundColor: '#348eac', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 32 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  label: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 0,
+    marginTop: 16,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginTop: percentage(4),
+  },
+  saveButton: {
+    backgroundColor: '#348eac',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 32,
+  },
+  saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });

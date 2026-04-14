@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   card: {
@@ -8,23 +8,23 @@ export const styles = StyleSheet.create({
     marginBottom: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    elevation: 3
+    elevation: 3,
   },
   image: {
     width: 70,
     height: 70,
     borderRadius: 8,
-    marginRight: 12
+    marginRight: 12,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
   },
   summary: {
     marginTop: 8,
     fontSize: 14,
     color: '#666',
-    textAlign: 'justify'
+    textAlign: 'justify',
   },
   thumbnail: {
     width: 80,

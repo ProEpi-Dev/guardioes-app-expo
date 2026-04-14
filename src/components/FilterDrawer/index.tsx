@@ -49,20 +49,33 @@ export function FilterDrawer({
               const isSelected = selectedFilters.includes(item.id);
               return (
                 <TouchableOpacity
-                  style={[styles.filterOption, isSelected && styles.filterOptionSelected]}
+                  style={[
+                    styles.filterOption,
+                    isSelected && styles.filterOptionSelected,
+                  ]}
                   onPress={() => onToggleFilter(item.id)}
                   activeOpacity={0.7}
                 >
                   <View
                     style={[
                       styles.checkbox,
-                      isSelected && { backgroundColor: colors.azulEscuro, borderColor: colors.azulEscuro },
+                      isSelected && {
+                        backgroundColor: colors.azulEscuro,
+                        borderColor: colors.azulEscuro,
+                      },
                     ]}
                   >
-                    {isSelected && <Ionicons name="checkmark" size={16} color="#FFF" />}
+                    {isSelected && (
+                      <Ionicons name="checkmark" size={16} color="#FFF" />
+                    )}
                   </View>
 
-                  <Text style={[styles.filterOptionText, isSelected && styles.filterOptionTextSelected]}>
+                  <Text
+                    style={[
+                      styles.filterOptionText,
+                      isSelected && styles.filterOptionTextSelected,
+                    ]}
+                  >
                     {item.name}
                   </Text>
                 </TouchableOpacity>
@@ -71,7 +84,10 @@ export function FilterDrawer({
           />
 
           <View style={styles.drawerFooter}>
-            <TouchableOpacity style={styles.clearButton} onPress={onClearFilters}>
+            <TouchableOpacity
+              style={styles.clearButton}
+              onPress={onClearFilters}
+            >
               <Text style={styles.clearButtonText}>Limpar</Text>
             </TouchableOpacity>
 

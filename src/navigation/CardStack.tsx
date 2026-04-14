@@ -6,22 +6,22 @@ import { RootStackParamList } from '../types/article';
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function CardStack() {
-    return (
-        <Stack.Navigator>
-            <Stack.Screen 
-            name="Home" 
-            component={ArticleCardScreen} 
-            options={{ headerShown: false }}
-            />
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="Home"
+        component={ArticleCardScreen}
+        options={{ headerShown: false }}
+      />
 
-            <Stack.Screen 
-            name="Article" 
-            component={ArticleScreen}
-            // options={({ route }) => ({ 
-            //     title: route.params.article.title 
-            // })}
-            options={{ headerShown: false }}
-            />
-        </Stack.Navigator>
-    );
+      <Stack.Screen
+        name="Article"
+        component={ArticleScreen}
+        // options={({ route }) => ({
+        //     title: route.params.article.title
+        // })}
+        options={{ headerShown: false }}
+      />
+    </Stack.Navigator>
+  );
 }
