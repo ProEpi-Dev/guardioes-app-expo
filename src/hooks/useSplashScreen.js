@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
+import authStorage from '../services/authStorage';
 
 export const useSplashScreen = () => {
   const [isLoading, setIsLoading] = useState(true);

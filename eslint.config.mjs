@@ -3,6 +3,7 @@ import js from '@eslint/js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
+import globals from 'globals';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +33,7 @@ export default [
   ...compat.extends('eslint-config-expo'),
 
   {
-    files: ['src/**/*.{ts,tsx,js,jsx}'],
+    files: ['**/*.{js,jsx,ts,tsx}'],
     plugins: {
       'unused-imports': require('eslint-plugin-unused-imports'),
       prettier: require('eslint-plugin-prettier'),
@@ -41,6 +42,10 @@ export default [
       ecmaVersion: 'latest',
       sourceType: 'module',
       parser: require('@typescript-eslint/parser'),
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
     },
     settings: {
       react: {

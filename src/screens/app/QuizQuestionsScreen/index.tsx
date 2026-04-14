@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons';
 
 import { useParticipation } from '../../../contexts/ParticipationContext';
 import { FormRenderer } from '../../../components/FormRenderer';
@@ -9,10 +8,7 @@ import { FormBuilderDefinition } from '../../../types/form';
 import { QuizRouteParams } from '../../../types/quiz';
 import { useQuizSession } from '../../../hooks/useQuizSession';
 import { styles } from './styles';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FeedbackBanner } from '../../../components/FeedbackBanner';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';

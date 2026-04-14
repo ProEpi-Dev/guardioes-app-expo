@@ -19,7 +19,7 @@ const verde = '#77bfad';
 const azul = '#2E97BE';
 
 const Welcome = ({ navigation }) => {
-  const showTerms = () => {
+  const _showTerms = () => {
     Alert.alert(
       terms.title,
       terms.text,

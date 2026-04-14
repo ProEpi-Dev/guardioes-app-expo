@@ -21,7 +21,7 @@ interface Props {
 }
 
 export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [password, setPassword] = useState('');

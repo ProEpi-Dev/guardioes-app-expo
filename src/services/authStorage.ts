@@ -21,6 +21,7 @@ export const storeRefreshToken = async (token: string): Promise<boolean> => {
     await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
     return true;
   } catch (error) {
+    console.log(error);
     return false;
   }
 };
@@ -29,6 +30,7 @@ export const getRefreshToken = async (): Promise<string | null> => {
   try {
     return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
   } catch (error) {
+    console.log(error);
     return null;
   }
 };
@@ -38,6 +40,7 @@ export const removeRefreshToken = async (): Promise<boolean> => {
     await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
     return true;
   } catch (error) {
+    console.log(error);
     return false;
   }
 };

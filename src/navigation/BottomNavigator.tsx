@@ -94,7 +94,7 @@ export function BottomNavigation() {
               <MaterialCommunityIcons name="menu" size={30} color="black" />
             </TouchableOpacity>
           ),
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({ color }) => (
             <Feather name={'home'} size={24} color={color} />
           ),
         }}
@@ -105,7 +105,7 @@ export function BottomNavigation() {
         component={SequenceScreen}
         options={{
           tabBarLabel: 'Dias',
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({ color }) => (
             <FontAwesome5 name="calendar-alt" size={24} color={color} />
           ),
         }}
@@ -116,7 +116,7 @@ export function BottomNavigation() {
         component={TrailStack}
         options={{
           tabBarLabel: 'Aprenda',
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name={'chat-question-outline'}
               size={24}
@@ -132,7 +132,7 @@ export function BottomNavigation() {
         component={CardStack}
         options={{
           tabBarLabel: 'Conteúdos',
-          tabBarIcon: ({ focused, color }) => (
+          tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name={'file-document-multiple-outline'}
               size={24}

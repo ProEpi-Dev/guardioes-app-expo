@@ -1,17 +1,13 @@
 import React from 'react';
-import { StatusBar, ActivityIndicator } from 'react-native';
+import { ActivityIndicator } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
   GradientBackground,
   KeyboardScrollView,
   ButtonBack,
   FormSeparator,
-  SnowInput,
   Touch,
-  SnowButton,
-  Label,
   SolidInput,
   GradientButtonContainer,
   GradientButtonLabel,

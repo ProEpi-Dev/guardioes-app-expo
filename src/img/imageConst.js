@@ -1,7 +1,4 @@
-import React from 'react';
 // import Emoji from 'react-native-emoji'
-
-import { scale } from '../utils/scalling';
 
 // Logos
 export const GDSLogoBR = require('./logos/gds-pt-branca.png');

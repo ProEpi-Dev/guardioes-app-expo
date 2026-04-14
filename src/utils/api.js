@@ -2,7 +2,7 @@ import axios from 'axios';
 import * as authStorage from '../services/authStorage';
 
 // Variáveis de controle
-let currentToken = null;
+let _currentToken = null;
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -117,7 +117,7 @@ axiosInstance.interceptors.response.use(
 // --- FUNÇÕES DE UTILIDADE ---
 
 export const updateAuthToken = async (token) => {
-  currentToken = token;
+  _currentToken = token;
   if (token) {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     await authStorage.storeToken(token);
@@ -130,7 +130,7 @@ export const updateAuthToken = async (token) => {
 export const initializeAuthToken = async () => {
   const token = await authStorage.getToken();
   if (token) {
-    currentToken = token;
+    _currentToken = token;
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
   return token;

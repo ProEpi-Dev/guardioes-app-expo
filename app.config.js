@@ -10,7 +10,7 @@ try {
   // dotenv not installed; rely on process.env from EAS or shell
 }
 
-const IS_EAS = !!process.env.EAS_BUILD;
+const _IS_EAS = !!process.env.EAS_BUILD;
 
 // Resolve current environment
 function getEnvironment() {

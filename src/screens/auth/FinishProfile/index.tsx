@@ -1,21 +1,13 @@
 import React from 'react';
-import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
-import {
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import {
-  ButtonBack,
-  CustomSelector,
   DarkButton,
   DarkButtonLabel,
   FormSeparator,
   GradientBackground,
   KeyboardScrollView,
-  Label,
-  SnowButton,
-  SnowInput,
   SolidInput,
   SolidSelector,
   Touch,

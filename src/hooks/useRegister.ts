@@ -104,6 +104,7 @@ export const useRegister = (navigation: any) => {
       }
     } catch (error) {
       Alert.alert('Erro', 'Erro inesperado ao realizar cadastro');
+      console.log(error);
     } finally {
       setIsRegistering(false);
     }

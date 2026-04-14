@@ -1,6 +1,6 @@
 import { apiClient } from '../utils/api';
 import { Section, TrackCycle } from '../types/trail';
-import { getQuizDetails, getUserSubmissions } from './quiz';
+import { getQuizDetails } from './quiz';
 
 export const getTrackCycles = async (): Promise<TrackCycle[]> => {
   const response = (await apiClient('/v1/track-cycles', {
@@ -190,6 +190,7 @@ export const mergeTrailWithProgress = async (
         passingScore,
         maxAttempts,
         quizSubmissionId,
+        timeLimitMinutes,
       };
     });
 

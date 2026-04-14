@@ -1,5 +1,4 @@
 import { useCallback, useState, useRef } from 'react';
-import { Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { TrackCycle } from '../types/trail';
 import {

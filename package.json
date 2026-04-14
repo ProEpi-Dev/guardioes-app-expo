@@ -14,7 +14,9 @@
     "prebuild:ios": "expo prebuild --platform ios",
     "eas-build-pre-install": "node setup-firebase.js",
     "format:check": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.2",
@@ -59,12 +61,22 @@
   },
   "private": true,
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
+    "@eslint/js": "^9.39.4",
     "@types/react": "^19.2.2",
     "@types/react-native": "^0.72.8",
     "@types/supercluster": "^7.1.3",
+    "@typescript-eslint/parser": "^8.58.2",
     "dotenv": "^17.3.1",
+    "eslint": "^9.39.4",
+    "eslint-config-expo": "^55.0.0",
     "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-prettier": "^5.5.5",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-native": "^5.0.0",
+    "eslint-plugin-unused-imports": "^4.4.1",
     "prettier": "^3.8.2",
     "react-native-svg-transformer": "^1.5.1",
     "typescript": "^5.9.3"

@@ -44,10 +44,12 @@ try {
   // Try to import from @expo/config-plugins (available in Expo SDK)
   withAndroidManifest = require('@expo/config-plugins').withAndroidManifest;
 } catch (e) {
+  console.log(e);
   // Fallback: try from expo directly
   try {
     withAndroidManifest = require('expo/config-plugins').withAndroidManifest;
   } catch (e2) {
+    console.log(e2);
     console.warn(
       '⚠️  @expo/config-plugins not found. The plugin may not work correctly.'
     );

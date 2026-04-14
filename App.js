@@ -5,14 +5,6 @@ import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-    },
-  },
-});
 import { Platform, PermissionsAndroid } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {
@@ -25,6 +17,14 @@ import {
   onTokenRefresh,
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+    },
+  },
+});
 
 const messaging = getMessaging();
 

@@ -26,11 +26,7 @@ import { getItemStatus } from '../../../../utils/trailContentStatus';
 import { colors } from '../../../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
-import {
-  CommonActions,
-  StackActions,
-  useFocusEffect,
-} from '@react-navigation/native';
+import { CommonActions, useFocusEffect } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 

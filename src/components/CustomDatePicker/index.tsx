@@ -5,7 +5,6 @@ import {
   Platform,
   Modal,
   View,
-  StyleSheet,
   Button,
   StyleProp,
   TextStyle,

@@ -1,5 +1,4 @@
 import { Feather } from '@expo/vector-icons';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import { Image, Text, TouchableOpacity, View } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -44,7 +43,11 @@ export const CustomHeader = ({
           style={{ zIndex: 10, padding: 5 }}
           onPress={() => {
             if (showBackButton) {
-              onBackPress ? onBackPress() : navigation.goBack();
+              if (onBackPress) {
+                onBackPress();
+              } else {
+                navigation.goBack();
+              }
             } else {
               navigation.openDrawer();
             }

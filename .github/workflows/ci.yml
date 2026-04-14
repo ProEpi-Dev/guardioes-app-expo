@@ -3,14 +3,16 @@ on:
   push:
     branches:
       - dev
+      - fix/login
   pull_request:
     branches:
       - dev
+      - fix/login
 
 jobs:
   lint-and_security_test:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout código
         uses: actions/checkout@v4
@@ -25,8 +27,8 @@ jobs:
       - name: Instalar Dependências
         run: npm ci
 
-      # - name: Rodar ESLint
-      #   run: npm run lint
+      - name: Rodar ESLint
+        run: npm run lint
 
       - name: Rodar Prettier
         run: npm run format:check

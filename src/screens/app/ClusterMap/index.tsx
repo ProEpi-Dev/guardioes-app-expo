@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
 import type { ClusterFeature, PointFeature } from 'supercluster';
@@ -121,23 +121,27 @@ export function ClusterMap() {
   }, [markersData]);
 
   // Criar duas instâncias do Supercluster - uma para cada tipo
-  const clustererWithSymptoms = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  const clustererWithSymptoms = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
 
-  const clustererWithoutSymptoms = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  const clustererWithoutSymptoms = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
 
   // Estado para rastrear se os pontos foram carregados
   const [pointsLoaded, setPointsLoaded] = useState(false);
@@ -147,6 +151,7 @@ export function ClusterMap() {
     if (pointsWithSymptoms.length > 0 || pointsWithoutSymptoms.length > 0) {
       clustererWithSymptoms.load(pointsWithSymptoms);
       clustererWithoutSymptoms.load(pointsWithoutSymptoms);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPointsLoaded(true);
     }
   }, [
@@ -348,7 +353,7 @@ export function ClusterMap() {
 
   const handleClusterPress = (
     cluster: ClusterFeature<any> | PointFeature<any>,
-    clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined'
+    _clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined'
   ) => {
     // Apenas logar o clique, sem dar zoom automático
     // O Callout já mostra as informações quando o usuário clica
@@ -393,7 +398,7 @@ export function ClusterMap() {
           const coords = point.geometry.coordinates;
           const properties = point.properties;
           const clusterType = (properties as any).clusterType;
-          const hasSymptoms = (properties as any).hasSymptoms;
+          const _hasSymptoms = (properties as any).hasSymptoms;
 
           return (
             <Marker

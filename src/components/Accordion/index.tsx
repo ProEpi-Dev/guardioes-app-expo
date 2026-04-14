@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ const Accordion: React.FC<AccordionProps> = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Valor animado para a rotação (inicia em 0)
-  const animationController = useRef(new Animated.Value(0)).current;
+  const [animationController] = useState(() => new Animated.Value(0));
 
   const toggleOpen = () => {
     // 1. Configura a animação de layout (expansão/contração do conteúdo)

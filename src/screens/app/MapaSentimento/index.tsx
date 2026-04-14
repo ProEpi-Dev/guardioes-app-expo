@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Animated,
   DeviceEventEmitter,
@@ -39,7 +39,6 @@ export function MapaSentimento() {
     isCompliant: logicCompliant,
     showSuccessAnimation,
     setShowSuccessAnimation,
-    currentStreakCount,
   } = useSentimentLogic();
 
   const { contextId, participationId } = useParticipation();
@@ -48,8 +47,8 @@ export function MapaSentimento() {
 
   const [isCompliant, setIsCompliant] = useState(logicCompliant);
 
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.5)).current;
+  const [fadeAnim] = useState(() => new Animated.Value(0));
+  const [scaleAnim] = useState(() => new Animated.Value(0.5));
 
   const diaDaSemana = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long',

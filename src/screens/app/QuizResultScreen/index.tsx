@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useResultNavigation } from '../../../hooks/useResultNavigation';
 import { ScoreHeader } from '../../../components/ScoreHeader';

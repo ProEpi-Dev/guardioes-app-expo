@@ -5,7 +5,6 @@ import {
   Modal,
   TouchableOpacity,
   ActivityIndicator,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   StatusBar,

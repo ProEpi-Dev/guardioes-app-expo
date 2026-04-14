@@ -73,6 +73,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
           .map((l: any) => ({ key: l.id, label: l.name, value: l.id }))
       );
     } catch (error) {
+      console.log(error);
       Alert.alert('Erro', 'Não foi possível carregar os dados.');
       onClose();
     } finally {
@@ -98,6 +99,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
       onSuccess();
       onClose();
     } catch (error) {
+      console.log(error);
       Alert.alert('Erro', 'Falha ao atualizar perfil.');
     } finally {
       setSaving(false);

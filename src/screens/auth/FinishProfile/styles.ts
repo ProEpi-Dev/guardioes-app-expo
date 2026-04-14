@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { Image, TouchableOpacity } from 'react-native';
+import { Image } from 'react-native';
 import { scale } from '../../../utils/scalling';
 
 export const Logo = styled(Image)`

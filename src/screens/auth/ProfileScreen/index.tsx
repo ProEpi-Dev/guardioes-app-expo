@@ -5,12 +5,10 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  StyleSheet,
   Alert,
   ActivityIndicator,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '../../../contexts/AuthContext';
 import { updateUser as updateUserApi } from '../../../services/user';
 import { EditProfileModal } from '../../../components/EditProfileModal';
@@ -29,7 +27,7 @@ export default function ProfileScreen() {
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [_confirmPassword, setConfirmPassword] = useState('');
 
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showChangePasswordModal, setShowPasswordModal] = useState(false);

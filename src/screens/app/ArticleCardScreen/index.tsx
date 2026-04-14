@@ -4,9 +4,7 @@ import {
   View,
   ActivityIndicator,
   Text,
-  StyleSheet,
   TouchableOpacity,
-  Modal,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ArticleCard from '../../../components/ArticleCard';

@@ -42,9 +42,10 @@ export const useForm = ({
         }
       }
     });
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValues(newValues);
     setErrors({});
-  }, [JSON.stringify(definition.fields)]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(definition.fields)]);
 
   // 2. Verifica Visibilidade (Aceita valores opcionais para validação em tempo real)
   const checkFieldVisibility = useCallback(
@@ -95,7 +96,7 @@ export const useForm = ({
 
       return null;
     },
-    [checkFieldVisibility]
+    [checkFieldVisibility, values]
   );
 
   // 4. Calcula validade total do formulário com base nos valores passados

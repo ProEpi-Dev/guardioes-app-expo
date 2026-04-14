@@ -1,8 +1,7 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import CustomDrawerContent from '../components/CustomDrawerContent';
-import { ClusterMap } from '../screens/app/ClusterMap';
 import { BottomNavigation } from './BottomNavigator';
 import QuizStack from './QuizStack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';

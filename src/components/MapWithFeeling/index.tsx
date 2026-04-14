@@ -6,16 +6,13 @@ import {
   TouchableOpacity,
   Alert,
   ActivityIndicator,
-  Platform,
 } from 'react-native';
-import MapView, { Region, Marker, Heatmap } from 'react-native-maps';
+import MapView, { Region, Heatmap } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Supercluster from 'supercluster';
-import type { ClusterFeature, PointFeature } from 'supercluster';
 import type { LocationObject } from 'expo-location';
 import translate from '../../locales/i18n';
 import { colors } from '../../utils/colors';
-import { useSentimentLogic } from '../../hooks/useSentimentLogic';
 
 interface MapPoint {
   id?: number;
@@ -68,6 +65,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
       latitudeDelta: 0.02,
       longitudeDelta: 0.02,
     };
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setRegion(userRegion);
     let attempts = 0;
     const tryAnimate = () => {
@@ -129,23 +127,45 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   }, [points]);
 
   // Criar duas instâncias do Supercluster - uma para cada tipo
-  const clustererPositive = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  // const clustererPositive = useRef(
+  //   new Supercluster({
+  //     radius: 80,
+  //     minZoom: 5,
+  //     maxZoom: 15,
+  //     minPoints: 2,
+  //   })
+  // ).current;
 
-  const clustererNegative = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  const clustererPositive = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
+
+  // const clustererNegative = useRef(
+  //   new Supercluster({
+  //     radius: 80,
+  //     minZoom: 5,
+  //     maxZoom: 15,
+  //     minPoints: 2,
+  //   })
+  // ).current;
+
+  const clustererNegative = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
 
   // Estado para rastrear se os pontos foram carregados
   const [pointsLoaded, setPointsLoaded] = useState(false);
@@ -155,6 +175,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
     if (pointsPositive.length > 0 || pointsNegative.length > 0) {
       clustererPositive.load(pointsPositive);
       clustererNegative.load(pointsNegative);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPointsLoaded(true);
     }
   }, [pointsPositive, pointsNegative, clustererPositive, clustererNegative]);
@@ -168,7 +189,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   };
 
   // Obter clusters de ambos os tipos
-  const clusters = useMemo(() => {
+  const _clusters = useMemo(() => {
     if (!pointsLoaded) {
       return [];
     }
@@ -355,7 +376,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
   }, [region, clustererPositive, clustererNegative, pointsLoaded]);
 
   // Função para obter cor do cluster baseado no tipo
-  const getClusterColor = (
+  const _getClusterColor = (
     clusterType?: 'positive' | 'negative' | 'combined'
   ): string => {
     if (clusterType === 'combined') {
@@ -467,7 +488,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
               points={(points || []).map((item) => ({
                 latitude: item.latitude,
                 longitude: item.longitude,
-                weight: item.reportType == 'POSITIVE' ? 1 : 0,
+                weight: item.reportType === 'POSITIVE' ? 1 : 0,
               }))}
               radius={50}
               opacity={0.8}
@@ -482,7 +503,7 @@ export const MapWithFeeling: React.FC<MapWithFeelingProps> = ({
               points={(points || []).map((item) => ({
                 latitude: item.latitude,
                 longitude: item.longitude,
-                weight: item.reportType == 'NEGATIVE' ? 1 : 0,
+                weight: item.reportType === 'NEGATIVE' ? 1 : 0,
               }))}
               radius={50}
               opacity={0.8}

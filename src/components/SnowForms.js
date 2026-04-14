@@ -14,6 +14,8 @@ import { scale, percentage } from '../utils/scalling';
 import React, { useState, useEffect } from 'react';
 import { colors } from '../utils/colors';
 
+import Feather from '@expo/vector-icons/Feather';
+
 export const GradientBackground = styled(LinearGradient).attrs({
   colors: [colors.gradientSocialLinkEscuro, colors.azulClaro],
 })`
@@ -129,6 +131,7 @@ export const CustomSelector = ({
   useEffect(() => {
     if (initValue !== null && data && data.length > 0) {
       const item = data.find((i) => String(i.value) === String(initValue));
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (item) setSelectedLabel(item.label);
     }
   }, [initValue, data]);
@@ -302,8 +305,6 @@ export const GradientButtonLabel = styled.Text`
   color: #ffffff;
 `;
 
-import Feather from '@expo/vector-icons/Feather';
-
 // ... (seus outros componentes)
 
 export const SolidSelector = ({ data, initValue, onChange, placeholder }) => {
@@ -317,6 +318,7 @@ export const SolidSelector = ({ data, initValue, onChange, placeholder }) => {
           String(i.value) === String(initValue) ||
           String(i.key) === String(initValue)
       );
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (item) setSelectedLabel(item.label);
     }
   }, [initValue, data]);
