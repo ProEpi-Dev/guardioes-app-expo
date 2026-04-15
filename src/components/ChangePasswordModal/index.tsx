@@ -13,6 +13,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { updatePassword } from '../../services/finishProfile';
 import { percentage } from '../../utils/scalling';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Props {
   visible: boolean;
@@ -76,7 +77,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={24} color="#000" />
@@ -128,7 +129,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
             </TouchableOpacity>
           </ScrollView>
         )}
-      </View>
+      </SafeAreaView>
     </Modal>
   );
 }
