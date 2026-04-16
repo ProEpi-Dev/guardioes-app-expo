@@ -13,7 +13,7 @@ import {
 import { Feather } from '@expo/vector-icons';
 import { updatePassword } from '../../services/finishProfile';
 import { percentage } from '../../utils/scalling';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   visible: boolean;
@@ -28,6 +28,8 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
+
+  const insets = useSafeAreaInsets();
 
   const handleSave = async () => {
     if (!currentPassword || !password || !confirmPassword) {
@@ -77,7 +79,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={24} color="#000" />
@@ -129,7 +131,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
             </TouchableOpacity>
           </ScrollView>
         )}
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }

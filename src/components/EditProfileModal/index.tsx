@@ -20,7 +20,7 @@ import {
 import { CustomSelector } from '../SnowForms';
 import { DropdownOption } from '../../types/finishProfile';
 import { percentage } from '../../utils/scalling';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   visible: boolean;
@@ -40,6 +40,8 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
     null
   );
   const [externalIdentifier, setExternalIdentifier] = useState('');
+
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -109,7 +111,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={24} color="#000" />
@@ -169,7 +171,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
             </TouchableOpacity>
           </ScrollView>
         )}
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 }
