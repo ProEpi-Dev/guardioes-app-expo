@@ -13,13 +13,13 @@ export const useArticles = () => {
     try {
       if (isRefresh) setIsRefreshing(true);
       else setIsLoading(true);
-      
+
       setError(null);
       const [articlesData, typesData] = await Promise.all([
         getArticles(),
-        getContentTypes()
+        getContentTypes(),
       ]);
-      
+
       setArticles(articlesData);
       setContentTypes(typesData);
     } catch (err) {
@@ -30,7 +30,7 @@ export const useArticles = () => {
       setIsRefreshing(false);
     }
   }, []);
-  
+
   useEffect(() => {
     fetchArticles();
   }, [fetchArticles]);

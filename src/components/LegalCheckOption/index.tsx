@@ -10,9 +10,18 @@ interface Props {
   onRead: () => void;
 }
 
-export const LegalCheckOption: React.FC<Props> = ({ title, isChecked, onToggle, onRead }) => (
+export const LegalCheckOption: React.FC<Props> = ({
+  title,
+  isChecked,
+  onToggle,
+  onRead,
+}) => (
   <View style={styles.container}>
-    <TouchableOpacity onPress={onToggle} style={styles.checkbox} activeOpacity={0.8}>
+    <TouchableOpacity
+      onPress={onToggle}
+      style={styles.checkbox}
+      activeOpacity={0.8}
+    >
       {isChecked && <Feather name="check" size={16} color="#ffffff" />}
     </TouchableOpacity>
     <View style={styles.textContainer}>
@@ -30,7 +39,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '90%',
     marginTop: 15,
-    marginBottom: 5
+    marginBottom: 5,
   },
   checkbox: {
     width: 24,
@@ -40,13 +49,13 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10
+    marginRight: 10,
   },
-  textContainer: { 
-    flex: 1, 
-    flexDirection: 'row', 
+  textContainer: {
+    flex: 1,
+    flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   baseText: {
     color: '#ffffff',
@@ -59,5 +68,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textDecorationLine: 'underline',
     lineHeight: scale(20),
-  }
+  },
 });

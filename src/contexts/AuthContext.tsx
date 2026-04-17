@@ -1,7 +1,23 @@
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import React, {
+  createContext,
+  useState,
+  useEffect,
+  useContext,
+  ReactNode,
+} from 'react';
 import { apiClient, updateAuthToken, initializeAuthToken } from '../utils/api';
 import * as authStorage from '../services/authStorage';
-import { User, RegisterData, LoginResponse, LoginResult, AuthContextType, ApiError, Form, PaginatedResponse } from '../types/auth';
+import {
+  User,
+  RegisterData,
+  LoginResponse,
+  LoginResult,
+  AuthContextType,
+  ApiError,
+  Form,
+  PaginatedResponse,
+} from '../types/auth';
+import axios from 'axios';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,25 +51,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const storedToken = await initializeAuthToken();
       const storedUser = await authStorage.getUser();
 
-      if (storedToken && storedUser) {
-        // Verificar se o token tem mais de 5 minutos de validade
-        const isValid = authStorage.isTokenValid(storedToken, 5);
-        
-        if (!isValid) {
-          // console.log('🔐 [Auth] Token expirando em menos de 5 minutos, fazendo logout');
-          // Token está expirando em menos de 5 minutos, fazer logout
-          await logout();
-          return;
-        }
+      // NOVA VERIFICAÇÃO: Garantir que também temos o refresh token
+      const storedRefreshToken = await authStorage.getRefreshToken();
 
-        // Token válido, manter autenticação
+      // Se temos o token principal, o usuário E o refresh token, o usuário está logado!
+      if (storedToken && storedUser && storedRefreshToken) {
+        // A verificação de 5 minutos (isTokenValid) FOI REMOVIDA DAQUI!
+        // Se o storedToken estiver expirado, o interceptor do Axios
+        // no arquivo api.js vai tratar o erro 401 e renová-lo automaticamente.
+
         setToken(storedToken);
         setUser(storedUser);
         setIsAuthenticated(true);
+
         // Buscar forms se já estiver autenticado
         await fetchForms();
       } else {
-        // Não há token ou usuário salvo, garantir que está deslogado
+        // Faltam dados na memória, garantir que está deslogado
         setIsAuthenticated(false);
         setToken(null);
         setUser(null);
@@ -69,36 +83,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const login = async (email: string, password: string): Promise<LoginResult> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<LoginResult> => {
     try {
-      const response = await apiClient('/v1/auth/login', {
+      const response = (await apiClient('/v1/auth/login', {
         method: 'POST',
         body: JSON.stringify({
           email,
           password,
         }),
-      }) as unknown as LoginResponse;
+      })) as unknown as LoginResponse;
 
       // A API pode retornar o token e dados do usuário em diferentes formatos
       // Ajuste conforme a estrutura real da resposta da API
-      const authToken = 
-        response.token || 
-        response.accessToken || 
+      const authToken =
+        response.token ||
+        response.accessToken ||
         response.data?.token ||
         response.data?.accessToken;
 
-      const userData = 
-        response.user || 
-        response.data?.user || 
-        (response.id ? {
-          id: response.id,
-          email: response.email || email,
-          name: response.name,
-        } : null);
+      const userData =
+        response.user ||
+        response.data?.user ||
+        (response.id
+          ? {
+              id: response.id,
+              email: response.email || email,
+              name: response.name,
+            }
+          : null);
 
       if (!authToken) {
         console.warn('Estrutura da resposta da API:', response);
-        throw new Error('Token não recebido da API. Verifique a estrutura da resposta.');
+        throw new Error(
+          'Token não recebido da API. Verifique a estrutura da resposta.'
+        );
       }
 
       // Se não houver dados do usuário, criar um objeto mínimo
@@ -107,9 +128,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       };
 
       // Armazenar token e dados do usuário
+      const refreshToken = response.refreshToken || response.data?.refreshToken;
+
+      // Armazenar token, refresh token e dados do usuário
       await authStorage.storeToken(authToken);
+      if (refreshToken) {
+        await authStorage.storeRefreshToken(refreshToken);
+      }
       await authStorage.storeUser(finalUserData);
-      
+
       // Atualizar token no axios interceptor
       await updateAuthToken(authToken);
 
@@ -124,14 +151,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { success: true, data: response };
     } catch (error) {
       console.error('Erro no login:', error);
-      
+
       const apiError = error as ApiError;
       let errorMessage = 'Erro ao fazer login. Tente novamente.';
-      
+
       if (apiError.status === 401) {
         errorMessage = 'Email ou senha incorretos.';
       } else if (apiError.status === 0) {
-        errorMessage = apiError.message || 'Erro de conexão. Verifique sua internet.';
+        errorMessage =
+          apiError.message || 'Erro de conexão. Verifique sua internet.';
       } else if (apiError.message) {
         errorMessage = apiError.message;
       }
@@ -142,42 +170,50 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const register = async (data: RegisterData): Promise<LoginResult> => {
     try {
-      const response = await apiClient('/v1/auth/signup', {
+      const response = (await apiClient('/v1/auth/signup', {
         method: 'POST',
         body: JSON.stringify(data),
-      }) as unknown as LoginResponse;
+      })) as unknown as LoginResponse;
 
       // Lógica de Auto-Login: Tenta extrair token e user da resposta do registro
-      const authToken = 
-        response.token || 
-        response.accessToken || 
+      const authToken =
+        response.token ||
+        response.accessToken ||
         response.data?.token ||
         response.data?.accessToken;
 
-      const userData = 
-        response.user || 
-        response.data?.user || 
-        (response.id ? {
-          id: response.id,
-          email: response.email || data.email,
-          name: response.name || data.name,
-        } : null);
+      const userData =
+        response.user ||
+        response.data?.user ||
+        (response.id
+          ? {
+              id: response.id,
+              email: response.email || data.email,
+              name: response.name || data.name,
+            }
+          : null);
 
       // Se a API retornar o token, fazemos o login automático
       if (authToken) {
         const finalUserData: User = userData || {
           email: data.email,
-          name: data.name
+          name: data.name,
         };
 
+        const refreshToken =
+          response.refreshToken || response.data?.refreshToken;
+
         await authStorage.storeToken(authToken);
+        if (refreshToken) {
+          await authStorage.storeRefreshToken(refreshToken);
+        }
         await authStorage.storeUser(finalUserData);
         await updateAuthToken(authToken);
 
         setToken(authToken);
         setUser(finalUserData);
         setIsAuthenticated(true);
-        
+
         await fetchForms(); // Busca os dados iniciais
 
         return { success: true, data: response };
@@ -186,10 +222,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Caso a API crie o usuário mas NÃO retorne o token (ex: exige confirmação de email)
       // Retornamos sucesso, mas não autenticamos no app
       return { success: true, data: response };
-
     } catch (error) {
       console.error('Erro no registro:', error);
-      
+
       const apiError = error as ApiError;
       let errorMessage = 'Erro ao realizar cadastro.';
 
@@ -207,8 +242,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const logout = async (): Promise<void> => {
     try {
+      const currentRefreshToken = await authStorage.getRefreshToken();
+
+      // Avisa o servidor para revogar a sessão usando o endpoint correto
+      if (currentRefreshToken) {
+        try {
+          await axios.post(
+            `${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/logout`,
+            {
+              refreshToken: currentRefreshToken,
+            }
+          );
+        } catch (e) {
+          console.warn('Erro ao avisar o servidor do logout', e);
+        }
+      }
+
       await authStorage.clearAuthData();
-      // Remover token do axios interceptor
       await updateAuthToken(null);
       setToken(null);
       setUser(null);
@@ -231,9 +281,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const fetchForms = async (): Promise<void> => {
     try {
       // O token será adicionado automaticamente pelo interceptor do axios
-      const response = await apiClient('/v1/forms?page=1&pageSize=10&active=true', {
-        method: 'GET',
-      }) as unknown as PaginatedResponse<Form>;
+      const response = (await apiClient(
+        '/v1/forms?page=1&pageSize=10&active=true',
+        {
+          method: 'GET',
+        }
+      )) as unknown as PaginatedResponse<Form>;
 
       // Verificar se há itens e guardar o primeiro
       if (response.data && response.data.length > 0) {
@@ -274,4 +327,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-

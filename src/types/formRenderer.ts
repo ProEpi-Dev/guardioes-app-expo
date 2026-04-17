@@ -1,5 +1,5 @@
-import { StyleProp, ViewStyle } from "react-native";
-import { FormBuilderDefinition, FormField } from "./form";
+import { StyleProp, ViewStyle } from 'react-native';
+import { FormBuilderDefinition, FormField } from './form';
 
 export interface FieldFactoryProps {
   field: FormField;

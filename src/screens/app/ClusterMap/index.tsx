@@ -1,6 +1,6 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, StyleSheet, Text } from 'react-native';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import type { Region } from 'react-native-maps';
 import Supercluster from 'supercluster';
 import type { ClusterFeature, PointFeature } from 'supercluster';
@@ -10,27 +10,27 @@ const generateBrasiliaMarkers = (count: number = 100): MarkerData[] => {
   // Coordenadas de Brasília
   const centerLat = -15.8194724;
   const centerLng = -47.924146;
-  
+
   // Área ao redor de Brasília - não muito espalhada
   const latDelta = 0.5; // Área de ~0.5 graus ao redor de Brasília
   const lngDelta = 0.5;
-  
+
   // Área muito pequena para criar clusters bem concentrados
   const clusterLatDelta = 0.001; // Marcadores extremamente próximos dentro do cluster
   const clusterLngDelta = 0.001;
-  
+
   // Número de clusters a criar - menos clusters, mais marcadores por cluster
   const numClusters = Math.floor(count / 12); // ~25 clusters para 300 marcadores
   const markersPerCluster = Math.floor(count / numClusters);
-  
+
   const markers: MarkerData[] = [];
-  
+
   // Criar clusters muito concentrados na região de Brasília
   for (let i = 0; i < numClusters; i++) {
     // Cada cluster em uma área próxima a Brasília
     const clusterCenterLat = centerLat + (Math.random() - 0.5) * latDelta;
     const clusterCenterLng = centerLng + (Math.random() - 0.5) * lngDelta;
-    
+
     // Criar muitos marcadores muito próximos neste cluster
     for (let j = 0; j < markersPerCluster && markers.length < count; j++) {
       markers.push({
@@ -41,13 +41,13 @@ const generateBrasiliaMarkers = (count: number = 100): MarkerData[] => {
       });
     }
   }
-  
+
   // Adicionar marcadores restantes em áreas concentradas também
   while (markers.length < count) {
     // Criar alguns clusters adicionais menores na região de Brasília
     const randomLat = centerLat + (Math.random() - 0.5) * latDelta;
     const randomLng = centerLng + (Math.random() - 0.5) * lngDelta;
-    
+
     // Adicionar 2-3 marcadores próximos neste ponto
     const additionalMarkers = Math.min(3, count - markers.length);
     for (let k = 0; k < additionalMarkers && markers.length < count; k++) {
@@ -59,7 +59,7 @@ const generateBrasiliaMarkers = (count: number = 100): MarkerData[] => {
       });
     }
   }
-  
+
   return markers;
 };
 
@@ -114,27 +114,34 @@ export function ClusterMap() {
       }
     });
 
-    return { pointsWithSymptoms: withSymptoms, pointsWithoutSymptoms: withoutSymptoms };
+    return {
+      pointsWithSymptoms: withSymptoms,
+      pointsWithoutSymptoms: withoutSymptoms,
+    };
   }, [markersData]);
 
   // Criar duas instâncias do Supercluster - uma para cada tipo
-  const clustererWithSymptoms = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  const clustererWithSymptoms = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
 
-  const clustererWithoutSymptoms = useRef(
-    new Supercluster({
-      radius: 80,
-      minZoom: 5,
-      maxZoom: 15,
-      minPoints: 2,
-    })
-  ).current;
+  const clustererWithoutSymptoms = useMemo(
+    () =>
+      new Supercluster({
+        radius: 80,
+        minZoom: 5,
+        maxZoom: 15,
+        minPoints: 2,
+      }),
+    []
+  );
 
   // Estado para rastrear se os pontos foram carregados
   const [pointsLoaded, setPointsLoaded] = useState(false);
@@ -144,9 +151,15 @@ export function ClusterMap() {
     if (pointsWithSymptoms.length > 0 || pointsWithoutSymptoms.length > 0) {
       clustererWithSymptoms.load(pointsWithSymptoms);
       clustererWithoutSymptoms.load(pointsWithoutSymptoms);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPointsLoaded(true);
     }
-  }, [pointsWithSymptoms, pointsWithoutSymptoms, clustererWithSymptoms, clustererWithoutSymptoms]);
+  }, [
+    pointsWithSymptoms,
+    pointsWithoutSymptoms,
+    clustererWithSymptoms,
+    clustererWithoutSymptoms,
+  ]);
 
   // Calcular zoom level baseado na latitudeDelta
   const getZoomLevel = (latitudeDelta: number): number => {
@@ -183,8 +196,14 @@ export function ClusterMap() {
       }
 
       // Obter clusters de ambos os tipos
-      const clustersWithSymptoms = clustererWithSymptoms.getClusters(bounds, zoom);
-      const clustersWithoutSymptoms = clustererWithoutSymptoms.getClusters(bounds, zoom);
+      const clustersWithSymptoms = clustererWithSymptoms.getClusters(
+        bounds,
+        zoom
+      );
+      const clustersWithoutSymptoms = clustererWithoutSymptoms.getClusters(
+        bounds,
+        zoom
+      );
 
       // Se zoom <= 8, criar um único cluster combinado
       // Clusters separados (com sintomas e sem sintomas) só existem a partir de zoom 9
@@ -227,7 +246,10 @@ export function ClusterMap() {
             },
             geometry: {
               type: 'Point' as const,
-              coordinates: [region.longitude, region.latitude] as [number, number],
+              coordinates: [region.longitude, region.latitude] as [
+                number,
+                number,
+              ],
             },
           };
 
@@ -294,7 +316,7 @@ export function ClusterMap() {
             // Calcular direção de repulsão
             const angle = Math.atan2(latDiff, lngDiff);
             const offsetAmount = clusterType !== otherType ? 0.0002 : 0.00012; // Offset maior para tipos diferentes
-            
+
             // Adicionar offset na direção oposta ao cluster próximo
             totalOffsetLng += Math.cos(angle + Math.PI) * offsetAmount;
             totalOffsetLat += Math.sin(angle + Math.PI) * offsetAmount;
@@ -329,7 +351,10 @@ export function ClusterMap() {
     }
   }, [region, clustererWithSymptoms, clustererWithoutSymptoms, pointsLoaded]);
 
-  const handleClusterPress = (cluster: ClusterFeature<any> | PointFeature<any>, clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined') => {
+  const handleClusterPress = (
+    cluster: ClusterFeature<any> | PointFeature<any>,
+    _clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined'
+  ) => {
     // Apenas logar o clique, sem dar zoom automático
     // O Callout já mostra as informações quando o usuário clica
     try {
@@ -344,7 +369,10 @@ export function ClusterMap() {
   };
 
   // Função para obter cor do cluster baseado no tipo
-  const getClusterColor = (clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined', hasSymptoms?: boolean) => {
+  const getClusterColor = (
+    clusterType?: 'withSymptoms' | 'withoutSymptoms' | 'combined',
+    hasSymptoms?: boolean
+  ) => {
     if (clusterType === 'combined') {
       return '#348eac'; // Azul para cluster combinado
     }
@@ -365,28 +393,31 @@ export function ClusterMap() {
         onRegionChangeComplete={setRegion}
       >
         {clusters.map((point: ClusterFeature<any> | PointFeature<any>) => {
-          const isCluster = 'cluster' in point.properties && point.properties.cluster === true;
+          const isCluster =
+            'cluster' in point.properties && point.properties.cluster === true;
           const coords = point.geometry.coordinates;
           const properties = point.properties;
           const clusterType = (properties as any).clusterType;
-          const hasSymptoms = (properties as any).hasSymptoms;
+          const _hasSymptoms = (properties as any).hasSymptoms;
 
           return (
             <Marker
-              key={isCluster 
-                ? `cluster-${clusterType}-${(properties as any).cluster_id}` 
-                : `marker-${properties.id}`
+              key={
+                isCluster
+                  ? `cluster-${clusterType}-${(properties as any).cluster_id}`
+                  : `marker-${properties.id}`
               }
               coordinate={{
                 latitude: coords[1],
                 longitude: coords[0],
               }}
               onPress={() => handleClusterPress(point, clusterType)}
-              title={isCluster 
-                ? clusterType === 'combined'
-                  ? `Total: ${(properties as any).point_count}`
-                  : `Cluster ${clusterType === 'withSymptoms' ? 'Sintomas' : 'Sem Sintomas'} (${(properties as any).point_count})`
-                : `Marcador ${properties.id}`
+              title={
+                isCluster
+                  ? clusterType === 'combined'
+                    ? `Total: ${(properties as any).point_count}`
+                    : `Cluster ${clusterType === 'withSymptoms' ? 'Sintomas' : 'Sem Sintomas'} (${(properties as any).point_count})`
+                  : `Marcador ${properties.id}`
               }
               description={
                 isCluster
@@ -394,8 +425,8 @@ export function ClusterMap() {
                     ? `🔴: ${(properties as any).withSymptoms || 0}🟢: ${(properties as any).withoutSymptoms || 0}`
                     : `Clique para expandir`
                   : (properties.symptom as string[])?.length > 0
-                  ? `Sintomas: ${(properties.symptom as string[]).join(', ')}`
-                  : 'Sem sintomas'
+                    ? `Sintomas: ${(properties.symptom as string[]).join(', ')}`
+                    : 'Sem sintomas'
               }
             >
               {isCluster && (
@@ -412,10 +443,10 @@ export function ClusterMap() {
                     padding: 2,
                   }}
                 >
-                  <Text 
-                    style={{ 
-                      color: '#fff', 
-                      fontWeight: 'bold', 
+                  <Text
+                    style={{
+                      color: '#fff',
+                      fontWeight: 'bold',
                       fontSize: 14,
                       textAlign: 'center',
                       includeFontPadding: false,
@@ -435,5 +466,3 @@ export function ClusterMap() {
     </View>
   );
 }
-
-

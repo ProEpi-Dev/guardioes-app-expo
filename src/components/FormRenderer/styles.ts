@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
@@ -97,6 +97,5 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#0D47A1',
     fontStyle: 'italic',
-  }
+  },
 });
-

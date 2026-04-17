@@ -5,12 +5,13 @@ import {
   Platform,
   Modal,
   View,
-  StyleSheet,
   Button,
   StyleProp,
   TextStyle,
 } from 'react-native';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 import { CustomDatePickerProps } from '../../types/customDatePicker';
 import { formatDate } from '../../utils/formatDate';
 import { styles } from './styles';
@@ -37,7 +38,10 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = (props) => {
     setPickerVisible(false);
   };
 
-  const handlePickerChange = (event: DateTimePickerEvent, selectedDate?: Date): void => {
+  const handlePickerChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date
+  ): void => {
     if (Platform.OS === 'android') {
       hidePicker();
       if (event.type === 'set' && selectedDate) {
@@ -56,7 +60,7 @@ export const CustomDatePicker: React.FC<CustomDatePickerProps> = (props) => {
   };
 
   const displayText: string = formatDate(date, placeholder);
-  
+
   const textStyle: StyleProp<TextStyle> = date
     ? customStyles.dateText
     : customStyles.placeholderText;

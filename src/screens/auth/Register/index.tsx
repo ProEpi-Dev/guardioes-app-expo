@@ -11,7 +11,7 @@ import {
   Touch,
   DarkButton,
   DarkButtonLabel,
-  SolidSelector
+  SolidSelector,
 } from '../../../components/SnowForms';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -33,10 +33,14 @@ export function Register({ navigation }: Props) {
   const {
     nameInput,
     passwordInput,
-    name, setName,
-    email, setEmail,
-    password, setPassword,
-    confirmPassword, setConfirmPassword,
+    name,
+    setName,
+    email,
+    setEmail,
+    password,
+    setPassword,
+    confirmPassword,
+    setConfirmPassword,
     setSelectedContextId,
     acceptedDocIds,
     contexts,
@@ -44,7 +48,7 @@ export function Register({ navigation }: Props) {
     isLoadingData,
     isRegistering,
     toggleDocument,
-    handleSubmit
+    handleSubmit,
   } = useRegister(navigation);
 
   const [docToRead, setDocToRead] = useState<any>(null);
@@ -57,18 +61,56 @@ export function Register({ navigation }: Props) {
   };
 
   return (
-    <GradientBackground colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}>
+    <GradientBackground
+      colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}
+    >
       <KeyboardScrollView>
         <View style={{ height: insets.top + 40, width: '100%' }} />
         <Logo source={GDSLogoBR} />
         <PageTitle>{translate('register.title')}</PageTitle>
 
         <FormSeparator>
-          <SolidInput placeholder={translate('register.name')} keyboardType='default' returnKeyType='next' maxLength={100} value={name} onChangeText={setName} onSubmitEditing={() => nameInput.current?.focus()} />
-          <SolidInput placeholder={translate('login.email')} keyboardType='email-address' returnKeyType='next' maxLength={100} value={email} onChangeText={setEmail} />
-          <SolidSelector data={contexts} placeholder={isLoadingData ? "Carregando..." : "Selecione o contexto"} initValue={null} onChange={(option: any) => setSelectedContextId(option.value)} />
-          <SolidInput placeholder={translate('login.password')} secureTextEntry maxLength={100} ref={passwordInput} value={password} onChangeText={setPassword} />
-          <SolidInput placeholder={"Confirme sua senha"} secureTextEntry maxLength={100} value={confirmPassword} onChangeText={setConfirmPassword} onSubmitEditing={handleSubmit} />
+          <SolidInput
+            placeholder={translate('register.name')}
+            keyboardType="default"
+            returnKeyType="next"
+            maxLength={100}
+            value={name}
+            onChangeText={setName}
+            onSubmitEditing={() => nameInput.current?.focus()}
+          />
+          <SolidInput
+            placeholder={translate('login.email')}
+            keyboardType="email-address"
+            returnKeyType="next"
+            maxLength={100}
+            value={email}
+            onChangeText={setEmail}
+          />
+          <SolidSelector
+            data={contexts}
+            placeholder={
+              isLoadingData ? 'Carregando...' : 'Selecione o contexto'
+            }
+            initValue={null}
+            onChange={(option: any) => setSelectedContextId(option.value)}
+          />
+          <SolidInput
+            placeholder={translate('login.password')}
+            secureTextEntry
+            maxLength={100}
+            ref={passwordInput}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <SolidInput
+            placeholder={'Confirme sua senha'}
+            secureTextEntry
+            maxLength={100}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+            onSubmitEditing={handleSubmit}
+          />
         </FormSeparator>
 
         <FormSeparator>
@@ -92,27 +134,31 @@ export function Register({ navigation }: Props) {
         <FormSeparator>
           <Touch onPress={handleSubmit} disabled={isRegistering}>
             <DarkButton>
-              {isRegistering ? <ActivityIndicator size="small" color="#ffffff" /> : <DarkButtonLabel>{translate('register.signupButton')}</DarkButtonLabel>}
+              {isRegistering ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <DarkButtonLabel>
+                  {translate('register.signupButton')}
+                </DarkButtonLabel>
+              )}
             </DarkButton>
           </Touch>
         </FormSeparator>
 
         <BackButtonContainer onPress={() => navigation.goBack()}>
-          <Feather name='chevron-left' size={24} color={branco} />
+          <Feather name="chevron-left" size={24} color={branco} />
           <BackButtonText>Voltar</BackButtonText>
         </BackButtonContainer>
 
         <View style={{ height: insets.bottom + 20, width: '100%' }} />
-
       </KeyboardScrollView>
 
-      <LegalDocumentModal 
+      <LegalDocumentModal
         visible={!!docToRead}
         document={docToRead}
         onClose={() => setDocToRead(null)}
         onAccept={handleAcceptDocument}
       />
-
     </GradientBackground>
   );
 }

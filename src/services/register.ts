@@ -1,11 +1,10 @@
-
 import { ContextOption, LegalDocument } from '../types/register';
 import { apiClient } from '../utils/api';
 
 export const getRegisterData = async () => {
   const [contextsResponse, documentsResponse] = await Promise.all([
     apiClient('/v1/contexts'),
-    apiClient('/v1/legal-documents/active')
+    apiClient('/v1/legal-documents/active'),
   ]);
 
   // Processar Contextos
@@ -15,7 +14,7 @@ export const getRegisterData = async () => {
     contexts = jsonContexts.map((ctx: any) => ({
       label: ctx.name,
       value: ctx.id,
-      key: String(ctx.id)
+      key: String(ctx.id),
     }));
   }
 

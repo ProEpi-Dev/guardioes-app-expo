@@ -1,24 +1,19 @@
 import React from 'react';
-import { View, Text, StatusBar, ActivityIndicator } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, ActivityIndicator } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
-import { 
-  ButtonBack, 
-  CustomSelector, 
-  DarkButton, 
-  DarkButtonLabel, 
-  FormSeparator, 
-  GradientBackground, 
-  KeyboardScrollView, 
-  Label, 
-  SnowButton, 
-  SnowInput, 
-  SolidInput, 
-  SolidSelector, 
-  Touch, 
-  UserEmail, 
+import {
+  DarkButton,
+  DarkButtonLabel,
+  FormSeparator,
+  GradientBackground,
+  KeyboardScrollView,
+  SolidInput,
+  SolidSelector,
+  Touch,
+  UserEmail,
   UserInfoCard,
-  UserName
+  UserName,
 } from '../../../components/SnowForms';
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
@@ -37,9 +32,12 @@ const branco = '#ffffff';
 export function FinishProfile() {
   const insets = useSafeAreaInsets();
   const {
-    selectedGenderId, setSelectedGenderId,
-    selectedLocationId, setSelectedLocationId,
-    externalIdentifier, setExternalIdentifier,
+    selectedGenderId,
+    setSelectedGenderId,
+    selectedLocationId,
+    setSelectedLocationId,
+    externalIdentifier,
+    setExternalIdentifier,
     genders,
     locations,
     isLoading,
@@ -48,7 +46,7 @@ export function FinishProfile() {
     identifierInputRef,
     navigation,
     name,
-    email
+    email,
   } = useFinishProfile();
 
   const LogoType = GDSLogoBR;
@@ -56,9 +54,13 @@ export function FinishProfile() {
   if (isLoading) {
     return (
       <GradientBackground colors={[azul, verde]}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
           <ActivityIndicator size="large" color={branco} />
-          <Text style={{ color: branco, marginTop: 10 }}>Verificando perfil...</Text>
+          <Text style={{ color: branco, marginTop: 10 }}>
+            Verificando perfil...
+          </Text>
         </View>
       </GradientBackground>
     );
@@ -66,14 +68,15 @@ export function FinishProfile() {
 
   return (
     <>
-      <GradientBackground colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}>
+      <GradientBackground
+        colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}
+      >
         <KeyboardScrollView>
           <View style={{ height: insets.top + 40, width: '100%' }} />
           <Logo source={LogoType} />
-          <PageTitle>Finalize seu perfil</PageTitle> 
+          <PageTitle>Finalize seu perfil</PageTitle>
 
           <FormSeparator>
-
             <UserInfoCard>
               <UserName>{name}</UserName>
               <UserEmail>{email}</UserEmail>
@@ -81,7 +84,7 @@ export function FinishProfile() {
 
             <SolidSelector
               data={genders}
-              placeholder={isLoading ? "Carregando..." : "Selecione o Gênero"}
+              placeholder={isLoading ? 'Carregando...' : 'Selecione o Sexo'}
               initValue={selectedGenderId}
               onChange={(option: any) => setSelectedGenderId(option.value)}
             />
@@ -95,7 +98,9 @@ export function FinishProfile() {
 
             <SolidSelector
               data={locations}
-              placeholder={isLoading ? "Carregando..." : "Selecione a Localidade"}
+              placeholder={
+                isLoading ? 'Carregando...' : 'Selecione a Localidade'
+              }
               initValue={selectedLocationId}
               onChange={(option: any) => setSelectedLocationId(option.value)}
             />
@@ -125,24 +130,27 @@ export function FinishProfile() {
               ref={identifierInputRef}
               onSubmitEditing={handleSubmit}
             /> */}
-            
-            <View style={{ 
-              flexDirection: 'row', 
-              alignItems: 'center',
-              width: '80%',}}
+
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                width: '80%',
+              }}
             >
               <AntDesign name="info-circle" size={24} color="#fff" />
-              <Text style={{ 
-                color: branco, 
-                fontSize: scale(12), 
-                marginLeft: scale(5), 
-                marginTop: scale(5),
-                opacity: 0.9 
-              }}>
+              <Text
+                style={{
+                  color: branco,
+                  fontSize: scale(12),
+                  marginLeft: scale(5),
+                  marginTop: scale(5),
+                  opacity: 0.9,
+                }}
+              >
                 Insira seu número de matrícula, CPF ou outro identificador
               </Text>
             </View>
-
           </FormSeparator>
 
           <FormSeparator>
@@ -151,21 +159,19 @@ export function FinishProfile() {
                 {isSubmitting ? (
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
-                  <DarkButtonLabel>{translate('register.signupButton')}</DarkButtonLabel>
+                  <DarkButtonLabel>
+                    {translate('register.signupButton')}
+                  </DarkButtonLabel>
                 )}
               </DarkButton>
             </Touch>
           </FormSeparator>
 
           <BackButtonContainer onPress={() => navigation.goBack()}>
-            <Feather
-              name='chevron-left'
-              size={24}
-              color={branco}
-            />
+            <Feather name="chevron-left" size={24} color={branco} />
             <BackButtonText>Voltar</BackButtonText>
           </BackButtonContainer>
-  
+
           <View style={{ height: insets.bottom + 20, width: '100%' }} />
         </KeyboardScrollView>
       </GradientBackground>

@@ -1,8 +1,6 @@
 import React from 'react';
 import { View, Text, Alert, TouchableOpacity, Linking } from 'react-native';
-import { 
-  DrawerContentScrollView,
-} from '@react-navigation/drawer';
+import { DrawerContentScrollView } from '@react-navigation/drawer';
 import FontAwesome5 from '@expo/vector-icons/FontAwesome5';
 import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
 import AntDesign from '@expo/vector-icons/AntDesign';
@@ -44,10 +42,11 @@ export default function CustomDrawerContent(props) {
   return (
     <DrawerContentScrollView {...props} contentContainerStyle={{ flexGrow: 1 }}>
       <View style={styles.userInfoSection}>
-        <Text style={styles.userName}>
-          {user?.name || 'Usuário'} 
-        </Text>
-        <TouchableOpacity style={styles.closeContainer} onPress={() => navigation.closeDrawer()}>
+        <Text style={styles.userName}>{user?.name || 'Usuário'}</Text>
+        <TouchableOpacity
+          style={styles.closeContainer}
+          onPress={() => navigation.closeDrawer()}
+        >
           <AntDesign name="close" size={24} color="black" />
         </TouchableOpacity>
       </View>
@@ -55,45 +54,47 @@ export default function CustomDrawerContent(props) {
       <View style={styles.separator} />
 
       <View style={styles.header}>
-
         <View style={styles.botao}>
-          <TouchableOpacity style={styles.actionButtonContainer} onPress={() => navigation.navigate('Inicio')}>
+          <TouchableOpacity
+            style={styles.actionButtonContainer}
+            onPress={() => navigation.navigate('Inicio')}
+          >
             <LinearGradient
               colors={[colors.azulClaro, colors.azulEscuro]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.actionButtonGradient}
             >
-                  <FontAwesome5 name="home" size={24} color={'white'} />
-                  <Text style={styles.actionButtonText}>
-                    Início
-                  </Text>
+              <FontAwesome5 name="home" size={24} color={'white'} />
+              <Text style={styles.actionButtonText}>Início</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButtonContainer} onPress={() => navigation.navigate('Perfil')}>
+          <TouchableOpacity
+            style={styles.actionButtonContainer}
+            onPress={() => navigation.navigate('Perfil')}
+          >
             <LinearGradient
               colors={[colors.azulClaro, colors.azulEscuro]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.actionButtonGradient}
             >
-                  <FontAwesome5 name="user-edit" size={24} color={'white'} />
-                  <Text style={styles.actionButtonText}>
-                    Perfil
-                  </Text>
+              <FontAwesome5 name="user-edit" size={24} color={'white'} />
+              <Text style={styles.actionButtonText}>Perfil</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButtonContainer} onPress={handleLogout}>
+          <TouchableOpacity
+            style={styles.actionButtonContainer}
+            onPress={handleLogout}
+          >
             <LinearGradient
               colors={[colors.azulClaro, colors.azulEscuro]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
               style={styles.actionButtonGradient}
             >
-                  <Entypo name="log-out" size={24} color={'white'} />
-                  <Text style={styles.actionButtonText}>
-                    Sair
-                  </Text>
+              <Entypo name="log-out" size={24} color={'white'} />
+              <Text style={styles.actionButtonText}>Sair</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -124,9 +125,16 @@ export default function CustomDrawerContent(props) {
       /> */}
 
       <View style={styles.socialContainer}>
-        <TouchableOpacity onPress={() => Linking.openURL('https://www.instagram.com/guardioesdasaudeunb/')}>
+        <TouchableOpacity
+          onPress={() =>
+            Linking.openURL('https://www.instagram.com/guardioesdasaudeunb/')
+          }
+        >
           <LinearGradient
-            colors={[colors.gradientSocialLinkEscuro, colors.gradientSocialLinkClaro]}
+            colors={[
+              colors.gradientSocialLinkEscuro,
+              colors.gradientSocialLinkClaro,
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={styles.redeSocial}
@@ -135,9 +143,14 @@ export default function CustomDrawerContent(props) {
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => Linking.openURL('https://x.com/guardioesunb')}>
+        <TouchableOpacity
+          onPress={() => Linking.openURL('https://x.com/guardioesunb')}
+        >
           <LinearGradient
-            colors={[colors.gradientSocialLinkEscuro, colors.gradientSocialLinkClaro]}
+            colors={[
+              colors.gradientSocialLinkEscuro,
+              colors.gradientSocialLinkClaro,
+            ]}
             start={{ x: 0, y: 0 }}
             end={{ x: 0, y: 1 }}
             style={styles.redeSocial}

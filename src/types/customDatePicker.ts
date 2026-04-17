@@ -10,7 +10,7 @@ export interface CustomDatePickerProps {
   date?: Date | null;
   onDateChange: (date: Date) => void;
   placeholder?: string;
-  style?: StyleProp<ViewStyle>; 
+  style?: StyleProp<ViewStyle>;
   customStyles?: CustomStyles;
   androidMode?: 'spinner' | 'calendar' | 'default' | 'clock';
 }

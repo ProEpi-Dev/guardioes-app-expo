@@ -1,17 +1,17 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../../utils/scalling";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../../utils/scalling';
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F5F5F5' },
   scrollContent: { padding: 20, paddingBottom: 100 },
-  
+
   detailsTitle: {
     fontSize: scale(16),
     fontWeight: 'bold',
     color: '#666',
     marginBottom: 10,
     marginLeft: 4,
-    textAlign: 'center'
+    textAlign: 'center',
   },
 
   buttonContainer: {

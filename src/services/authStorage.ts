@@ -3,6 +3,7 @@ import { User } from '../types/auth';
 
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'user_data';
+const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
 // Armazenar token
 export const storeToken = async (token: string): Promise<boolean> => {
@@ -11,6 +12,35 @@ export const storeToken = async (token: string): Promise<boolean> => {
     return true;
   } catch (error) {
     console.error('Erro ao armazenar token:', error);
+    return false;
+  }
+};
+
+export const storeRefreshToken = async (token: string): Promise<boolean> => {
+  try {
+    await AsyncStorage.setItem(REFRESH_TOKEN_KEY, token);
+    return true;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+};
+
+export const getRefreshToken = async (): Promise<string | null> => {
+  try {
+    return await AsyncStorage.getItem(REFRESH_TOKEN_KEY);
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
+export const removeRefreshToken = async (): Promise<boolean> => {
+  try {
+    await AsyncStorage.removeItem(REFRESH_TOKEN_KEY);
+    return true;
+  } catch (error) {
+    console.log(error);
     return false;
   }
 };
@@ -72,7 +102,7 @@ export const removeUser = async (): Promise<boolean> => {
 
 // Limpar todos os dados de autenticação
 export const clearAuthData = async (): Promise<void> => {
-  await Promise.all([removeToken(), removeUser()]);
+  await Promise.all([removeToken(), removeRefreshToken(), removeUser()]);
 };
 
 // Função para decodificar base64 no React Native (substitui atob)
@@ -82,31 +112,33 @@ const base64Decode = (str: string): string => {
     if (typeof Buffer !== 'undefined') {
       return Buffer.from(str, 'base64').toString('utf-8');
     }
-    
+
     // Fallback: usar implementação manual de base64
     // Substituir caracteres base64url para base64 padrão
     const base64 = str.replace(/-/g, '+').replace(/_/g, '/');
     // Adicionar padding se necessário
     const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
-    
+
     // Decodificar manualmente
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
     let result = '';
     let i = 0;
-    
+
     while (i < padded.length) {
       const encoded1 = chars.indexOf(padded.charAt(i++));
       const encoded2 = chars.indexOf(padded.charAt(i++));
       const encoded3 = chars.indexOf(padded.charAt(i++));
       const encoded4 = chars.indexOf(padded.charAt(i++));
-      
-      const bitmap = (encoded1 << 18) | (encoded2 << 12) | (encoded3 << 6) | encoded4;
-      
+
+      const bitmap =
+        (encoded1 << 18) | (encoded2 << 12) | (encoded3 << 6) | encoded4;
+
       result += String.fromCharCode((bitmap >> 16) & 255);
       if (encoded3 !== 64) result += String.fromCharCode((bitmap >> 8) & 255);
       if (encoded4 !== 64) result += String.fromCharCode(bitmap & 255);
     }
-    
+
     return result;
   } catch (error) {
     console.error('Erro ao decodificar base64:', error);
@@ -135,7 +167,10 @@ export const decodeJWT = (token: string): any => {
 };
 
 // Verificar se o token tem mais de X minutos de validade
-export const isTokenValid = (token: string, minMinutesRemaining: number = 5): boolean => {
+export const isTokenValid = (
+  token: string,
+  minMinutesRemaining: number = 5
+): boolean => {
   try {
     const decoded = decodeJWT(token);
     if (!decoded || !decoded.exp) {
@@ -162,6 +197,3 @@ export const isTokenValid = (token: string, minMinutesRemaining: number = 5): bo
     return false;
   }
 };
-
-
-

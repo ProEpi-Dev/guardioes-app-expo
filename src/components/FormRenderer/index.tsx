@@ -7,23 +7,26 @@ import { FormRendererProps } from '../../types/formRenderer';
 
 export const FormRenderer: React.FC<FormRendererProps> = (props) => {
   const { definition, readOnly = false } = props;
-  const { 
-    values, 
-    errors, 
-    visibleFields, 
-    updateValue 
-  } = useForm(props);
+  const { values, errors, visibleFields, updateValue } = useForm(props);
 
   return (
     <>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
-      <ScrollView 
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle="dark-content"
+      />
+      <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
         showsVerticalScrollIndicator={true}
       >
-        {definition.title && <Text style={styles.title}>{definition.title}</Text>}
-        {definition.description && <Text style={styles.description}>{definition.description}</Text>}
+        {definition.title && (
+          <Text style={styles.title}>{definition.title}</Text>
+        )}
+        {definition.description && (
+          <Text style={styles.description}>{definition.description}</Text>
+        )}
 
         {visibleFields.map((field) => (
           <FieldFactory

@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../utils/scalling";
-import { colors } from "../../utils/colors";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../utils/scalling';
+import { colors } from '../../utils/colors';
 
 export const styles = StyleSheet.create({
   headerResult: {
@@ -15,12 +15,12 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
-  quizTitle: { 
-    fontSize: scale(18), 
-    fontWeight: '500', 
-    color: colors.secundaria, 
-    marginBottom: 20, 
-    textAlign: 'center' 
+  quizTitle: {
+    fontSize: scale(18),
+    fontWeight: '500',
+    color: colors.secundaria,
+    marginBottom: 20,
+    textAlign: 'center',
   },
   scoreCircle: {
     width: 130,
@@ -33,7 +33,7 @@ export const styles = StyleSheet.create({
   },
   scoreValue: { fontSize: scale(28), fontWeight: 'bold' },
   scoreLabel: { fontSize: scale(13), color: '#888', marginTop: 4 },
-  
+
   statusButtonContainer: {
     paddingHorizontal: 40,
     paddingVertical: 10,
@@ -47,5 +47,5 @@ export const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: scale(14),
-  }
+  },
 });

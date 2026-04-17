@@ -10,7 +10,7 @@ try {
   // dotenv not installed; rely on process.env from EAS or shell
 }
 
-const IS_EAS = !!process.env.EAS_BUILD;
+const _IS_EAS = !!process.env.EAS_BUILD;
 
 // Resolve current environment
 function getEnvironment() {
@@ -40,7 +40,7 @@ module.exports = ({ config }) => {
     expo: {
       name: 'Guardiões da Saúde',
       slug: 'guardioes-expo',
-      version: '4.0.0',
+      version: '4.1.1',
       orientation: 'portrait',
       icon: './assets/514x514_ícone_gs.jpg',
       userInterfaceStyle: 'light',
@@ -63,6 +63,7 @@ module.exports = ({ config }) => {
           NSLocationWhenInUseUsageDescription:
             'Precisamos da sua localização para mostrar sua posição no mapa.',
           ITSAppUsesNonExemptEncryption: false,
+          UIBackgroundModes: ['remote-notification', 'fetch'],
         },
       },
       android: {

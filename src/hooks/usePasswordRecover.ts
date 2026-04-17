@@ -5,7 +5,7 @@ import { forgotPassword } from '../services/passwordRecover';
 
 export const usePasswordRecover = () => {
   const navigation = useNavigation<any>();
-  
+
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -13,22 +13,22 @@ export const usePasswordRecover = () => {
     Keyboard.dismiss();
 
     if (!email.trim()) {
-      Alert.alert("Erro", "Por favor, insira seu e-mail.");
+      Alert.alert('Erro', 'Por favor, insira seu e-mail.');
       return;
     }
 
     setLoading(true);
     try {
       await forgotPassword(email);
-      
+
       Alert.alert(
-        "Sucesso",
-        "Verifique o seu email para recuperar a senha",
-        [{ text: "OK", onPress: () => navigation.navigate('Login') }]
+        'Recuperação de Senha',
+        'Se o email informado estiver cadastrado, você receberá o email para redefinição de senha',
+        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
       );
     } catch (error) {
       console.error(error);
-      Alert.alert("Erro", "Ocorreu uma falha ao processar a solicitação.");
+      Alert.alert('Erro', 'Ocorreu uma falha ao processar a solicitação.');
     } finally {
       setLoading(false);
     }
@@ -39,6 +39,6 @@ export const usePasswordRecover = () => {
     setEmail,
     loading,
     handleSubmit,
-    navigation // Retornamos navigation para o botão de voltar
+    navigation, // Retornamos navigation para o botão de voltar
   };
 };

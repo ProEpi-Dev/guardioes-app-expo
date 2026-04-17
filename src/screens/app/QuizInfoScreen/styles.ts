@@ -1,18 +1,18 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../../utils/scalling";
-import { colors } from "../../../utils/colors";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../../utils/scalling';
+import { colors } from '../../../utils/colors';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8F9FA', 
+    backgroundColor: '#F8F9FA',
   },
   scrollContent: {
     padding: 20,
     flexGrow: 1,
     alignItems: 'center',
   },
-  
+
   headerTitles: {
     alignItems: 'center',
     marginBottom: 20,
@@ -27,7 +27,7 @@ export const styles = StyleSheet.create({
   separator: {
     width: 150,
     height: 1,
-    backgroundColor: '#D1D5DB', 
+    backgroundColor: '#D1D5DB',
     marginVertical: 10,
   },
   evaluationTitle: {
@@ -53,7 +53,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     marginBottom: 16,
-    gap: 8
+    gap: 8,
   },
   sectionTitle: {
     fontSize: scale(18),
@@ -101,7 +101,7 @@ export const styles = StyleSheet.create({
   attemptNumber: {
     fontSize: scale(28),
     fontWeight: 'bold',
-    color: '#FFA000', 
+    color: '#FFA000',
     marginVertical: 2,
   },
   attemptSub: {
@@ -112,7 +112,7 @@ export const styles = StyleSheet.create({
   footer: {
     width: '100%',
     flexDirection: 'column',
-    gap: 16, 
+    gap: 16,
   },
   secondaryButton: {
     width: '100%',
@@ -129,7 +129,7 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: scale(15),
   },
-  
+
   primaryButtonContainer: {
     width: '100%',
     borderRadius: 30,

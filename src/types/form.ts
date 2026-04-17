@@ -1,14 +1,21 @@
 // Tipos para formulários dinâmicos
 
-export type FieldType = 'text' | 'number' | 'boolean' | 'select' | 'radio' | 'multiselect' | 'date';
+export type FieldType =
+  | 'text'
+  | 'number'
+  | 'boolean'
+  | 'select'
+  | 'radio'
+  | 'multiselect'
+  | 'date';
 
-export type ConditionOperator = 
-  | 'equals' 
-  | 'notEquals' 
-  | 'contains' 
-  | 'greaterThan' 
-  | 'lessThan' 
-  | 'isEmpty' 
+export type ConditionOperator =
+  | 'equals'
+  | 'notEquals'
+  | 'contains'
+  | 'greaterThan'
+  | 'lessThan'
+  | 'isEmpty'
   | 'isNotEmpty';
 
 export interface FieldOption {
@@ -60,4 +67,3 @@ export interface FormVersion {
   participationId: number;
   passingScore?: number | null;
 }
-

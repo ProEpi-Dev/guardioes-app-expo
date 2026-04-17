@@ -7,10 +7,15 @@ export interface StreakParams {
   endDate?: string;
 }
 
-export const getReportStreaks = async ({ contextId, participationId, startDate, endDate }: StreakParams) => {
+export const getReportStreaks = async ({
+  contextId,
+  participationId,
+  startDate,
+  endDate,
+}: StreakParams) => {
   try {
     const params = new URLSearchParams();
-    
+
     if (startDate) params.append('startDate', startDate);
     if (endDate) params.append('endDate', endDate);
 

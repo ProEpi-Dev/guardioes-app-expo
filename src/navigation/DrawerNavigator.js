@@ -1,10 +1,9 @@
 import React from 'react';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import { View, useWindowDimensions } from 'react-native';
+import { View } from 'react-native';
 import CustomDrawerContent from '../components/CustomDrawerContent';
-import { ClusterMap } from '../screens/app/ClusterMap';
-import { BottomNavigation } from './BottomNavigator'
-import QuizStack from './QuizStack'
+import { BottomNavigation } from './BottomNavigator';
+import QuizStack from './QuizStack';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import ProfileStack from './ProfileStack';
 
@@ -19,16 +18,12 @@ export default function DrawerNavigator() {
         headerTitle: '',
         headerTransparent: true,
         drawerType: 'front',
-        headerTintColor: '#000'
+        headerTintColor: '#000',
       }}
-      
     >
-      <Drawer.Screen 
-        name="Inicio" 
-        component={BottomNavigation}
-      />
-      <Drawer.Screen 
-        name="Perfil" 
+      <Drawer.Screen name="Inicio" component={BottomNavigation} />
+      <Drawer.Screen
+        name="Perfil"
         component={ProfileStack}
         options={{ headerShown: false }}
       />
@@ -43,10 +38,10 @@ export default function DrawerNavigator() {
           headerRight: () => <View />,
         }}
       /> */}
-      
-      <Drawer.Screen 
-        name="Quizz" 
-        component={QuizStack} 
+
+      <Drawer.Screen
+        name="Quizz"
+        component={QuizStack}
         options={({ route }) => {
           const routeName = getFocusedRouteNameFromRoute(route) ?? 'Home';
           const shouldShowHeader = routeName === 'Home';
@@ -56,7 +51,7 @@ export default function DrawerNavigator() {
             headerShown: shouldShowHeader,
             headerTitleAlign: 'center',
             headerRight: () => <View />,
-             headerTransparent: true, 
+            headerTransparent: true,
           };
         }}
       />

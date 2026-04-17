@@ -11,46 +11,61 @@ interface QuestionReviewCardProps {
   index: number;
 }
 
-export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question, userAnswer, index }) => {
+export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({
+  question,
+  userAnswer,
+  index,
+}) => {
   const qAny = question as any;
   const correctAnswer = qAny.correctAnswer;
-  const hasCorrectAnswer = correctAnswer !== undefined && correctAnswer !== null;
+  const hasCorrectAnswer =
+    correctAnswer !== undefined && correctAnswer !== null;
 
   const isCorrect = hasCorrectAnswer
     ? normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer)
-    : true; 
+    : true;
 
-  const selectedOption = qAny.options?.find((opt: any) => 
-    normalizeAnswer(opt.value) === normalizeAnswer(userAnswer)
+  const selectedOption = qAny.options?.find(
+    (opt: any) => normalizeAnswer(opt.value) === normalizeAnswer(userAnswer)
   );
 
   let feedbackText = selectedOption?.feedback;
   if (!feedbackText) {
-    feedbackText = isCorrect ? qAny.feedback?.correct : qAny.feedback?.incorrect;
+    feedbackText = isCorrect
+      ? qAny.feedback?.correct
+      : qAny.feedback?.incorrect;
   }
 
-  const answerLabel = selectedOption ? selectedOption.label : String(userAnswer || 'Sem resposta');
+  const answerLabel = selectedOption
+    ? selectedOption.label
+    : String(userAnswer || 'Sem resposta');
 
-  const correctAnswerLabel = !isCorrect && hasCorrectAnswer
-    ? qAny.options?.find((o: any) => normalizeAnswer(o.value) === normalizeAnswer(correctAnswer))?.label || correctAnswer
-    : '';
+  const correctAnswerLabel =
+    !isCorrect && hasCorrectAnswer
+      ? qAny.options?.find(
+          (o: any) =>
+            normalizeAnswer(o.value) === normalizeAnswer(correctAnswer)
+        )?.label || correctAnswer
+      : '';
 
   const statusColor = isCorrect ? '#4CAF50' : '#D32F2F';
 
   return (
-    <View style={[
-        styles.questionCard, 
-        { borderColor: statusColor, shadowColor: statusColor }
-    ]}>
+    <View
+      style={[
+        styles.questionCard,
+        { borderColor: statusColor, shadowColor: statusColor },
+      ]}
+    >
       <View style={styles.questionHeader}>
         <Text style={styles.questionIndex}>Questão {index + 1}</Text>
-        <Feather 
-          name={isCorrect ? "check-circle" : "x-circle"} 
-          size={20} 
-          color={statusColor} 
+        <Feather
+          name={isCorrect ? 'check-circle' : 'x-circle'}
+          size={20}
+          color={statusColor}
         />
       </View>
-      
+
       <Text style={styles.questionTitle}>{question.label}</Text>
 
       <View style={styles.answerContainer}>
@@ -63,15 +78,25 @@ export const QuestionReviewCard: React.FC<QuestionReviewCardProps> = ({ question
       {!isCorrect && hasCorrectAnswer && (
         <View style={styles.answerContainer}>
           <Text style={styles.label}>Resposta correta:</Text>
-          <Text style={[styles.answerText, { color: "#4CAF50" }]}>
+          <Text style={[styles.answerText, { color: '#4CAF50' }]}>
             {correctAnswerLabel}
           </Text>
         </View>
       )}
 
       {feedbackText && (
-        <View style={[styles.feedbackBox, { backgroundColor: isCorrect ? '#E8F5E9' : '#FFEBEE' }]}>
-          <Text style={[styles.feedbackText, { color: isCorrect ? "#2E7D32" : "#C62828" }]}>
+        <View
+          style={[
+            styles.feedbackBox,
+            { backgroundColor: isCorrect ? '#E8F5E9' : '#FFEBEE' },
+          ]}
+        >
+          <Text
+            style={[
+              styles.feedbackText,
+              { color: isCorrect ? '#2E7D32' : '#C62828' },
+            ]}
+          >
             {feedbackText}
           </Text>
         </View>

@@ -14,7 +14,11 @@ export const useQuizNavigation = () => {
       return;
     }
 
-    if (item.maxAttempts && item.attemptNumber && item.attemptNumber >= item.maxAttempts) {
+    if (
+      item.maxAttempts &&
+      item.attemptNumber &&
+      item.attemptNumber >= item.maxAttempts
+    ) {
       Alert.alert(
         'Tentativas Esgotadas',
         `Você atingiu o limite de tentativas.\n\nNota: ${item.score}\nSituação: Reprovado\nTentativas: ${item.attemptNumber}/${item.maxAttempts}`
@@ -22,13 +26,13 @@ export const useQuizNavigation = () => {
       return;
     }
 
-    navigation.navigate('QuizzInfoScreen', { 
+    navigation.navigate('QuizzInfoScreen', {
       quizId: item.id,
       title: item.title,
       currentAttempt: (item.attemptNumber || 0) + 1,
       linkedArticle: item.linkedArticle,
       maxAttempts: item.maxAttempts,
-      timeLimitMinutes: item.timeLimitMinutes
+      timeLimitMinutes: item.timeLimitMinutes,
     });
   };
 

@@ -22,34 +22,34 @@ interface FormBuilderDefinition {
 
 ```typescript
 interface FormField {
-  id: string;                    // ID único do campo (usado para condições)
-  type: FieldType;                // Tipo do campo
-  label: string;                  // Rótulo exibido ao usuário
-  name: string;                   // Nome do campo (chave no objeto de valores)
-  required?: boolean;              // Se o campo é obrigatório
-  placeholder?: string;           // Texto de placeholder
-  defaultValue?: any;            // Valor padrão do campo
-  
+  id: string; // ID único do campo (usado para condições)
+  type: FieldType; // Tipo do campo
+  label: string; // Rótulo exibido ao usuário
+  name: string; // Nome do campo (chave no objeto de valores)
+  required?: boolean; // Se o campo é obrigatório
+  placeholder?: string; // Texto de placeholder
+  defaultValue?: any; // Valor padrão do campo
+
   // Para campos select e multiselect
   options?: Array<{
-    label: string;                // Rótulo da opção
-    value: string | number;        // Valor da opção
+    label: string; // Rótulo da opção
+    value: string | number; // Valor da opção
   }>;
-  
+
   // Para campos number
-  min?: number;                   // Valor mínimo
-  max?: number;                   // Valor máximo
-  
+  min?: number; // Valor mínimo
+  max?: number; // Valor máximo
+
   // Para campos text
-  maxLength?: number;             // Comprimento máximo
-  
+  maxLength?: number; // Comprimento máximo
+
   // Condições de exibição (campos condicionais)
   conditions?: FieldCondition[];
-  
+
   // Validações customizadas (futuro)
   validation?: {
-    pattern?: string;             // Regex pattern
-    message?: string;             // Mensagem de erro customizada
+    pattern?: string; // Regex pattern
+    message?: string; // Mensagem de erro customizada
   };
 }
 ```
@@ -57,12 +57,15 @@ interface FormField {
 ## Tipos de Campos Suportados
 
 ### 1. Text (`'text'`)
+
 Campo de texto simples.
 
 **Propriedades específicas:**
+
 - `maxLength?: number` - Limite máximo de caracteres
 
 **Exemplo:**
+
 ```json
 {
   "id": "field-1",
@@ -76,18 +79,22 @@ Campo de texto simples.
 ```
 
 **Comportamento:**
+
 - Aceita qualquer texto
 - Valida comprimento máximo se `maxLength` estiver definido
 - Valida obrigatoriedade se `required: true`
 
 ### 2. Number (`'number'`)
+
 Campo numérico.
 
 **Propriedades específicas:**
+
 - `min?: number` - Valor mínimo permitido
 - `max?: number` - Valor máximo permitido
 
 **Exemplo:**
+
 ```json
 {
   "id": "field-2",
@@ -102,15 +109,18 @@ Campo numérico.
 ```
 
 **Comportamento:**
+
 - Aceita apenas números
 - Valida valores mínimo e máximo se definidos
 - Retorna `null` se o campo estiver vazio
 - Valida obrigatoriedade se `required: true`
 
 ### 3. Boolean (`'boolean'`)
+
 Checkbox (verdadeiro/falso).
 
 **Exemplo:**
+
 ```json
 {
   "id": "field-3",
@@ -122,17 +132,21 @@ Checkbox (verdadeiro/falso).
 ```
 
 **Comportamento:**
+
 - Retorna `true` ou `false`
 - Valor padrão é `false` se não preenchido
 - Valida obrigatoriedade se `required: true` (deve ser `true`)
 
 ### 4. Select (`'select'`)
+
 Dropdown de seleção única.
 
 **Propriedades específicas:**
+
 - `options: Array<{label: string, value: string | number}>` - Lista de opções
 
 **Exemplo:**
+
 ```json
 {
   "id": "field-4",
@@ -149,17 +163,21 @@ Dropdown de seleção única.
 ```
 
 **Comportamento:**
+
 - Permite selecionar apenas uma opção
 - Retorna o `value` da opção selecionada
 - Valida obrigatoriedade se `required: true`
 
 ### 5. Multiselect (`'multiselect'`)
+
 Dropdown de seleção múltipla.
 
 **Propriedades específicas:**
+
 - `options: Array<{label: string, value: string | number}>` - Lista de opções
 
 **Exemplo:**
+
 ```json
 {
   "id": "field-5",
@@ -176,6 +194,7 @@ Dropdown de seleção múltipla.
 ```
 
 **Comportamento:**
+
 - Permite selecionar múltiplas opções
 - Retorna um array com os `value` das opções selecionadas
 - Retorna array vazio `[]` se nenhuma opção for selecionada
@@ -189,23 +208,23 @@ Campos podem ser exibidos condicionalmente baseado nos valores de outros campos.
 
 ```typescript
 interface FieldCondition {
-  fieldId: string;              // ID do campo que será verificado
-  operator: ConditionOperator;   // Operador de comparação
-  value: any;                    // Valor de comparação
+  fieldId: string; // ID do campo que será verificado
+  operator: ConditionOperator; // Operador de comparação
+  value: any; // Valor de comparação
 }
 ```
 
 ### Operadores Disponíveis
 
-| Operador | Descrição | Exemplo |
-|----------|-----------|---------|
-| `equals` | Igual a | `fieldId === value` |
-| `notEquals` | Diferente de | `fieldId !== value` |
-| `contains` | Contém (string) | `String(fieldId).includes(String(value))` |
-| `greaterThan` | Maior que | `Number(fieldId) > Number(value)` |
-| `lessThan` | Menor que | `Number(fieldId) < Number(value)` |
-| `isEmpty` | Está vazio | `!fieldId \|\| fieldId === '' \|\| (Array.isArray(fieldId) && fieldId.length === 0)` |
-| `isNotEmpty` | Não está vazio | `fieldId && fieldId !== '' && (!Array.isArray(fieldId) \|\| fieldId.length > 0)` |
+| Operador      | Descrição       | Exemplo                                                                              |
+| ------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `equals`      | Igual a         | `fieldId === value`                                                                  |
+| `notEquals`   | Diferente de    | `fieldId !== value`                                                                  |
+| `contains`    | Contém (string) | `String(fieldId).includes(String(value))`                                            |
+| `greaterThan` | Maior que       | `Number(fieldId) > Number(value)`                                                    |
+| `lessThan`    | Menor que       | `Number(fieldId) < Number(value)`                                                    |
+| `isEmpty`     | Está vazio      | `!fieldId \|\| fieldId === '' \|\| (Array.isArray(fieldId) && fieldId.length === 0)` |
+| `isNotEmpty`  | Não está vazio  | `fieldId && fieldId !== '' && (!Array.isArray(fieldId) \|\| fieldId.length > 0)`     |
 
 ### Lógica de Avaliação
 
@@ -279,10 +298,10 @@ O componente `FormRenderer` retorna um objeto de valores com uma propriedade esp
 
 ```typescript
 interface FormRendererProps {
-  definition: FormBuilderDefinition;        // Definição do formulário
-  initialValues?: Record<string, any>;       // Valores iniciais (opcional)
-  onChange?: (values: Record<string, any>) => void;  // Callback de mudanças
-  readOnly?: boolean;                        // Modo somente leitura (opcional)
+  definition: FormBuilderDefinition; // Definição do formulário
+  initialValues?: Record<string, any>; // Valores iniciais (opcional)
+  onChange?: (values: Record<string, any>) => void; // Callback de mudanças
+  readOnly?: boolean; // Modo somente leitura (opcional)
 }
 ```
 
@@ -293,7 +312,7 @@ import FormRenderer from './components/FormRenderer';
 
 function MyForm() {
   const [formValues, setFormValues] = useState({});
-  
+
   const definition = {
     fields: [
       {
@@ -387,6 +406,7 @@ A definição vem do backend na propriedade `definition` de uma versão de formu
 ### 3. Coletar Dados
 
 O callback `onChange` é chamado sempre que qualquer campo muda. O objeto retornado contém:
+
 - Todos os valores dos campos (usando `name` como chave)
 - Propriedade `_isValid` indicando se o formulário está válido
 
@@ -397,12 +417,12 @@ Antes de enviar, remova `_isValid`:
 ```typescript
 const handleSubmit = () => {
   const { _isValid, ...cleanFormResponse } = formValues;
-  
+
   if (!_isValid) {
     alert('Preencha todos os campos obrigatórios');
     return;
   }
-  
+
   // Enviar cleanFormResponse para o backend
   api.createReport({
     formResponse: cleanFormResponse,
@@ -536,4 +556,3 @@ const handleSubmit = () => {
 - O sistema de condições permite criar formulários complexos e dinâmicos
 - A validação é client-side; o backend também deve validar os dados recebidos
 - O campo `_isValid` é uma convenção do frontend e não deve ser enviado ao backend
-

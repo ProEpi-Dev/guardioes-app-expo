@@ -1,8 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, ActivityIndicator, TextInput, Alert, StyleSheet, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  ActivityIndicator,
+  TextInput,
+  Alert,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { updatePassword } from '../../services/finishProfile';
 import { percentage } from '../../utils/scalling';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   visible: boolean;
@@ -11,12 +22,14 @@ interface Props {
 }
 
 export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
-  const [loading, setLoading] = useState(false);
+  const [loading, _setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  
+
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
+
+  const insets = useSafeAreaInsets();
 
   const handleSave = async () => {
     if (!currentPassword || !password || !confirmPassword) {
@@ -25,14 +38,14 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
     }
 
     if (password !== confirmPassword) {
-        Alert.alert('Atenção', 'A nova senha e a confirmação devem ser iguais.');
-        return;
+      Alert.alert('Atenção', 'A nova senha e a confirmação devem ser iguais.');
+      return;
     }
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
     if (!passwordRegex.test(password)) {
       Alert.alert(
-        'Senha inválida', 
+        'Senha inválida',
         'A nova senha deve ter no mínimo 8 caracteres, contendo pelo menos uma letra minúscula, uma maiúscula e um número.'
       );
       return;
@@ -44,7 +57,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
         currentPassword: currentPassword,
         newPassword: password,
       });
-      
+
       Alert.alert('Senha atualizada');
       onSuccess();
       onClose();
@@ -66,7 +79,7 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
 
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose}>
-      <View style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose}>
             <Feather name="x" size={24} color="#000" />
@@ -76,10 +89,13 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
         </View>
 
         {loading ? (
-          <ActivityIndicator size="large" color="#0000ff" style={{ marginTop: 50 }} />
+          <ActivityIndicator
+            size="large"
+            color="#0000ff"
+            style={{ marginTop: 50 }}
+          />
         ) : (
           <ScrollView contentContainerStyle={styles.content}>
-
             <Text style={styles.label}>Senha Atual</Text>
             <TextInput
               style={styles.input}
@@ -102,10 +118,17 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
               placeholder="Confirme sua senha"
             />
 
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave} disabled={saving}>
-              {saving ? <ActivityIndicator color="#FFF" /> : <Text style={styles.saveText}>Alterar senha</Text>}
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={handleSave}
+              disabled={saving}
+            >
+              {saving ? (
+                <ActivityIndicator color="#FFF" />
+              ) : (
+                <Text style={styles.saveText}>Alterar senha</Text>
+              )}
             </TouchableOpacity>
-
           </ScrollView>
         )}
       </View>
@@ -115,11 +138,37 @@ export function ChangePasswordModal({ visible, onClose, onSuccess }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20, borderBottomWidth: 1, borderBottomColor: '#eee' },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
   title: { fontSize: 18, fontWeight: 'bold' },
   content: { padding: 20 },
-  label: { fontSize: 16, color: '#333', marginBottom: 0, marginTop: 16, fontWeight: '500' },
-  input: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 16, marginTop: percentage(4) },
-  saveButton: { backgroundColor: '#348eac', padding: 16, borderRadius: 8, alignItems: 'center', marginTop: 32 },
-  saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
+  label: {
+    fontSize: 16,
+    color: '#333',
+    marginBottom: 0,
+    marginTop: 16,
+    fontWeight: '500',
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    marginTop: percentage(4),
+  },
+  saveButton: {
+    backgroundColor: '#348eac',
+    padding: 16,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 32,
+  },
+  saveText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });

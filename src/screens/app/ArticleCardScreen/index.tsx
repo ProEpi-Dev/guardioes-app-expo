@@ -1,5 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { FlatList, View, ActivityIndicator, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import {
+  FlatList,
+  View,
+  ActivityIndicator,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ArticleCard from '../../../components/ArticleCard';
 import { RootStackParamList, Article } from '../../../types/article';
@@ -17,7 +23,14 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function ArticleListScreen({ navigation }: Props) {
   const { user } = useAuth();
-  const { articles, contentTypes, isLoading, isRefreshing, handleRefresh, error } = useArticles();
+  const {
+    articles,
+    contentTypes,
+    isLoading,
+    isRefreshing,
+    handleRefresh,
+    error,
+  } = useArticles();
 
   const insets = useSafeAreaInsets();
   const bottomBarHeight = 60 + insets.bottom;
@@ -29,29 +42,34 @@ export default function ArticleListScreen({ navigation }: Props) {
     if (selectedFilters.length === 0) {
       return articles;
     }
-    return articles.filter(article => 
-      article.content_type && selectedFilters.includes(article.content_type.id)
+    return articles.filter(
+      (article) =>
+        article.content_type &&
+        selectedFilters.includes(article.content_type.id)
     );
   }, [articles, selectedFilters]);
 
   const toggleFilter = (id: number) => {
-    setSelectedFilters(prev => 
-      prev.includes(id) 
-        ? prev.filter(filterId => filterId !== id)
+    setSelectedFilters((prev) =>
+      prev.includes(id)
+        ? prev.filter((filterId) => filterId !== id)
         : [...prev, id]
     );
   };
 
   const clearFilters = () => setSelectedFilters([]);
 
-  const renderItem = useCallback(({ item }: { item: Article }) => (
-    <ArticleCard
-      title={item.title}
-      summary={item.summary}
-      thumbnail_url={item.thumbnail_url}
-      onPress={() => navigation.navigate('Article', { article: item })}
-    />
-  ), [navigation]);
+  const renderItem = useCallback(
+    ({ item }: { item: Article }) => (
+      <ArticleCard
+        title={item.title}
+        summary={item.summary}
+        thumbnail_url={item.thumbnail_url}
+        onPress={() => navigation.navigate('Article', { article: item })}
+      />
+    ),
+    [navigation]
+  );
 
   if (isLoading && !isRefreshing) {
     return (
@@ -74,7 +92,7 @@ export default function ArticleListScreen({ navigation }: Props) {
       <CustomHeader userName={user?.name} />
 
       <View style={styles.botaoFiltro}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.actionButtonContainer}
           onPress={() => setIsDrawerOpen(true)}
           activeOpacity={0.8}
@@ -87,7 +105,8 @@ export default function ArticleListScreen({ navigation }: Props) {
           >
             <Feather name="filter" size={24} color="white" />
             <Text style={styles.actionButtonText}>
-              Filtro {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
+              Filtro{' '}
+              {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
             </Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -98,15 +117,20 @@ export default function ArticleListScreen({ navigation }: Props) {
         data={filteredArticles}
         keyExtractor={(item) => String(item.id)}
         renderItem={renderItem}
-        contentContainerStyle={[styles.contentContainer, { paddingBottom: bottomBarHeight + 10 }]}
+        contentContainerStyle={[
+          styles.contentContainer,
+          { paddingBottom: bottomBarHeight + 10 },
+        ]}
         refreshing={isRefreshing}
         onRefresh={handleRefresh}
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
-        ListEmptyComponent={<Text style={styles.emptyText}>Nenhum artigo encontrado.</Text>}
+        ListEmptyComponent={
+          <Text style={styles.emptyText}>Nenhum artigo encontrado.</Text>
+        }
       />
 
-      <FilterDrawer 
+      <FilterDrawer
         visible={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         contentTypes={contentTypes}

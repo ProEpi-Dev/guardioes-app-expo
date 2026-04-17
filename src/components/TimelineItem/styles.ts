@@ -5,7 +5,7 @@ export const styles = StyleSheet.create({
   // Estrutura principal
   itemContainer: { flexDirection: 'row', minHeight: 120, marginBottom: 16 },
   timelineContainer: { width: 45, alignItems: 'center' },
-  
+
   // Linha e Círculo da Timeline
   verticalLine: {
     position: 'absolute',
@@ -22,7 +22,7 @@ export const styles = StyleSheet.create({
     zIndex: 1,
     marginTop: 20, // Alinha a bolinha com o meio do card
   },
-  
+
   // Container do Card
   contentContainer: { flex: 1, paddingRight: 16, paddingBottom: 4 },
   card: {
@@ -37,7 +37,7 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 3,
   },
-  
+
   // Bloco da Imagem à esquerda (Simulando a foto)
   imageBlock: {
     width: 100,
@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     fontSize: 11,
     textAlign: 'center',
   },
-  
+
   // Área de Textos à direita
   textContainer: {
     flex: 1,
@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
     color: '#6b7280',
     lineHeight: 14,
   },
-  
+
   // Metadados (Notas e Tentativas)
   metaContainer: {
     marginTop: 8,

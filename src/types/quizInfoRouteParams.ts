@@ -1,4 +1,4 @@
-import { LinkedArticle } from "./quiz";
+import { LinkedArticle } from './quiz';
 
 export interface QuizInfoRouteParams {
   quizId: number;

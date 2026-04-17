@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -26,9 +26,9 @@ interface AccordionProps {
 
 const Accordion: React.FC<AccordionProps> = ({ title, children }) => {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Valor animado para a rotação (inicia em 0)
-  const animationController = useRef(new Animated.Value(0)).current;
+  const [animationController] = useState(() => new Animated.Value(0));
 
   const toggleOpen = () => {
     // 1. Configura a animação de layout (expansão/contração do conteúdo)
@@ -59,11 +59,11 @@ const Accordion: React.FC<AccordionProps> = ({ title, children }) => {
         activeOpacity={0.7}
       >
         <Text style={styles.headerText}>{title}</Text>
-        
+
         {/* View Animada contendo o ícone */}
         <Animated.View style={{ transform: [{ rotate: arrowTransform }] }}>
           {/* Aqui estou usando texto simples 'V', mas você pode usar <Icon name="chevron-down" /> */}
-          <Text style={styles.chevron}>▼</Text> 
+          <Text style={styles.chevron}>▼</Text>
         </Animated.View>
       </TouchableOpacity>
 
@@ -87,7 +87,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     borderWidth: 1,
-    borderColor: '#eee'
+    borderColor: '#eee',
   },
   header: {
     flexDirection: 'row',

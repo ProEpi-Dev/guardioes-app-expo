@@ -1,4 +1,4 @@
-import { FormField } from "./form";
+import { FormField } from './form';
 
 export interface QuizResultParams {
   resultData: {

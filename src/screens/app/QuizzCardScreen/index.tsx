@@ -8,8 +8,9 @@ import { useQuizNavigation } from '../../../hooks/useQuizNavigation';
 
 export function Quiz() {
   const { participationId } = useParticipation();
-  
-  const { content, loading, refreshing, handleRefresh } = useQuizList(participationId);
+
+  const { content, loading, refreshing, handleRefresh } =
+    useQuizList(participationId);
   const { handleCardPress } = useQuizNavigation();
 
   const renderEmptyComponent = () => (
@@ -18,9 +19,7 @@ export function Quiz() {
     </View>
   );
 
-  const renderFooter = () => (
-    <View style={{ height: 20 }} />
-  );
+  const renderFooter = () => <View style={{ height: 20 }} />;
 
   if (loading && !refreshing && content.length === 0) {
     return (

@@ -20,10 +20,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   onChange,
   containerStyle,
 }) => {
-  const commonInputStyles = [
-    styles.input,
-    error ? styles.inputError : null,
-  ];
+  const commonInputStyles = [styles.input, error ? styles.inputError : null];
 
   const renderTextField = () => (
     <TextInput
@@ -52,11 +49,12 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   );
 
   const renderSelectField = () => {
-    const selectorOptions: Option[] = field.options?.map((opt) => ({
-      label: opt.label,
-      value: opt.value,
-      key: String(opt.value),
-    })) || [];
+    const selectorOptions: Option[] =
+      field.options?.map((opt) => ({
+        label: opt.label,
+        value: opt.value,
+        key: String(opt.value),
+      })) || [];
     const selectedOption = field.options?.find((opt) => opt.value === value);
     const displayLabel = selectedOption
       ? selectedOption.label
@@ -113,11 +111,14 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
           let bgColor = '#FFF';
           let borderColor = '#E5E7EB';
           let textColor = '#333';
-          
+
           if (readOnly) {
             // Se estiver no feedback (somente leitura), mostra verde ou vermelho
-            const isCorrectOption = correctAnswer !== undefined && String(opt.value).trim().toLowerCase() === String(correctAnswer).trim().toLowerCase();
-            
+            const isCorrectOption =
+              correctAnswer !== undefined &&
+              String(opt.value).trim().toLowerCase() ===
+                String(correctAnswer).trim().toLowerCase();
+
             if (isCorrectOption) {
               bgColor = '#D1F4E0'; // Verde claro
               borderColor = '#4CAF50';
@@ -139,7 +140,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
               key={String(opt.value)}
               style={[
                 styles.optionCard,
-                { backgroundColor: bgColor, borderColor: borderColor }
+                { backgroundColor: bgColor, borderColor: borderColor },
               ]}
               onPress={() => !readOnly && onChange(opt.value)}
               disabled={readOnly}
@@ -156,7 +157,8 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   };
 
   const renderDateField = () => {
-    const dateValue = value instanceof Date ? value : (value ? new Date(value) : null);
+    const dateValue =
+      value instanceof Date ? value : value ? new Date(value) : null;
 
     return (
       <View
@@ -238,7 +240,9 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       case 'boolean':
         return null;
       default:
-        return <Text style={{ color: 'red' }}>Tipo desconhecido: {field.type}</Text>;
+        return (
+          <Text style={{ color: 'red' }}>Tipo desconhecido: {field.type}</Text>
+        );
     }
   };
 
@@ -263,14 +267,20 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   }
   return (
-    <View style={[styles.fieldContainer, (field.type as string) === 'radio' && { marginBottom: 0 }, containerStyle]}>
+    <View
+      style={[
+        styles.fieldContainer,
+        (field.type as string) === 'radio' && { marginBottom: 0 },
+        containerStyle,
+      ]}
+    >
       <Text style={[styles.label, field.type === 'radio' && styles.quizLabel]}>
         {field.label}
         {field.required && <Text style={styles.required}> *</Text>}
       </Text>
-      
+
       {renderContent()}
-      
+
       {error && <Text style={styles.errorText}>{error}</Text>}
     </View>
   );

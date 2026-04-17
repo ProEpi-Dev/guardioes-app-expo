@@ -1,10 +1,23 @@
 import axios from 'axios';
 import * as authStorage from '../services/authStorage';
 
-// Token em memória (evita buscar do storage a cada requisição)
-let currentToken = null;
+// Variáveis de controle
+let _currentToken = null;
+let isRefreshing = false;
+let failedQueue = [];
 
-// Criar instância do axios
+const processQueue = (error, token = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// 1. Criar a instância PRIMEIRO
 const axiosInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
   headers: {
@@ -12,95 +25,142 @@ const axiosInstance = axios.create({
   },
 });
 
-// Interceptor para tratamento de erros
+// 2. Adicionar o ÚNICO interceptor de resposta
 axiosInstance.interceptors.response.use(
   (response) => {
+    // Retorna direto os dados da API
     return response.data;
   },
-  (error) => {
-    // Se for erro de resposta da API
-    if (error.response) {
-      const { status, data } = error.response;
-      throw {
-        status,
-        message: data?.message || 'Erro na requisição',
-        data: data || null,
-      };
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Se o erro for 401 e a requisição ainda não tiver sido repetida
+    if (
+      error.response &&
+      error.response.status === 401 &&
+      !originalRequest._retry
+    ) {
+      // Evita loops infinitos se o próprio endpoint de refresh der 401
+      if (
+        originalRequest.url.includes('/auth/refresh') ||
+        originalRequest.url.includes('/auth/login')
+      ) {
+        return Promise.reject(error);
+      }
+
+      // Se já existe um refresh acontecendo, coloca a requisição na fila de espera
+      if (isRefreshing) {
+        return new Promise(function (resolve, reject) {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((token) => {
+            originalRequest.headers['Authorization'] = 'Bearer ' + token;
+            return axiosInstance(originalRequest);
+          })
+          .catch((err) => {
+            return Promise.reject(err);
+          });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshToken = await authStorage.getRefreshToken();
+
+        if (!refreshToken) {
+          throw new Error('Refresh token não encontrado');
+        }
+
+        // Faz a chamada de refresh
+        const refreshResponse = await axios.post(
+          `${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/refresh`,
+          {
+            refreshToken: refreshToken,
+          }
+        );
+
+        const { token: newToken, refreshToken: newRefreshToken } =
+          refreshResponse.data;
+
+        // Atualiza os tokens
+        await updateAuthToken(newToken);
+        await authStorage.storeRefreshToken(newRefreshToken);
+
+        // Processa a fila
+        processQueue(null, newToken);
+
+        // Refaz a requisição
+        originalRequest.headers['Authorization'] = 'Bearer ' + newToken;
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError, null);
+
+        await authStorage.clearAuthData();
+        delete axiosInstance.defaults.headers.common['Authorization'];
+
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
     }
-    
-    // Se for erro de rede/conexão
-    if (error.request) {
-      throw {
-        status: 0,
-        message: 'Erro de conexão. Verifique sua internet.',
-        data: null,
-      };
-    }
-    
-    // Outros erros
+
+    // O antigo tratamento de erros fica embutido aqui no final (substituindo o segundo interceptor)
     throw {
-      status: 0,
-      message: error.message || 'Erro desconhecido',
-      data: null,
+      status: error.response?.status || 0,
+      message: error.response?.data?.message || 'Erro de conexão.',
+      data: error.response?.data || null,
     };
   }
 );
 
-// Função para atualizar o token nos defaults do axios
+// --- FUNÇÕES DE UTILIDADE ---
+
 export const updateAuthToken = async (token) => {
-  // Atualizar token em memória
-  currentToken = token;
-  
-  // Atualizar defaults do axios
+  _currentToken = token;
   if (token) {
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    // Garantir que está salvo no storage também
     await authStorage.storeToken(token);
   } else {
-    // Remover token dos defaults
     delete axiosInstance.defaults.headers.common['Authorization'];
-    // Remover do storage
     await authStorage.removeToken();
   }
 };
 
-// Função para inicializar o token do storage (chamada uma vez na inicialização)
 export const initializeAuthToken = async () => {
   const token = await authStorage.getToken();
   if (token) {
-    currentToken = token;
+    _currentToken = token;
     axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   }
   return token;
 };
 
-// Cliente HTTP básico (compatível com a API anterior)
 export const apiClient = async (endpoint, options = {}) => {
   const { method = 'GET', headers = {}, body, ...restOptions } = options;
-  
+
   try {
     const response = await axiosInstance({
       url: endpoint,
       method,
       headers,
-      data: body ? (typeof body === 'string' ? JSON.parse(body) : body) : undefined,
+      data: body
+        ? typeof body === 'string'
+          ? JSON.parse(body)
+          : body
+        : undefined,
       ...restOptions,
     });
-    
+
     return response;
   } catch (error) {
     throw error;
   }
 };
 
-// Cliente HTTP autenticado (mantido para compatibilidade, mas agora usa os defaults do axios)
 export const authenticatedApiClient = async (endpoint, token, options = {}) => {
-  // Se um token for fornecido, atualizar nos defaults do axios
   if (token) {
     await updateAuthToken(token);
   }
-  
-  // O token já está nos defaults do axios
   return apiClient(endpoint, options);
 };
-

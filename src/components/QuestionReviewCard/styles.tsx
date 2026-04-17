@@ -1,6 +1,6 @@
-import { StyleSheet } from "react-native";
-import { scale } from "../../utils/scalling";
-import { colors } from "../../utils/colors";
+import { StyleSheet } from 'react-native';
+import { scale } from '../../utils/scalling';
+import { colors } from '../../utils/colors';
 
 export const styles = StyleSheet.create({
   questionCard: {
@@ -14,11 +14,26 @@ export const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 8,
   },
-  questionHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 },
+  questionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
   questionIndex: { fontSize: scale(14), fontWeight: '600', color: '#777' },
-  questionTitle: { fontSize: scale(14), color: colors.secundaria, marginBottom: 16, fontWeight: '500', lineHeight: 20 },
-  
-  answerContainer: { flexDirection: 'row', marginBottom: 4, flexWrap: 'wrap', alignItems: 'center' },
+  questionTitle: {
+    fontSize: scale(14),
+    color: colors.secundaria,
+    marginBottom: 16,
+    fontWeight: '500',
+    lineHeight: 20,
+  },
+
+  answerContainer: {
+    flexDirection: 'row',
+    marginBottom: 4,
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
   label: { fontSize: scale(13), color: '#888', marginRight: 6 },
   answerText: { fontSize: scale(13), fontWeight: 'bold' },
 
