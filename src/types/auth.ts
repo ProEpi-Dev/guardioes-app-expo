@@ -77,6 +77,7 @@ export type RootStackParamList = {
   FinishProfile: undefined;
   Home: undefined;
   EmailConfirmation: { email: string };
+  vbe: undefined;
 };
 
 export interface RegisterData {

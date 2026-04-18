@@ -15,10 +15,13 @@ import { colors } from '../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSentimentLogic } from '../hooks/useSentimentLogic';
 import { SequenceScreen } from '../screens/app/SequenceScreen';
+import { useParticipation } from '../contexts/ParticipationContext';
+import { Vbe } from '../screens/app/Vbe'; // IMPORTAÇÃO DO COMPONENTE VBE
 
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigation() {
+  const { contextId } = useParticipation();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const insets = useSafeAreaInsets();
 
@@ -80,7 +83,8 @@ export function BottomNavigation() {
     >
       <Tab.Screen
         name="Home"
-        component={MapaSentimento}
+        // component={MapaSentimento}
+        component={contextId !== 4 ? MapaSentimento : Vbe}
         options={{
           tabBarLabel: 'Início',
           headerShown: false,

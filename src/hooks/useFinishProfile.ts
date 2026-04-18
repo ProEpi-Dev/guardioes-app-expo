@@ -101,15 +101,22 @@ export const useFinishProfile = () => {
 
   // Popular dados iniciais
   useEffect(() => {
-    if (!profileStatus?.profile) return;
-    reset({
-      genderId: profileStatus.profile.genderId ?? undefined,
-      countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
-      locationId: profileStatus.profile.locationId ?? undefined,
-      externalIdentifier: profileStatus.profile.externalIdentifier || '',
-      phone: (profileStatus.profile as any).phone || '',
-    });
-  }, [profileStatus, reset]);
+    if (!profileStatus) return;
+    if (profileStatus.isComplete) {
+      navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
+      return;
+    }
+
+    if (profileStatus.profile) {
+      reset({
+        genderId: profileStatus.profile.genderId ?? undefined,
+        countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
+        locationId: profileStatus.profile.locationId ?? undefined,
+        externalIdentifier: profileStatus.profile.externalIdentifier || '',
+        phone: (profileStatus.profile as any).phone || '',
+      });
+    }
+  }, [profileStatus, reset, navigation]);
 
   // Regra de hierarquia de localidade
   useEffect(() => {
@@ -133,12 +140,17 @@ export const useFinishProfile = () => {
   // Mutations
   const updateProfileMutation = useMutation({
     mutationFn: async (data: any) => {
-      // Fazendo cast seguro para o formato que a API mobile já aceita
       await updateUserProfile(data as UpdateProfilePayload);
     },
     onSuccess: () => {
-      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
       refetch();
+      Alert.alert('Sucesso', 'Perfil completado com sucesso!', [
+        {
+          text: 'OK',
+          onPress: () =>
+            navigation.reset({ index: 0, routes: [{ name: 'Home' }] }),
+        },
+      ]);
     },
     onError: () => {
       Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');

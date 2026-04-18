@@ -27,7 +27,7 @@ export function EmailConfirmation() {
   const handleResend = async () => {
     setLoading(true);
     try {
-      await apiClient('/v1/auth/resend-confirmation', {
+      await apiClient('/v1/auth/request-email-verification', {
         method: 'POST',
         body: JSON.stringify({ email }),
       });
