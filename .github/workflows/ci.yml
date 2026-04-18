@@ -3,11 +3,11 @@ on:
   push:
     branches:
       - dev
-      - fix/login
+      - vbe
   pull_request:
     branches:
       - dev
-      - fix/login
+      - vbe
 
 jobs:
   lint-and_security_test:

@@ -2,6 +2,7 @@ import { apiClient } from '../utils/api';
 import { Article, ContentType } from '../types/article';
 
 export const getArticles = async (): Promise<Article[]> => {
+  // /v1/contents?contextId=1
   const response = (await apiClient('/v1/contents?page=1&pageSize=20', {
     method: 'GET',
   })) as any;
