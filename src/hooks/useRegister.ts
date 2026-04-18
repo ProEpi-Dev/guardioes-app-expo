@@ -47,9 +47,9 @@ export const useRegister = (navigation: any) => {
   const toggleDocument = (doc: LegalDocument) => {
     setAcceptedDocIds((prev) => {
       if (prev.includes(doc.id)) {
-        return prev.filter((id) => id !== doc.id); // Desmarca
+        return prev.filter((id) => id !== doc.id);
       } else {
-        return [...prev, doc.id]; // Marca
+        return [...prev, doc.id];
       }
     });
   };
@@ -98,9 +98,17 @@ export const useRegister = (navigation: any) => {
       const result = await register(payload);
 
       if (result.success) {
-        navigation.navigate('Login');
-      } else {
-        Alert.alert('Erro', result.error || 'Erro ao realizar cadastro');
+        Alert.alert(
+          'Quase lá!',
+          `Enviamos um e-mail de ativação para o endereço ${email}. Verifique sua caixa de entrada e spam para confirmar seu cadastro.`,
+          [
+            {
+              text: 'OK',
+              onPress: () =>
+                navigation.navigate('EmailConfirmation', { email }),
+            },
+          ]
+        );
       }
     } catch (error) {
       Alert.alert('Erro', 'Erro inesperado ao realizar cadastro');

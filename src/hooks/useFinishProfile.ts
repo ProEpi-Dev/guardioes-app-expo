@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-// Usando o serviço de profile que JÁ EXISTE no seu app mobile
 import {
   getLocations,
   getProfileStatus,
@@ -105,7 +104,6 @@ export const useFinishProfile = () => {
     if (!profileStatus?.profile) return;
     reset({
       genderId: profileStatus.profile.genderId ?? undefined,
-      // @ts-ignore - Ignorando campos extras que vêm da web mas podem não estar na tipagem antiga
       countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
       locationId: profileStatus.profile.locationId ?? undefined,
       externalIdentifier: profileStatus.profile.externalIdentifier || '',

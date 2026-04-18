@@ -27,6 +27,7 @@ export interface LoginResult {
   success: boolean;
   data?: LoginResponse;
   error?: string;
+  status?: number;
 }
 
 export interface ApiError {
@@ -75,6 +76,7 @@ export type RootStackParamList = {
   Register: undefined;
   FinishProfile: undefined;
   Home: undefined;
+  EmailConfirmation: { email: string };
 };
 
 export interface RegisterData {

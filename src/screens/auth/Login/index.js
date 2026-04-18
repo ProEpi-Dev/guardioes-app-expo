@@ -50,13 +50,48 @@ const Login = ({ navigation }) => {
       if (result.success) {
         navigation.navigate('FinishProfile');
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao fazer login');
-        setShowProgressBar(false);
+        if (
+          result.status === 403 ||
+          (result.error && result.error.includes('403'))
+        ) {
+          Alert.alert(
+            'Quase lá!',
+            `Seu cadastro ainda não foi confirmado. Enviamos um e-mail de ativação para ${email}. Verifique sua caixa de entrada e spam.`,
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  setShowProgressBar(false);
+                  navigation.navigate('EmailConfirmation', { email });
+                },
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Erro', result.error || 'Erro ao fazer login');
+          setShowProgressBar(false);
+        }
       }
     } catch (error) {
-      Alert.alert('Erro', 'Erro inesperado ao fazer login');
-      console.error('Erro no login:', error);
-      setShowProgressBar(false);
+      if (error?.status === 403 || error?.response?.status === 403) {
+        Alert.alert(
+          'Quase lá!',
+          `Seu cadastro ainda não foi confirmado. Enviamos um e-mail de ativação para ${email}. Verifique sua caixa de entrada e spam.`,
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setShowProgressBar(false);
+                navigation.navigate('EmailConfirmation', { email });
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Erro', 'Erro inesperado ao fazer login');
+        console.error('Erro no login:', error);
+        setShowProgressBar(false);
+      }
     }
   };
 

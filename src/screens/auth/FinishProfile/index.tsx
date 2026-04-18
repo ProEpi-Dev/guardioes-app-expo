@@ -25,7 +25,6 @@ import { colors } from '../../../utils/colors';
 
 import { useFinishProfile } from '../../../hooks/useFinishProfile';
 
-// Importe o componente mobile equivalente que você for criar/adaptar
 import ProfileExtraFormSection from '../../../components/ProfileExtraFormSection';
 
 const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
@@ -64,7 +63,6 @@ export function FinishProfile() {
     genders,
   } = useFinishProfile();
 
-  // Mapeamento de dados para o SolidSelector (precisa do formato { value, label, key })
   const formattedCountries = useMemo(() => {
     return countries.map((c: any) => ({
       key: c.id,
@@ -75,7 +73,7 @@ export function FinishProfile() {
 
   const formattedGenders = useMemo(() => {
     return genders
-      .filter((g: any) => g.active !== false) // Mantém apenas os ativos (se a API usar isso)
+      .filter((g: any) => g.active !== false)
       .map((g: any) => ({
         key: g.id,
         label: g.name,
@@ -89,7 +87,6 @@ export function FinishProfile() {
 
   const locationsByCountry = useMemo(() => {
     if (profileReq.country && selectedCountryLocationId) {
-      // Filtrar dependentes (aqui você precisa usar a lógica real isLocationDescendantOfCountry)
       const filtered = allLocations.filter(
         (loc: any) => loc.parentId === selectedCountryLocationId
       );

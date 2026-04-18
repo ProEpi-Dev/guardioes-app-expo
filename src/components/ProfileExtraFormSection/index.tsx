@@ -1,8 +1,6 @@
 import React, { forwardRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
-
-// Ajuste os caminhos de importação conforme sua estrutura de pastas
 import { getParticipationExtra } from '../../services/finishProfile';
 import { FormRenderer } from '../FormRenderer';
 import { scale } from '../../utils/scalling';
@@ -13,14 +11,12 @@ interface ProfileExtraFormSectionProps {
 }
 
 const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
-  // Correção 3: Removendo participantCountryLocationId da desestruturação pois não está sendo usado
   ({ onValuesChange }, _ref) => {
     const { data, isLoading } = useQuery({
       queryKey: ['participation-profile-extra-me'],
       queryFn: () => getParticipationExtra(),
     });
 
-    // Como na sua API mobile os dados costumam vir como Array, acessamos data[0]
     const profileExtra = Array.isArray(data) ? data[0] : data;
 
     if (isLoading || !profileExtra?.form) {
@@ -44,7 +40,6 @@ const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
 
         <View style={styles.formContainer}>
           <FormRenderer
-            // Correção 1: Removido o ref={ref} pois FormRenderer ainda não aceita refs
             key={profileExtra.form.version.id}
             definition={definition}
             initialValues={initialValues}
@@ -56,7 +51,6 @@ const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
   }
 );
 
-// Correção 2: Adicionado displayName para remover o aviso do ESLint react/display-name
 ProfileExtraFormSection.displayName = 'ProfileExtraFormSection';
 
 const styles = StyleSheet.create({
@@ -65,7 +59,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', // Linha divisória sutil
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     marginVertical: scale(20),
     width: '100%',
   },
@@ -77,7 +71,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: scale(14),
-    color: '#e0e0e0', // Cor ligeiramente mais opaca para subtítulo
+    color: '#e0e0e0',
     marginBottom: scale(20),
   },
   formContainer: {
