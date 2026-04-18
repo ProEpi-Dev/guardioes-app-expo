@@ -1,160 +1,209 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { DropdownOption } from '../types/finishProfile';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+// Usando o serviço de profile que JÁ EXISTE no seu app mobile
 import {
-  getGenders,
   getLocations,
   getProfileStatus,
   updateUserProfile,
+  getGenders,
 } from '../services/finishProfile';
-import { useParticipation } from '../contexts/ParticipationContext';
-import { useAuth } from '../contexts/AuthContext'; // 1. Importe o useAuth
+
+import { useAuth } from '../contexts/AuthContext';
+import type { UpdateProfilePayload } from '../types/finishProfile';
+
+import {
+  getParticipationExtra,
+  putParticipationExtra,
+} from '../services/finishProfile';
+import { isLocationDescendantOfCountry } from '../utils/locationHierarchy';
+import { resolveProfileExtraPayload } from '../utils/profileExtraPayload';
+
+const profileSchema = z.object({
+  genderId: z.number().optional(),
+  countryLocationId: z.number().optional(),
+  locationId: z.number().optional(),
+  externalIdentifier: z.string().optional(),
+  phone: z.string().optional(),
+});
+
+type ProfileFormData = z.infer<typeof profileSchema>;
 
 export const useFinishProfile = () => {
-  const { participationId } = useParticipation();
-  const { user } = useAuth(); // 2. Pegue o usuário do contexto
+  const { user } = useAuth();
   const navigation = useNavigation<any>();
+  const queryClient = useQueryClient();
 
-  // Estados do Formulário
-  const [selectedGenderId, setSelectedGenderId] = useState<number | null>(null);
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
-    null
-  );
-  const [externalIdentifier, setExternalIdentifier] = useState('');
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [extraValues, setExtraValues] = useState<Record<string, unknown>>({});
+  const profileExtraFormRef = useRef<any>(null);
 
-  // Dados das Listas
-  const [genders, setGenders] = useState<DropdownOption[]>([]);
-  const [locations, setLocations] = useState<DropdownOption[]>([]);
+  // Queries
+  const {
+    data: profileStatus,
+    isLoading: statusLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ['profile-status'],
+    queryFn: () => getProfileStatus(),
+  });
 
-  // Estados de UI
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { data: profileExtraMe } = useQuery({
+    queryKey: ['participation-profile-extra-me'],
+    queryFn: () => getParticipationExtra(),
+  });
 
-  const identifierInputRef = useRef<any>(null);
+  const { data: countries = [], isLoading: countriesLoading } = useQuery({
+    queryKey: ['locations', 'countries', 'all-pages'],
+    queryFn: async () => {
+      const locs = await getLocations();
+      return locs.filter((l: any) => l.orgLevel === 'COUNTRY');
+    },
+  });
 
+  const { data: allLocations = [], isLoading: locationsLoading } = useQuery({
+    queryKey: ['locations', 'all-active', 'all-pages'],
+    queryFn: () => getLocations(),
+  });
+
+  const { data: genders = [], isLoading: gendersLoading } = useQuery({
+    queryKey: ['genders'],
+    queryFn: () => getGenders(),
+  });
+
+  // Configuração do Form
+  const formMethods = useForm<ProfileFormData>({
+    resolver: zodResolver(profileSchema),
+    defaultValues: {
+      genderId: undefined,
+      countryLocationId: undefined,
+      locationId: undefined,
+      externalIdentifier: '',
+      phone: '',
+    },
+  });
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    setValue,
+    formState: { errors },
+  } = formMethods;
+
+  // eslint-disable-next-line react-hooks/incompatible-library
+  const selectedCountryLocationId = watch('countryLocationId');
+  const selectedLocationId = watch('locationId');
+
+  // Popular dados iniciais
   useEffect(() => {
-    // Carrega se tiver participationId ou se tiver apenas o usuário logado (para casos de pré-participação)
-    if (participationId || user) {
-      loadInitialData();
+    if (!profileStatus?.profile) return;
+    reset({
+      genderId: profileStatus.profile.genderId ?? undefined,
+      // @ts-ignore - Ignorando campos extras que vêm da web mas podem não estar na tipagem antiga
+      countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
+      locationId: profileStatus.profile.locationId ?? undefined,
+      externalIdentifier: profileStatus.profile.externalIdentifier || '',
+      phone: (profileStatus.profile as any).phone || '',
+    });
+  }, [profileStatus, reset]);
+
+  // Regra de hierarquia de localidade
+  useEffect(() => {
+    if (!selectedLocationId || !selectedCountryLocationId) return;
+
+    const currentLocation = allLocations.find(
+      (loc: any) => loc.id === selectedLocationId
+    );
+    if (!currentLocation) return;
+
+    const isChild = isLocationDescendantOfCountry(
+      currentLocation,
+      selectedCountryLocationId
+    );
+
+    if (!isChild) {
+      setValue('locationId', undefined);
     }
-  }, [participationId, user]);
+  }, [selectedCountryLocationId, selectedLocationId, allLocations, setValue]);
 
-  const loadInitialData = async () => {
-    try {
-      setIsLoading(true);
+  // Mutations
+  const updateProfileMutation = useMutation({
+    mutationFn: async (data: any) => {
+      // Fazendo cast seguro para o formato que a API mobile já aceita
+      await updateUserProfile(data as UpdateProfilePayload);
+    },
+    onSuccess: () => {
+      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+      refetch();
+    },
+    onError: () => {
+      Alert.alert('Erro', 'Erro ao atualizar perfil. Tente novamente.');
+    },
+  });
 
-      // 3. Preenche nome e email direto do AuthContext (Sem chamada de API errada)
-      if (user) {
-        setName(user.name || '');
-        setEmail(user.email || '');
-      }
-
-      // 1. Verificar Status do Perfil
-      const statusData = await getProfileStatus();
-
-      if (statusData?.isComplete) {
-        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
-        return;
-      }
-
-      // Preencher dados existentes do perfil (se houver)
-      if (statusData?.profile) {
-        if (statusData.profile.genderId)
-          setSelectedGenderId(statusData.profile.genderId);
-        if (statusData.profile.locationId)
-          setSelectedLocationId(statusData.profile.locationId);
-        if (statusData.profile.externalIdentifier)
-          setExternalIdentifier(statusData.profile.externalIdentifier);
-      }
-
-      // 2. Buscar Listas (Gêneros e Locais)
-      const [rawGenders, rawLocations] = await Promise.all([
-        getGenders(),
-        getLocations(),
-      ]);
-
-      const formattedGenders = rawGenders
-        .filter((g: any) => g.active)
-        .map((g: any) => ({ key: g.id, label: g.name, value: g.id }));
-
-      const formattedLocations = rawLocations
-        .filter((l: any) => l.active)
-        .map((l: any) => ({ key: l.id, label: l.name, value: l.id }));
-
-      setGenders(formattedGenders);
-      setLocations(formattedLocations);
-    } catch (error: any) {
-      console.error('Erro ao carregar dados:', error);
-
-      // Proteção contra token inválido/usuário não encontrado
-      if (error?.status === 404) {
-        return; // Ignora ou redireciona para login se crítico
-      }
-
-      Alert.alert(
-        'Erro',
-        'Falha ao carregar informações. Verifique sua conexão.'
-      );
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (
-      !selectedGenderId ||
-      !selectedLocationId ||
-      !externalIdentifier.trim()
-    ) {
-      Alert.alert(
-        'Atenção',
-        'Por favor, preencha todos os campos obrigatórios.'
-      );
-      return;
-    }
-
-    try {
-      setIsSubmitting(true);
-
-      await updateUserProfile({
-        genderId: selectedGenderId,
-        locationId: selectedLocationId,
-        externalIdentifier: externalIdentifier.trim(),
+  const saveProfileExtraMutation = useMutation({
+    mutationFn: async () => {
+      const me: any = await queryClient.fetchQuery({
+        queryKey: ['participation-profile-extra-me'],
+        queryFn: () => getParticipationExtra(),
       });
 
-      Alert.alert('Sucesso', 'Perfil completado com sucesso!', [
-        {
-          text: 'OK',
-          onPress: () =>
-            navigation.reset({ index: 0, routes: [{ name: 'Home' }] }),
-        },
+      const resolved = resolveProfileExtraPayload(me, extraValues);
+
+      if ('error' in resolved || !me?.form) {
+        throw new Error('Dados extra inválidos');
+      }
+
+      await putParticipationExtra({
+        formVersionId: me.form.version.id,
+        formResponse: resolved.ok,
+      });
+    },
+    onSuccess: async () => {
+      Alert.alert('Sucesso', 'Informações adicionais salvas!');
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['participation-profile-extra-me'],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['profile-status'] }),
       ]);
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-      Alert.alert('Erro', 'Não foi possível salvar os dados. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+    onError: () => {
+      Alert.alert('Erro', 'Não foi possível salvar os dados extras.');
+    },
+  });
+
+  const onSubmit = (data: ProfileFormData) => {
+    updateProfileMutation.mutate(data);
   };
 
   return {
-    selectedGenderId,
-    setSelectedGenderId,
-    selectedLocationId,
-    setSelectedLocationId,
-    externalIdentifier,
-    setExternalIdentifier,
-    genders,
-    locations,
-    isLoading,
-    isSubmitting,
-    handleSubmit,
-    identifierInputRef,
+    user,
     navigation,
-    name,
-    email,
+    formMethods,
+    control,
+    handleSubmit,
+    errors,
+    onSubmit,
+    profileStatus,
+    statusLoading,
+    countriesLoading,
+    locationsLoading,
+    countries,
+    allLocations,
+    selectedCountryLocationId,
+    updateProfileMutation,
+    profileExtraMe,
+    setExtraValues,
+    saveProfileExtraMutation,
+    profileExtraFormRef,
+    genders,
+    gendersLoading,
   };
 };

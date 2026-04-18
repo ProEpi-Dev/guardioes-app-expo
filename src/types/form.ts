@@ -67,3 +67,5 @@ export interface FormVersion {
   participationId: number;
   passingScore?: number | null;
 }
+
+export type FormType = 'signal' | 'quiz' | 'profile_extra';

@@ -1,11 +1,24 @@
+import {
+  ParticipationProfileExtraMeResponse,
+  SaveParticipationProfileExtraDto,
+} from '../types/participation-profile-extra';
 import { apiClient } from '../utils/api';
 
-interface ProfileStatus {
+export interface ProfileStatus {
   isComplete: boolean;
+  profileFieldRequirements?: {
+    gender: boolean;
+    country: boolean;
+    location: boolean;
+    externalIdentifier: boolean;
+    phone: boolean;
+  };
   profile?: {
     genderId?: number;
     locationId?: number;
     externalIdentifier?: string;
+    countryLocationId?: number;
+    phone?: string;
   };
 }
 
@@ -32,6 +45,35 @@ export const getGenders = async (): Promise<any[]> => {
     return response;
   }
   return [];
+};
+
+export const getParticipationExtra = async (): Promise<
+  ParticipationProfileExtraMeResponse[]
+> => {
+  const response = (await apiClient('/v1/participation-profile-extra/me', {
+    method: 'GET',
+  })) as any;
+  if (Array.isArray(response)) {
+    return response;
+  }
+  return [];
+};
+
+export const putParticipationExtra = async (
+  payload: SaveParticipationProfileExtraDto
+): Promise<SaveParticipationProfileExtraDto[]> => {
+  const response = (await apiClient('/v1/participation-profile-extra/me', {
+    method: 'PUT',
+    body: JSON.stringify(payload), // <-- Enviando o corpo da requisição!
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })) as any;
+
+  if (Array.isArray(response)) {
+    return response;
+  }
+  return response?.data || [];
 };
 
 export const getLocations = async (): Promise<any[]> => {
