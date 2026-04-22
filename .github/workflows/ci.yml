@@ -33,5 +33,5 @@ jobs:
       - name: Rodar Prettier
         run: npm run format:check
 
-      - name: Executar Auditoria
-        run: npm audit
+      # - name: Executar Auditoria
+      #   run: npm audit

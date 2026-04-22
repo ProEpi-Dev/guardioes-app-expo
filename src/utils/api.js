@@ -80,8 +80,20 @@ axiosInstance.interceptors.response.use(
           }
         );
 
-        const { token: newToken, refreshToken: newRefreshToken } =
-          refreshResponse.data;
+        const responseData = refreshResponse.data;
+
+        // Pega o token independentemente do formato em que o backend enviar
+        const newToken =
+          responseData.token ||
+          responseData.accessToken ||
+          responseData.data?.token ||
+          responseData.data?.accessToken;
+
+        const newRefreshToken =
+          responseData.refreshToken || responseData.data?.refreshToken;
+        if (!newToken) {
+          throw new Error('Token não recebido do servidor durante o refresh');
+        }
 
         // Atualiza os tokens
         await updateAuthToken(newToken);

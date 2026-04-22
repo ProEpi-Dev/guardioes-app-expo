@@ -6,6 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { styles } from './styles';
 import { ContentType } from '../../types/article';
 import { colors } from '../../utils/colors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface FilterDrawerProps {
   visible: boolean;
@@ -24,6 +25,7 @@ export function FilterDrawer({
   onToggleFilter,
   onClearFilters,
 }: FilterDrawerProps) {
+  const insets = useSafeAreaInsets();
   return (
     <Modal
       visible={visible}
@@ -33,7 +35,7 @@ export function FilterDrawer({
     >
       <View style={styles.modalOverlay}>
         <SafeAreaView style={styles.drawerContainer}>
-          <View style={styles.drawerHeader}>
+          <View style={[styles.drawerHeader, { paddingTop: insets.top }]}>
             <Text style={styles.drawerTitle}>Filtrar Categorias</Text>
             <TouchableOpacity onPress={onClose}>
               <Ionicons name="close" size={28} color="#333" />
@@ -83,7 +85,7 @@ export function FilterDrawer({
             }}
           />
 
-          <View style={styles.drawerFooter}>
+          <View style={[styles.drawerFooter, { paddingBottom: insets.bottom }]}>
             <TouchableOpacity
               style={styles.clearButton}
               onPress={onClearFilters}

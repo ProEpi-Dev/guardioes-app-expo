@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TouchableOpacity, DeviceEventEmitter } from 'react-native'; // DeviceEventEmitter ADICIONADO
+import { TouchableOpacity, DeviceEventEmitter } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MapaSentimento } from '../screens/app/MapaSentimento';
 import {
@@ -16,7 +16,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useSentimentLogic } from '../hooks/useSentimentLogic';
 import { SequenceScreen } from '../screens/app/SequenceScreen';
 import { useParticipation } from '../contexts/ParticipationContext';
-import { Vbe } from '../screens/app/Vbe'; // IMPORTAÇÃO DO COMPONENTE VBE
+import { Vbe } from '../screens/app/Vbe/ReportScreen';
+import { SituationScreen } from '../screens/app/Vbe/SituationScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -104,47 +105,95 @@ export function BottomNavigation() {
         }}
       />
 
-      <Tab.Screen
-        name="Dias"
-        component={SequenceScreen}
-        options={{
-          tabBarLabel: 'Dias',
-          tabBarIcon: ({ color }) => (
-            <FontAwesome5 name="calendar-alt" size={24} color={color} />
-          ),
-        }}
-      />
+      {contextId !== 4 ? (
+        <Tab.Group>
+          <Tab.Screen
+            name="Dias"
+            component={SequenceScreen}
+            options={{
+              tabBarLabel: 'Dias',
+              tabBarIcon: ({ color }) => (
+                <FontAwesome5 name="calendar-alt" size={24} color={color} />
+              ),
+            }}
+          />
 
-      <Tab.Screen
-        name="Trilha"
-        component={TrailStack}
-        options={{
-          tabBarLabel: 'Aprenda',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name={'chat-question-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-          title: 'Trilhas',
-        }}
-      />
+          <Tab.Screen
+            name="Trilha"
+            component={TrailStack}
+            options={{
+              tabBarLabel: 'Aprenda',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name={'chat-question-outline'}
+                  size={24}
+                  color={color}
+                />
+              ),
+              title: 'Trilhas',
+            }}
+          />
 
-      <Tab.Screen
-        name="Artigos"
-        component={CardStack}
-        options={{
-          tabBarLabel: 'Conteúdos',
-          tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name={'file-document-multiple-outline'}
-              size={24}
-              color={color}
-            />
-          ),
-        }}
-      />
+          <Tab.Screen
+            name="Artigos"
+            component={CardStack}
+            options={{
+              tabBarLabel: 'Conteúdos',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name={'file-document-multiple-outline'}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+        </Tab.Group>
+      ) : (
+        <Tab.Group>
+          <Tab.Screen
+            name="Situacao"
+            component={SituationScreen}
+            options={{
+              tabBarLabel: 'Situação',
+              tabBarIcon: ({ color }) => (
+                <FontAwesome5 name="calendar-alt" size={24} color={color} />
+              ),
+            }}
+          />
+
+          <Tab.Screen
+            name="Trilha"
+            component={TrailStack}
+            options={{
+              tabBarLabel: 'Aprenda',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name={'chat-question-outline'}
+                  size={24}
+                  color={color}
+                />
+              ),
+              title: 'Trilhas',
+            }}
+          />
+
+          <Tab.Screen
+            name="Artigos"
+            component={CardStack}
+            options={{
+              tabBarLabel: 'Conteúdos',
+              tabBarIcon: ({ color }) => (
+                <MaterialCommunityIcons
+                  name={'file-document-multiple-outline'}
+                  size={24}
+                  color={color}
+                />
+              ),
+            }}
+          />
+        </Tab.Group>
+      )}
     </Tab.Navigator>
   );
 }

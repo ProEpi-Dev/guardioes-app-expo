@@ -26,7 +26,12 @@ export function ParticipationProvider({
     let isActive = true;
 
     const fetchParticipation = async () => {
-      if (!user?.email) return;
+      if (!user?.email) {
+        setParticipationId(null);
+        setContextId(null);
+        if (isActive) setLoading(false);
+        return;
+      }
 
       setLoading(true);
 
