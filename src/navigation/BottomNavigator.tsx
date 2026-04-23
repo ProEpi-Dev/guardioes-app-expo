@@ -17,7 +17,6 @@ import { useSentimentLogic } from '../hooks/useSentimentLogic';
 import { SequenceScreen } from '../screens/app/SequenceScreen';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { Vbe } from '../screens/app/Vbe/ReportScreen';
-import { SituationScreen } from '../screens/app/Vbe/SituationScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -152,10 +151,10 @@ export function BottomNavigation() {
       ) : (
         <Tab.Group>
           <Tab.Screen
-            name="Situacao"
-            component={SituationScreen}
+            name="Dias"
+            component={SequenceScreen}
             options={{
-              tabBarLabel: 'Situação',
+              tabBarLabel: 'Dias',
               tabBarIcon: ({ color }) => (
                 <FontAwesome5 name="calendar-alt" size={24} color={color} />
               ),
