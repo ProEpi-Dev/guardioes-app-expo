@@ -1,8 +1,8 @@
 import { apiClient } from '../utils/api';
 
-export const getLatestSignalForm = async () => {
+export const getLatestSignalForm = async (contextId: number) => {
   const response: any = await apiClient(
-    `/v1/forms?active=true&pageSize=5&type=signal`,
+    `/v1/forms?active=true&pageSize=5&type=signal&contextId=${contextId}`,
     { method: 'GET' }
   );
   const forms = response.data || [];

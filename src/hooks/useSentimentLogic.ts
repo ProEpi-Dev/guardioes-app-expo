@@ -143,7 +143,10 @@ export const useSentimentLogic = () => {
         return;
       }
 
-      const latestForm = await getLatestSignalForm();
+      let latestForm;
+      if (contextId) {
+        latestForm = await getLatestSignalForm(contextId);
+      }
       const versionId = latestForm.latestVersion?.id;
       const loc = await getLocation();
 
@@ -178,7 +181,10 @@ export const useSentimentLogic = () => {
     setShowForm(true);
 
     try {
-      const latestForm = await getLatestSignalForm();
+      let latestForm;
+      if (contextId) {
+        latestForm = await getLatestSignalForm(contextId);
+      }
       const version = latestForm.latestVersion;
 
       if (version?.definition) {

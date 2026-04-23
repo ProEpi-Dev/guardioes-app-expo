@@ -7,13 +7,21 @@ import { colors } from '../../utils/colors';
 interface FeelingCardProps {
   onFeelingSelected: (feeling: 'good' | 'bad') => void;
   isCompliant?: boolean;
+  padBottom?: number;
   bottomOffset?: number;
+  goodButtonText?: string;
+  badButtonText?: string;
+  title?: string;
 }
 
 export const FeelingCard: React.FC<FeelingCardProps> = ({
   onFeelingSelected,
   isCompliant = false,
+  padBottom = 16,
   bottomOffset = 0,
+  goodButtonText = translate('report.goodChoice') || 'BEM',
+  badButtonText = translate('report.badChoice') || 'MAL',
+  title = translate('home.userHowYouFelling') || 'Como você se sente hoje?',
 }) => {
   const insets = useSafeAreaInsets();
 
@@ -21,31 +29,25 @@ export const FeelingCard: React.FC<FeelingCardProps> = ({
     <View
       style={[
         styles.cardContainer,
-        { paddingBottom: Math.max(insets.bottom, 16) + bottomOffset },
+        { paddingBottom: Math.max(insets.bottom, padBottom) + bottomOffset },
       ]}
     >
       <View style={[styles.card, !isCompliant && { opacity: 0.5 }]}>
-        <Text style={styles.cardTitle}>
-          {translate('home.userHowYouFelling') || 'Como você se sente hoje?'}
-        </Text>
+        <Text style={styles.cardTitle}>{title}</Text>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.button, styles.goodButton]}
             onPress={() => onFeelingSelected('good')}
             activeOpacity={0.7}
           >
-            <Text style={styles.buttonText}>
-              {translate('report.goodChoice') || 'BEM'}
-            </Text>
+            <Text style={styles.buttonText}>{goodButtonText}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.button, styles.badButton]}
             onPress={() => onFeelingSelected('bad')}
             activeOpacity={0.7}
           >
-            <Text style={styles.buttonText}>
-              {translate('report.badChoice') || 'MAL'}
-            </Text>
+            <Text style={styles.buttonText}>{badButtonText}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -11,6 +11,8 @@ import { CustomDatePicker } from '../CustomDatePicker';
 import { CustomSelector } from '../CustomSelector';
 import { Option } from '../../types/customSelector';
 import { FieldFactoryProps } from '../../types/formRenderer';
+import { useQuery } from '@tanstack/react-query';
+import { getLocations } from '../../services/finishProfile';
 
 export const FieldFactory: React.FC<FieldFactoryProps> = ({
   field,
@@ -223,6 +225,18 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   };
 
+  const renderLocation = () => {
+    return (
+      <LocationFieldSelector
+        field={field}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        error={error}
+      />
+    );
+  };
+
   const renderContent = () => {
     switch (field.type) {
       case 'text':
@@ -239,6 +253,10 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         return renderMultiselectField();
       case 'boolean':
         return null;
+      case 'mapPoint':
+        return null;
+      case 'location':
+        return renderLocation();
       default:
         return (
           <Text style={{ color: 'red' }}>Tipo desconhecido: {field.type}</Text>
@@ -282,6 +300,165 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       {renderContent()}
 
       {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+const LocationFieldSelector = ({
+  field,
+  value,
+  onChange,
+  readOnly,
+  error,
+}: any) => {
+  // Agora o hook é chamado num componente dedicado, de forma segura
+  const { data: allLocations = [] } = useQuery({
+    queryKey: ['locations', 'all-active', 'all-pages'],
+    queryFn: () => getLocations(),
+  });
+
+  const config = field.locationConfig ?? {
+    maxLevel: 'CITY_COUNCIL',
+    countryKey: 'countryLocationId',
+    stateDistrictKey: 'stateDistrictLocationId',
+    cityCouncilKey: 'cityCouncilLocationId',
+  };
+
+  const currentValues = value || {};
+  const currentCountryId = currentValues[config.countryKey] || null;
+  const currentStateId =
+    currentValues[config.stateDistrictKey ?? 'stateDistrictLocationId'] || null;
+  const currentCityId =
+    currentValues[config.cityCouncilKey ?? 'cityCouncilLocationId'] || null;
+
+  // Filtragem em Cascata
+  const countries = allLocations.filter(
+    (loc: any) => loc.orgLevel === 'COUNTRY'
+  );
+  const states = allLocations.filter(
+    (loc: any) =>
+      loc.orgLevel === 'STATE_DISTRICT' && loc.parentId === currentCountryId
+  );
+  const cities = allLocations.filter(
+    (loc: any) =>
+      loc.orgLevel === 'CITY_COUNCIL' && loc.parentId === currentStateId
+  );
+
+  // Mapeia para o formato do CustomSelector
+  const mapToOptions = (list: any[]): Option[] =>
+    list.map((loc) => ({
+      label: loc.name,
+      value: loc.id,
+      key: String(loc.id),
+    }));
+
+  // Handlers
+  const handleCountryChange = (id: number) => {
+    onChange({
+      ...currentValues,
+      [config.countryKey]: id,
+      [config.stateDistrictKey ?? 'stateDistrictLocationId']: null,
+      [config.cityCouncilKey ?? 'cityCouncilLocationId']: null,
+    });
+  };
+
+  const handleStateChange = (id: number) => {
+    onChange({
+      ...currentValues,
+      [config.stateDistrictKey ?? 'stateDistrictLocationId']: id,
+      [config.cityCouncilKey ?? 'cityCouncilLocationId']: null,
+    });
+  };
+
+  const handleCityChange = (id: number) => {
+    onChange({
+      ...currentValues,
+      [config.cityCouncilKey ?? 'cityCouncilLocationId']: id,
+    });
+  };
+
+  // Helper para renderizar os Selects com o mesmo estilo da sua FieldFactory
+  const renderSelector = (
+    options: Option[],
+    currentValue: number | null,
+    placeholder: string,
+    onValueChange: (val: number) => void,
+    isDisabled: boolean
+  ) => {
+    const selectedOption = options.find((o) => o.value === currentValue);
+    const displayLabel = selectedOption ? selectedOption.label : placeholder;
+
+    return (
+      <CustomSelector
+        data={options}
+        initValue={displayLabel}
+        disabled={isDisabled}
+        onChange={(option) => onValueChange(option.value)}
+        selectStyle={[
+          styles.input,
+          error ? styles.inputError : null,
+          { justifyContent: 'center' },
+        ]}
+        selectTextStyle={{ fontSize: 16, color: '#32323b' }}
+        initValueTextStyle={{
+          fontSize: 16,
+          color: selectedOption ? '#32323b' : '#C7C7CD',
+        }}
+        overlayStyle={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}
+        optionContainerStyle={{
+          backgroundColor: 'white',
+          borderRadius: 12,
+          maxHeight: '50%',
+          overflow: 'hidden',
+        }}
+        optionStyle={{
+          padding: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: '#f0f0f0',
+        }}
+        cancelContainerStyle={{
+          marginTop: 12,
+          backgroundColor: 'white',
+          borderRadius: 12,
+          overflow: 'hidden',
+        }}
+        cancelStyle={{ padding: 16, alignItems: 'center' }}
+        cancelTextStyle={{ color: '#e74c3c', fontSize: 16, fontWeight: '600' }}
+      />
+    );
+  };
+
+  return (
+    <View style={{ gap: 12 }}>
+      {/* PAÍS */}
+      {renderSelector(
+        mapToOptions(countries),
+        currentCountryId,
+        'Selecione o País',
+        handleCountryChange,
+        readOnly
+      )}
+
+      {/* ESTADO */}
+      {(config.maxLevel === 'STATE_DISTRICT' ||
+        config.maxLevel === 'CITY_COUNCIL') &&
+        renderSelector(
+          mapToOptions(states),
+          currentStateId,
+          'Selecione o Estado/Distrito',
+          handleStateChange,
+          readOnly || !currentCountryId || states.length === 0
+        )}
+
+      {/* CIDADE */}
+      {config.maxLevel === 'CITY_COUNCIL' &&
+        renderSelector(
+          mapToOptions(cities),
+          currentCityId,
+          'Selecione a Cidade',
+          handleCityChange,
+          readOnly || !currentStateId || cities.length === 0
+        )}
     </View>
   );
 };
