@@ -311,7 +311,6 @@ const LocationFieldSelector = ({
   readOnly,
   error,
 }: any) => {
-  // Agora o hook é chamado num componente dedicado, de forma segura
   const { data: allLocations = [] } = useQuery({
     queryKey: ['locations', 'all-active', 'all-pages'],
     queryFn: () => getLocations(),
@@ -324,12 +323,24 @@ const LocationFieldSelector = ({
     cityCouncilKey: 'cityCouncilLocationId',
   };
 
+  // Lógica dinâmica para descobrir a chave do NOME baseada na chave do ID
+  // Remove "_id" (snake_case) ou "Id" (camelCase) do final da string
+  const countryNameKey =
+    config.countryNameKey ??
+    config.countryKey.replace(/_id$/i, '').replace(/Id$/, '');
+  const stateDistrictKey = config.stateDistrictKey ?? 'stateDistrictLocationId';
+  const stateNameKey =
+    config.stateNameKey ??
+    stateDistrictKey.replace(/_id$/i, '').replace(/Id$/, '');
+  const cityCouncilKey = config.cityCouncilKey ?? 'cityCouncilLocationId';
+  const cityNameKey =
+    config.cityNameKey ??
+    cityCouncilKey.replace(/_id$/i, '').replace(/Id$/, '');
+
   const currentValues = value || {};
   const currentCountryId = currentValues[config.countryKey] || null;
-  const currentStateId =
-    currentValues[config.stateDistrictKey ?? 'stateDistrictLocationId'] || null;
-  const currentCityId =
-    currentValues[config.cityCouncilKey ?? 'cityCouncilLocationId'] || null;
+  const currentStateId = currentValues[stateDistrictKey] || null;
+  const currentCityId = currentValues[cityCouncilKey] || null;
 
   // Filtragem em Cascata
   const countries = allLocations.filter(
@@ -352,32 +363,53 @@ const LocationFieldSelector = ({
       key: String(loc.id),
     }));
 
-  // Handlers
+  // Handlers com a inclusão dos Nomes
   const handleCountryChange = (id: number) => {
+    const selectedCountry = countries.find((c: any) => c.id === id);
+
     onChange({
       ...currentValues,
+      // Salva o País (ID e Nome)
       [config.countryKey]: id,
-      [config.stateDistrictKey ?? 'stateDistrictLocationId']: null,
-      [config.cityCouncilKey ?? 'cityCouncilLocationId']: null,
+      [countryNameKey]: selectedCountry ? selectedCountry.name : null,
+
+      // Reseta o Estado (ID e Nome)
+      [stateDistrictKey]: null,
+      [stateNameKey]: null,
+
+      // Reseta a Cidade (ID e Nome)
+      [cityCouncilKey]: null,
+      [cityNameKey]: null,
     });
   };
 
   const handleStateChange = (id: number) => {
+    const selectedState = states.find((s: any) => s.id === id);
+
     onChange({
       ...currentValues,
-      [config.stateDistrictKey ?? 'stateDistrictLocationId']: id,
-      [config.cityCouncilKey ?? 'cityCouncilLocationId']: null,
+      // Salva o Estado (ID e Nome)
+      [stateDistrictKey]: id,
+      [stateNameKey]: selectedState ? selectedState.name : null,
+
+      // Reseta a Cidade (ID e Nome)
+      [cityCouncilKey]: null,
+      [cityNameKey]: null,
     });
   };
 
   const handleCityChange = (id: number) => {
+    const selectedCity = cities.find((c: any) => c.id === id);
+
     onChange({
       ...currentValues,
-      [config.cityCouncilKey ?? 'cityCouncilLocationId']: id,
+      // Salva a Cidade (ID e Nome)
+      [cityCouncilKey]: id,
+      [cityNameKey]: selectedCity ? selectedCity.name : null,
     });
   };
 
-  // Helper para renderizar os Selects com o mesmo estilo da sua FieldFactory
+  // Helper para renderizar os Selects
   const renderSelector = (
     options: Option[],
     currentValue: number | null,
@@ -393,7 +425,7 @@ const LocationFieldSelector = ({
         data={options}
         initValue={displayLabel}
         disabled={isDisabled}
-        onChange={(option) => onValueChange(option.value)}
+        onChange={(option) => onValueChange(option.value as number)}
         selectStyle={[
           styles.input,
           error ? styles.inputError : null,

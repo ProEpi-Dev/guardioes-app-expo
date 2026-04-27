@@ -154,7 +154,8 @@ export const useSentimentLogic = () => {
         await createReport({
           participationId,
           formVersionId: versionId,
-          reportType: 'POSITIVE',
+          // reportType: 'POSITIVE',
+          reportType: contextId === 4 ? 'NEGATIVE' : 'POSITIVE',
           formResponse: {},
           occurrenceLocation: loc
             ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
@@ -236,7 +237,8 @@ export const useSentimentLogic = () => {
       await createReport({
         participationId,
         formVersionId: currentFormVersionId,
-        reportType: 'NEGATIVE',
+        // reportType: 'NEGATIVE',
+        reportType: contextId === 4 ? 'POSITIVE' : 'NEGATIVE',
         formResponse: cleanData,
         occurrenceLocation: loc
           ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
