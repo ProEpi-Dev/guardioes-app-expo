@@ -91,6 +91,7 @@ export const updateUserProfile = async (payload: {
   genderId: number;
   locationId: number;
   externalIdentifier: string;
+  phone: string;
 }) => {
   return await apiClient('/v1/users/me/profile', {
     method: 'PATCH',
