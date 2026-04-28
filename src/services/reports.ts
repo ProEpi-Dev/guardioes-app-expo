@@ -1,4 +1,4 @@
-import { ReportType } from '../types/report';
+import { ReportDetailsResponse, ReportType } from '../types/report';
 import { apiClient } from '../utils/api';
 
 interface ReportPayload {
@@ -31,6 +31,15 @@ export const getReport = async (participationId: number) => {
     );
 
     return (response as unknown as ReportType[]) ?? null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getReportById = async (reportId: number) => {
+  try {
+    const response = await apiClient(`/v1/reports/${reportId}`);
+    return response as unknown as ReportDetailsResponse;
   } catch (error) {
     throw error;
   }

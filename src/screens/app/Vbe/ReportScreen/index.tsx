@@ -6,6 +6,7 @@ import {
   RefreshControl,
   Text,
   View,
+  TouchableOpacity,
 } from 'react-native';
 import { CustomHeader } from '../../../../components/CustomHeader';
 import { useAuth } from '../../../../contexts/AuthContext';
@@ -16,6 +17,9 @@ import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
 import { SentimentModal } from '../../../../components/SentimentModal';
 import { useVbeReports } from '../../../../hooks/useVbeReport';
 import { CardReport } from '../../../../components/VBE/cardReport';
+import { useQuery } from '@tanstack/react-query';
+import { getReportById } from '../../../../services/reports';
+import { ReportDetailsModal } from '../../../../components/VBE/ReportDetailsModal';
 
 export function Vbe() {
   const { user } = useAuth();
@@ -35,6 +39,16 @@ export function Vbe() {
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
   const [isCompliant, setIsCompliant] = useState(logicCompliant);
   const { report, refetch, isRefetching } = useVbeReports();
+  const [activeFilter, setActiveFilter] = useState<
+    'Todos' | 'Informado' | 'Processado'
+  >('Todos');
+  const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+
+  const { data: reportDetails, isFetching: isFetchingDetails } = useQuery({
+    queryKey: ['report-details', selectedReportId],
+    queryFn: () => getReportById(selectedReportId!),
+    enabled: !!selectedReportId,
+  });
 
   useEffect(() => {
     setIsCompliant(logicCompliant);
@@ -62,6 +76,23 @@ export function Vbe() {
     }
   };
 
+  const filteredReports =
+    report?.filter((item) => {
+      if (activeFilter === 'Todos') {
+        return true;
+      }
+
+      if (activeFilter === 'Informado') {
+        return item.externalSignalStageLabel === 'Informado';
+      } else {
+        return item.externalSignalStageLabel === 'Processado';
+      }
+    }) || [];
+
+  const selectedIntegrationData = report?.find(
+    (r) => r.reportId === selectedReportId
+  );
+
   return (
     <View style={{ flex: 1, backgroundColor: '#f4f5f7' }}>
       <CustomHeader userName={user?.name} />
@@ -71,7 +102,7 @@ export function Vbe() {
           <FeelingCard
             onFeelingSelected={handleFeelingSelection}
             isCompliant={isCompliant}
-            padBottom={0} // Zeramos isso porque a caixa já cuida do posicionamento
+            padBottom={0}
             bottomOffset={0}
             goodButtonText="NADA OCORREU"
             badButtonText="INFORMAR"
@@ -79,13 +110,99 @@ export function Vbe() {
           />
         </View>
 
-        <View style={{ height: 350, width: '100%' }}>
+        <View style={{ width: '100%', marginHorizontal: 20, marginBottom: 10 }}>
+          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Reports</Text>
+        </View>
+
+        <View
+          style={{
+            flexDirection: 'row',
+            marginHorizontal: 14,
+            backgroundColor: '#E3E3E8',
+            borderRadius: 8,
+            padding: 4,
+            marginBottom: 15,
+            alignItems: 'center',
+          }}
+        >
+          <TouchableOpacity
+            onPress={() => setActiveFilter('Todos')}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              alignItems: 'center',
+              backgroundColor:
+                activeFilter === 'Todos' ? '#FFFFFF' : 'transparent',
+              borderRadius: 6,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: activeFilter === 'Todos' ? 'bold' : 'normal',
+                color: activeFilter === 'Todos' ? '#000000' : '#666666',
+              }}
+            >
+              Todos
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveFilter('Informado')}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              alignItems: 'center',
+              backgroundColor:
+                activeFilter === 'Informado' ? '#FFFFFF' : 'transparent',
+              borderRadius: 6,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: activeFilter === 'Informado' ? 'bold' : 'normal',
+                color: activeFilter === 'Informado' ? '#000000' : '#666666',
+              }}
+            >
+              Informado
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setActiveFilter('Processado')}
+            style={{
+              flex: 1,
+              paddingVertical: 8,
+              alignItems: 'center',
+              backgroundColor:
+                activeFilter === 'Processado' ? '#FFFFFF' : 'transparent',
+              borderRadius: 6,
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: activeFilter === 'Processado' ? 'bold' : 'normal',
+                color: activeFilter === 'Processado' ? '#000000' : '#666666',
+              }}
+            >
+              Processado
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <View
+          style={{ height: 350, width: '100%', paddingBottom: insets.bottom }}
+        >
           <FlatList
-            data={report || []}
+            data={filteredReports}
             keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => <CardReport data={item} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => setSelectedReportId(item.reportId)}
+              >
+                <CardReport data={item} />
+              </TouchableOpacity>
+            )}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 10 }}
+            contentContainerStyle={{ paddingBottom: insets.bottom + 50 }}
             refreshControl={
               <RefreshControl
                 refreshing={isRefetching}
@@ -114,6 +231,14 @@ export function Vbe() {
         onFormChange={setFormValues}
         onSubmit={handleSubmitForm}
         title={formTitle}
+      />
+
+      <ReportDetailsModal
+        visible={selectedReportId !== null}
+        loading={isFetchingDetails}
+        data={reportDetails}
+        integrationData={selectedIntegrationData}
+        onClose={() => setSelectedReportId(null)}
       />
     </View>
   );
