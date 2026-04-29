@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getArticles, getContentTypes } from '../services/article';
 import { Article, ContentType } from '../types/article';
+import { useParticipation } from '../contexts/ParticipationContext';
 
 export const useArticles = () => {
+  const { contextId } = useParticipation();
   const [articles, setArticles] = useState<Article[]>([]);
   const [contentTypes, setContentTypes] = useState<ContentType[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -16,7 +18,7 @@ export const useArticles = () => {
 
       setError(null);
       const [articlesData, typesData] = await Promise.all([
-        getArticles(),
+        getArticles(contextId),
         getContentTypes(),
       ]);
 
