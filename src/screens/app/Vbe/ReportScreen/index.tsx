@@ -7,6 +7,8 @@ import {
   Text,
   View,
   TouchableOpacity,
+  Animated,
+  StyleSheet,
 } from 'react-native';
 import { CustomHeader } from '../../../../components/CustomHeader';
 import { useAuth } from '../../../../contexts/AuthContext';
@@ -34,6 +36,8 @@ export function Vbe() {
     setFormValues,
     handleSubmitForm,
     isCompliant: logicCompliant,
+    showSuccessAnimation,
+    setShowSuccessAnimation,
   } = useSentimentLogic();
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
@@ -49,6 +53,44 @@ export function Vbe() {
     queryFn: () => getReportById(selectedReportId!),
     enabled: !!selectedReportId,
   });
+
+  const [fadeAnim] = useState(() => new Animated.Value(0));
+  const [scaleAnim] = useState(() => new Animated.Value(0.5));
+
+  const diaDaSemana = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long',
+  });
+  const diaCapitalizado =
+    diaDaSemana.charAt(0).toUpperCase() + diaDaSemana.slice(1);
+
+  useEffect(() => {
+    if (showSuccessAnimation) {
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.spring(scaleAnim, {
+          toValue: 1,
+          friction: 6,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // Esconde automaticamente após 3.5 segundos
+      setTimeout(() => {
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }).start(() => {
+          setShowSuccessAnimation(false);
+          scaleAnim.setValue(0.5); // reseta para a próxima vez
+        });
+      }, 3500);
+    }
+  }, [showSuccessAnimation]);
 
   useEffect(() => {
     setIsCompliant(logicCompliant);
@@ -222,6 +264,20 @@ export function Vbe() {
         </View>
       </View>
 
+      {showSuccessAnimation && (
+        <View style={[StyleSheet.absoluteFillObject, styles.successOverlay]}>
+          <Animated.View
+            style={[
+              styles.successCard,
+              { opacity: fadeAnim, transform: [{ scale: scaleAnim }] },
+            ]}
+          >
+            <Text style={styles.successEmoji}>✅</Text>
+            <Text style={styles.successTitle}>{diaCapitalizado} Marcado!</Text>
+          </Animated.View>
+        </View>
+      )}
+
       <SentimentModal
         visible={showForm}
         onClose={() => setShowForm(false)}
@@ -243,3 +299,34 @@ export function Vbe() {
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  successOverlay: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    zIndex: 999, // Garante que fique por cima de toda a interface
+  },
+  successCard: {
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 30,
+    paddingHorizontal: 40,
+    borderRadius: 24,
+    alignItems: 'center',
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+  },
+  successEmoji: {
+    fontSize: 50,
+    marginBottom: 10,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#2C3E50',
+    textAlign: 'center',
+  },
+});
