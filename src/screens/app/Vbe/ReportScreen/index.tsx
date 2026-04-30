@@ -153,7 +153,7 @@ export function Vbe() {
         </View>
 
         <View style={{ width: '100%', marginHorizontal: 20, marginBottom: 10 }}>
-          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Reports</Text>
+          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Sinais</Text>
         </View>
 
         <View

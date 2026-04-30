@@ -119,7 +119,7 @@ const Login = ({ navigation }) => {
               returnKeyType="next"
               maxLength={100}
               value={email}
-              onChangeText={(text) => setEmail(text)}
+              onChangeText={(text) => setEmail(text.toLocaleLowerCase())}
               onSubmitEditing={() => passwordInput.current.focus()}
             />
             <SolidInput

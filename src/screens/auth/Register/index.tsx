@@ -84,7 +84,7 @@ export function Register({ navigation }: Props) {
             keyboardType="email-address"
             returnKeyType="next"
             maxLength={100}
-            value={email}
+            value={email.toLocaleLowerCase()}
             onChangeText={setEmail}
           />
           <SolidSelector
