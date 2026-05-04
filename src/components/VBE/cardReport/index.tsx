@@ -1,16 +1,31 @@
 import React from 'react';
 import { Text, View, StyleSheet } from 'react-native';
-import { ReportType } from '../../../types/report';
+import { ReportTypee } from '../../../types/report';
 
 interface CardReportProps {
-  data: ReportType;
+  data: ReportTypee;
 }
 
 export function CardReport({ data }: CardReportProps) {
+  // Função para formatar a data para o padrão brasileiro
+  const formatarData = (dataISO: string | number) => {
+    if (!dataISO) return 'Data indisponível';
+
+    const date = new Date(dataISO);
+
+    // Retorna no formato: 29/04/2026 às 17:30
+    return date.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Reporte ID: {data.reportId}</Text>
-      <Text style={styles.status}>Status: {data.externalSignalStageLabel}</Text>
+      {/* Trocamos o ID pela Data formatada */}
+      <Text style={styles.title}>{formatarData(data.createdAt)}</Text>
+      <Text style={styles.status}>{data.previewText}</Text>
     </View>
   );
 }

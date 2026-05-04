@@ -19,3 +19,9 @@ export interface ReportDetailsResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ReportTypee {
+  id: number;
+  createdAt: number;
+  previewText: string;
+}

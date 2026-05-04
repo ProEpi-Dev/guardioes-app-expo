@@ -1,4 +1,8 @@
-import { ReportDetailsResponse, ReportType } from '../types/report';
+import {
+  ReportDetailsResponse,
+  ReportType,
+  ReportTypee,
+} from '../types/report';
 import { apiClient } from '../utils/api';
 
 interface ReportPayload {
@@ -31,6 +35,23 @@ export const getReport = async (participationId: number) => {
     );
 
     return (response as unknown as ReportType[]) ?? null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getReports = async (
+  participationId: number,
+  contextId: number
+): Promise<ReportTypee[]> => {
+  try {
+    const response = await apiClient(
+      `/v1/reports?page=1&pageSize=100&active=true&participationId=${participationId}&reportType=POSITIVE&view=app&contextId=${contextId}`
+    );
+
+    // Garante que se a API retornar um objeto paginado, extraímos o array correspondente
+    const responseData = (response as any)?.data || response;
+    return (Array.isArray(responseData) ? responseData : []) as ReportTypee[];
   } catch (error) {
     throw error;
   }

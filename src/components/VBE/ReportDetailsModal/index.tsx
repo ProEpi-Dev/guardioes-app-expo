@@ -9,14 +9,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ReportDetailsResponse, ReportType } from '../../../types/report';
+import { ReportDetailsResponse, ReportTypee } from '../../../types/report';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   loading: boolean;
   data?: ReportDetailsResponse;
-  integrationData?: ReportType; // <-- Recebe os dados de acompanhamento da lista
+  integrationData?: ReportTypee; // <-- Recebe os dados de acompanhamento da lista
 }
 
 // Dicionário para deixar as chaves da API com os mesmos textos da sua imagem
@@ -37,7 +37,7 @@ export function ReportDetailsModal({
   onClose,
   loading,
   data,
-  integrationData,
+  // integrationData,
 }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -175,7 +175,7 @@ export function ReportDetailsModal({
                   </Text>
                 </View>
 
-                {integrationData?.externalSignalStageLabel && (
+                {/* {integrationData?.externalSignalStageLabel && (
                   <View style={[styles.badge, styles.badgeOutline]}>
                     <Text
                       style={{
@@ -187,7 +187,7 @@ export function ReportDetailsModal({
                       {integrationData.externalSignalStageLabel}
                     </Text>
                   </View>
-                )}
+                )} */}
               </View>
 
               {/* Cartões do Formulário */}
@@ -222,7 +222,7 @@ export function ReportDetailsModal({
                 <View
                   style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}
                 >
-                  {integrationData?.status === 'sent' && (
+                  {/* {integrationData?.status === 'sent' && (
                     <View
                       style={[styles.badge, { backgroundColor: '#2e7d32' }]}
                     >
@@ -250,7 +250,7 @@ export function ReportDetailsModal({
                         {integrationData.externalSignalStageLabel}
                       </Text>
                     </View>
-                  )}
+                  )} */}
                 </View>
               </View>
             </ScrollView>

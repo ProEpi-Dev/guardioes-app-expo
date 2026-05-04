@@ -125,14 +125,14 @@ export function Vbe() {
       }
 
       if (activeFilter === 'Informado') {
-        return item.externalSignalStageLabel === 'Informado';
+        return item.previewText === 'Informado';
       } else {
-        return item.externalSignalStageLabel === 'Processado';
+        return item.previewText === 'Processado';
       }
     }) || [];
 
   const selectedIntegrationData = report?.find(
-    (r) => r.reportId === selectedReportId
+    (r) => r.id === selectedReportId
   );
 
   return (
@@ -188,7 +188,7 @@ export function Vbe() {
             </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => setActiveFilter('Informado')}
             style={{
               flex: 1,
@@ -207,9 +207,9 @@ export function Vbe() {
             >
               Informado
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => setActiveFilter('Processado')}
             style={{
               flex: 1,
@@ -228,7 +228,7 @@ export function Vbe() {
             >
               Processado
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
         <View
           style={{ height: 350, width: '100%', paddingBottom: insets.bottom }}
@@ -237,9 +237,7 @@ export function Vbe() {
             data={filteredReports}
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => setSelectedReportId(item.reportId)}
-              >
+              <TouchableOpacity onPress={() => setSelectedReportId(item.id)}>
                 <CardReport data={item} />
               </TouchableOpacity>
             )}
