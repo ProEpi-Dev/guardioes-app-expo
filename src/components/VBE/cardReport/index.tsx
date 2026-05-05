@@ -25,6 +25,19 @@ export function CardReport({ data }: CardReportProps) {
     <View style={styles.card}>
       {/* Trocamos o ID pela Data formatada */}
       <Text style={styles.title}>{formatarData(data.createdAt)}</Text>
+      {data.integrationSummary?.externalSignalStageLabel && (
+        <View style={[styles.badge]}>
+          <Text
+            style={{
+              color: 'rgb(2, 136, 209)',
+              fontWeight: '600',
+              fontSize: 12,
+            }}
+          >
+            {data.integrationSummary?.externalSignalStageLabel}
+          </Text>
+        </View>
+      )}
       <Text style={styles.status}>{data.previewText}</Text>
     </View>
   );
@@ -47,5 +60,13 @@ const styles = StyleSheet.create({
   },
   status: {
     color: '#666',
+  },
+  badge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 50,
+    alignSelf: 'flex-start',
+    borderColor: '#0288d1',
+    borderWidth: 1,
   },
 });

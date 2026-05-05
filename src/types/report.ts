@@ -24,4 +24,8 @@ export interface ReportTypee {
   id: number;
   createdAt: number;
   previewText: string;
+  integrationSummary: {
+    status: string;
+    externalSignalStageLabel: string;
+  } | null;
 }

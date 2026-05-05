@@ -37,7 +37,7 @@ export function ReportDetailsModal({
   onClose,
   loading,
   data,
-  // integrationData,
+  integrationData,
 }: Props) {
   const insets = useSafeAreaInsets();
 
@@ -175,7 +175,8 @@ export function ReportDetailsModal({
                   </Text>
                 </View>
 
-                {/* {integrationData?.externalSignalStageLabel && (
+                {integrationData?.integrationSummary
+                  ?.externalSignalStageLabel && (
                   <View style={[styles.badge, styles.badgeOutline]}>
                     <Text
                       style={{
@@ -184,10 +185,13 @@ export function ReportDetailsModal({
                         fontSize: 12,
                       }}
                     >
-                      {integrationData.externalSignalStageLabel}
+                      {
+                        integrationData?.integrationSummary
+                          ?.externalSignalStageLabel
+                      }
                     </Text>
                   </View>
-                )} */}
+                )}
               </View>
 
               {/* Cartões do Formulário */}
@@ -222,7 +226,7 @@ export function ReportDetailsModal({
                 <View
                   style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}
                 >
-                  {/* {integrationData?.status === 'sent' && (
+                  {integrationData?.integrationSummary?.status === 'sent' && (
                     <View
                       style={[styles.badge, { backgroundColor: '#2e7d32' }]}
                     >
@@ -237,7 +241,8 @@ export function ReportDetailsModal({
                       </Text>
                     </View>
                   )}
-                  {integrationData?.externalSignalStageLabel && (
+                  {integrationData?.integrationSummary
+                    ?.externalSignalStageLabel && (
                     <View style={[styles.badge, styles.badgeOutline]}>
                       <Text
                         style={{
@@ -247,10 +252,13 @@ export function ReportDetailsModal({
                         }}
                       >
                         Estado no sistema externo:{' '}
-                        {integrationData.externalSignalStageLabel}
+                        {
+                          integrationData.integrationSummary
+                            ?.externalSignalStageLabel
+                        }
                       </Text>
                     </View>
-                  )} */}
+                  )}
                 </View>
               </View>
             </ScrollView>

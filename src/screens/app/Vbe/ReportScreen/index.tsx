@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   Alert,
   DeviceEventEmitter,
@@ -39,13 +39,13 @@ export function Vbe() {
     showSuccessAnimation,
     setShowSuccessAnimation,
   } = useSentimentLogic();
+
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
   const [isCompliant, setIsCompliant] = useState(logicCompliant);
   const { report, refetch, isRefetching } = useVbeReports();
-  const [activeFilter, setActiveFilter] = useState<
-    'Todos' | 'Informado' | 'Processado'
-  >('Todos');
+
+  const [activeFilter, setActiveFilter] = useState<string>('Todos');
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
 
   const { data: reportDetails, isFetching: isFetchingDetails } = useQuery({
@@ -78,7 +78,6 @@ export function Vbe() {
         }),
       ]).start();
 
-      // Esconde automaticamente após 3.5 segundos
       setTimeout(() => {
         Animated.timing(fadeAnim, {
           toValue: 0,
@@ -86,7 +85,7 @@ export function Vbe() {
           useNativeDriver: true,
         }).start(() => {
           setShowSuccessAnimation(false);
-          scaleAnim.setValue(0.5); // reseta para a próxima vez
+          scaleAnim.setValue(0.5);
         });
       }, 3500);
     }
@@ -118,18 +117,32 @@ export function Vbe() {
     }
   };
 
-  const filteredReports =
-    report?.filter((item) => {
-      if (activeFilter === 'Todos') {
-        return true;
-      }
+  // 1. GERANDO AS OPÇÕES DO FILTRO DINAMICAMENTE
+  const filterOptions = useMemo(() => {
+    if (!report) return ['Todos'];
 
-      if (activeFilter === 'Informado') {
-        return item.previewText === 'Informado';
-      } else {
-        return item.previewText === 'Processado';
-      }
-    }) || [];
+    const labels = report.map(
+      (item) => item.integrationSummary?.externalSignalStageLabel
+    );
+    const validLabels = labels.filter((label): label is string => !!label);
+    const uniqueLabels = Array.from(new Set(validLabels));
+
+    return ['Todos', ...uniqueLabels];
+  }, [report]);
+
+  // 2. APLICANDO O FILTRO NA LISTA
+  const filteredReports = useMemo(() => {
+    if (!report) return [];
+
+    if (activeFilter === 'Todos') {
+      return report;
+    }
+
+    return report.filter(
+      (item) =>
+        item.integrationSummary?.externalSignalStageLabel === activeFilter
+    );
+  }, [report, activeFilter]);
 
   const selectedIntegrationData = report?.find(
     (r) => r.id === selectedReportId
@@ -156,6 +169,7 @@ export function Vbe() {
           <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Sinais</Text>
         </View>
 
+        {/* CONTAINER DOS BOTÕES DE FILTRO */}
         <View
           style={{
             flexDirection: 'row',
@@ -167,69 +181,32 @@ export function Vbe() {
             alignItems: 'center',
           }}
         >
-          <TouchableOpacity
-            onPress={() => setActiveFilter('Todos')}
-            style={{
-              flex: 1,
-              paddingVertical: 8,
-              alignItems: 'center',
-              backgroundColor:
-                activeFilter === 'Todos' ? '#FFFFFF' : 'transparent',
-              borderRadius: 6,
-            }}
-          >
-            <Text
+          {/* Mapeando os botões dinamicamente baseado nos dados reais */}
+          {filterOptions.map((option) => (
+            <TouchableOpacity
+              key={option}
+              onPress={() => setActiveFilter(option)}
               style={{
-                fontWeight: activeFilter === 'Todos' ? 'bold' : 'normal',
-                color: activeFilter === 'Todos' ? '#000000' : '#666666',
+                flex: 1,
+                paddingVertical: 8,
+                alignItems: 'center',
+                backgroundColor:
+                  activeFilter === option ? '#FFFFFF' : 'transparent',
+                borderRadius: 6,
               }}
             >
-              Todos
-            </Text>
-          </TouchableOpacity>
-
-          {/* <TouchableOpacity
-            onPress={() => setActiveFilter('Informado')}
-            style={{
-              flex: 1,
-              paddingVertical: 8,
-              alignItems: 'center',
-              backgroundColor:
-                activeFilter === 'Informado' ? '#FFFFFF' : 'transparent',
-              borderRadius: 6,
-            }}
-          >
-            <Text
-              style={{
-                fontWeight: activeFilter === 'Informado' ? 'bold' : 'normal',
-                color: activeFilter === 'Informado' ? '#000000' : '#666666',
-              }}
-            >
-              Informado
-            </Text>
-          </TouchableOpacity> */}
-
-          {/* <TouchableOpacity
-            onPress={() => setActiveFilter('Processado')}
-            style={{
-              flex: 1,
-              paddingVertical: 8,
-              alignItems: 'center',
-              backgroundColor:
-                activeFilter === 'Processado' ? '#FFFFFF' : 'transparent',
-              borderRadius: 6,
-            }}
-          >
-            <Text
-              style={{
-                fontWeight: activeFilter === 'Processado' ? 'bold' : 'normal',
-                color: activeFilter === 'Processado' ? '#000000' : '#666666',
-              }}
-            >
-              Processado
-            </Text>
-          </TouchableOpacity> */}
+              <Text
+                style={{
+                  fontWeight: activeFilter === option ? 'bold' : 'normal',
+                  color: activeFilter === option ? '#000000' : '#666666',
+                }}
+              >
+                {option}
+              </Text>
+            </TouchableOpacity>
+          ))}
         </View>
+
         <View
           style={{ height: 350, width: '100%', paddingBottom: insets.bottom }}
         >
@@ -303,7 +280,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0,0,0,0.6)',
-    zIndex: 999, // Garante que fique por cima de toda a interface
+    zIndex: 999,
   },
   successCard: {
     backgroundColor: '#FFFFFF',
