@@ -48,22 +48,68 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const storedToken = await initializeAuthToken();
       const storedUser = await authStorage.getUser();
-
       const storedRefreshToken = await authStorage.getRefreshToken();
 
       if (storedToken && storedUser && storedRefreshToken) {
-        setToken(storedToken);
-        setUser(storedUser);
-        setIsAuthenticated(true);
+        try {
+          const refreshResponse = await axios.post(
+            `${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/refresh`,
+            {
+              refreshToken: storedRefreshToken,
+            }
+          );
 
-        await fetchForms();
+          const responseData = refreshResponse.data;
+
+          const newToken =
+            responseData.token ||
+            responseData.accessToken ||
+            responseData.data?.token ||
+            responseData.data?.accessToken;
+
+          const newRefreshToken =
+            responseData.refreshToken || responseData.data?.refreshToken;
+
+          if (newToken) {
+            await updateAuthToken(newToken);
+            if (newRefreshToken) {
+              await authStorage.storeRefreshToken(newRefreshToken);
+            }
+            setToken(newToken);
+            setUser(storedUser);
+            setIsAuthenticated(true);
+            await fetchForms();
+          } else {
+            throw new Error(
+              'Token não recebido da API durante a renovação proativa.'
+            );
+          }
+        } catch (refreshError: any) {
+          console.warn(
+            'Erro na renovação proativa do token ao abrir o app:',
+            refreshError
+          );
+
+          if (refreshError.response && refreshError.response.status === 401) {
+            await authStorage.clearAuthData();
+            await updateAuthToken(null);
+            setIsAuthenticated(false);
+            setToken(null);
+            setUser(null);
+          } else {
+            setToken(storedToken);
+            setUser(storedUser);
+            setIsAuthenticated(true);
+            await fetchForms();
+          }
+        }
       } else {
         setIsAuthenticated(false);
         setToken(null);
         setUser(null);
       }
     } catch (error) {
-      console.error('Erro ao verificar estado de autenticação:', error);
+      console.error('Erro grave ao verificar estado de autenticação:', error);
       setIsAuthenticated(false);
       setToken(null);
       setUser(null);
