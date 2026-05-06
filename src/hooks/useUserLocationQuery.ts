@@ -8,6 +8,7 @@ async function fetchUserLocation(): Promise<LocationObject | null> {
   try {
     const { status: current } = await Location.getForegroundPermissionsAsync();
     let status = current;
+
     if (current !== 'granted') {
       const res = await Promise.race([
         Location.requestForegroundPermissionsAsync(),
@@ -17,12 +18,22 @@ async function fetchUserLocation(): Promise<LocationObject | null> {
       ]);
       status = res.status;
     }
+
     if (status !== 'granted') return null;
+
+    // 1. Tenta pegar a localização da memória cache do celular (MUITO RÁPIDO)
+    const lastKnownLocation = await Location.getLastKnownPositionAsync();
+    if (lastKnownLocation) {
+      return lastKnownLocation;
+    }
+
+    // 2. Se não tiver nada no cache, aí sim força a busca no GPS, mas aceitando uma precisão mais baixa para ser mais rápido
     return await Location.getCurrentPositionAsync({
-      accuracy: Location.Accuracy.Balanced,
+      accuracy: Location.Accuracy.Low, // Mudado de Balanced para Low para evitar travamentos
       mayShowUserSettingsDialog: true,
     });
-  } catch {
+  } catch (error) {
+    console.warn('Erro ao capturar localização:', error);
     return null;
   }
 }
