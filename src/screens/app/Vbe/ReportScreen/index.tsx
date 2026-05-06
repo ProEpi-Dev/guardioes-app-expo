@@ -10,18 +10,23 @@ import {
   Animated,
   StyleSheet,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useQuery } from '@tanstack/react-query';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+
 import { CustomHeader } from '../../../../components/CustomHeader';
 import { useAuth } from '../../../../contexts/AuthContext';
 import translate from '../../../../locales/i18n';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FeelingCard } from '../../../../components/FeelingCard';
 import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
 import { SentimentModal } from '../../../../components/SentimentModal';
 import { useVbeReports } from '../../../../hooks/useVbeReport';
 import { CardReport } from '../../../../components/VBE/cardReport';
-import { useQuery } from '@tanstack/react-query';
 import { getReportById } from '../../../../services/reports';
 import { ReportDetailsModal } from '../../../../components/VBE/ReportDetailsModal';
+import { FilterDrawer } from '../../../../components/FilterDrawer';
+import { colors } from '../../../../utils/colors';
 
 export function Vbe() {
   const { user } = useAuth();
@@ -45,8 +50,9 @@ export function Vbe() {
   const [isCompliant, setIsCompliant] = useState(logicCompliant);
   const { report, refetch, isRefetching } = useVbeReports();
 
-  const [activeFilter, setActiveFilter] = useState<string>('Todos');
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
 
   const { data: reportDetails, isFetching: isFetchingDetails } = useQuery({
     queryKey: ['report-details', selectedReportId],
@@ -98,9 +104,7 @@ export function Vbe() {
   useEffect(() => {
     const subscription = DeviceEventEmitter.addListener(
       'force_compliance_update',
-      (status) => {
-        setIsCompliant(status);
-      }
+      (status) => setIsCompliant(status)
     );
     return () => subscription.remove();
   }, []);
@@ -117,9 +121,8 @@ export function Vbe() {
     }
   };
 
-  // 1. GERANDO AS OPÇÕES DO FILTRO DINAMICAMENTE
-  const filterOptions = useMemo(() => {
-    if (!report) return ['Todos'];
+  const contentTypes = useMemo(() => {
+    if (!report) return [];
 
     const labels = report.map(
       (item) => item.integrationSummary?.externalSignalStageLabel
@@ -127,22 +130,40 @@ export function Vbe() {
     const validLabels = labels.filter((label): label is string => !!label);
     const uniqueLabels = Array.from(new Set(validLabels));
 
-    return ['Todos', ...uniqueLabels];
+    return uniqueLabels.map((label, index) => ({
+      id: index + 1,
+      name: label,
+      color: '#666666',
+    }));
   }, [report]);
 
-  // 2. APLICANDO O FILTRO NA LISTA
   const filteredReports = useMemo(() => {
     if (!report) return [];
 
-    if (activeFilter === 'Todos') {
+    if (selectedFilters.length === 0) {
       return report;
     }
 
+    const selectedNames = contentTypes
+      .filter((type) => selectedFilters.includes(type.id))
+      .map((type) => type.name);
+
     return report.filter(
       (item) =>
-        item.integrationSummary?.externalSignalStageLabel === activeFilter
+        item.integrationSummary?.externalSignalStageLabel &&
+        selectedNames.includes(item.integrationSummary.externalSignalStageLabel)
     );
-  }, [report, activeFilter]);
+  }, [report, selectedFilters, contentTypes]);
+
+  const handleToggleFilter = (id: number) => {
+    setSelectedFilters((prev) =>
+      prev.includes(id) ? prev.filter((fId) => fId !== id) : [...prev, id]
+    );
+  };
+
+  const handleClearFilters = () => {
+    setSelectedFilters([]);
+  };
 
   const selectedIntegrationData = report?.find(
     (r) => r.id === selectedReportId
@@ -165,46 +186,41 @@ export function Vbe() {
           />
         </View>
 
-        <View style={{ width: '100%', marginHorizontal: 20, marginBottom: 10 }}>
-          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Sinais</Text>
-        </View>
-
-        {/* CONTAINER DOS BOTÕES DE FILTRO */}
         <View
           style={{
+            width: '100%',
+            marginHorizontal: 20,
+            marginBottom: 10,
             flexDirection: 'row',
-            marginHorizontal: 14,
-            backgroundColor: '#E3E3E8',
-            borderRadius: 8,
-            padding: 4,
-            marginBottom: 15,
             alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingRight: 40,
           }}
         >
-          {/* Mapeando os botões dinamicamente baseado nos dados reais */}
-          {filterOptions.map((option) => (
+          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Sinais</Text>
+
+          <View style={styles.botaoFiltro}>
             <TouchableOpacity
-              key={option}
-              onPress={() => setActiveFilter(option)}
-              style={{
-                flex: 1,
-                paddingVertical: 8,
-                alignItems: 'center',
-                backgroundColor:
-                  activeFilter === option ? '#FFFFFF' : 'transparent',
-                borderRadius: 6,
-              }}
+              style={styles.actionButtonContainer}
+              onPress={() => setIsDrawerOpen(true)}
+              activeOpacity={0.8}
             >
-              <Text
-                style={{
-                  fontWeight: activeFilter === option ? 'bold' : 'normal',
-                  color: activeFilter === option ? '#000000' : '#666666',
-                }}
+              <LinearGradient
+                colors={[colors.azulClaro, colors.azulEscuro]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.actionButtonGradient}
               >
-                {option}
-              </Text>
+                <Feather name="filter" size={20} color="white" />
+                <Text style={styles.actionButtonText}>
+                  Filtro{' '}
+                  {selectedFilters.length > 0
+                    ? `(${selectedFilters.length})`
+                    : ''}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
-          ))}
+          </View>
         </View>
 
         <View
@@ -238,6 +254,15 @@ export function Vbe() {
           />
         </View>
       </View>
+
+      <FilterDrawer
+        visible={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        contentTypes={contentTypes}
+        selectedFilters={selectedFilters}
+        onToggleFilter={handleToggleFilter}
+        onClearFilters={handleClearFilters}
+      />
 
       {showSuccessAnimation && (
         <View style={[StyleSheet.absoluteFillObject, styles.successOverlay]}>
@@ -303,5 +328,24 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2C3E50',
     textAlign: 'center',
+  },
+  botaoFiltro: {
+    alignSelf: 'flex-end',
+  },
+  actionButtonContainer: {
+    borderRadius: 20,
+    overflow: 'hidden',
+  },
+  actionButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    gap: 8,
+  },
+  actionButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
