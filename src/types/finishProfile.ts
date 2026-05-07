@@ -11,6 +11,7 @@ export interface UpdateProfilePayload {
   genderId: number;
   locationId: number;
   externalIdentifier: string;
+  phone: string;
 }
 
 export interface DropdownOption {
