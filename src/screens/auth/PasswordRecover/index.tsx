@@ -34,10 +34,7 @@ export function PasswordRecover() {
       <GradientBackground colors={[azul, verde]}>
         <KeyboardScrollView>
           <Logo source={LogoType} />
-          <PageTitle>
-            Digite o E-Mail cadastrado para receber o link da redefinição de
-            senha
-          </PageTitle>
+          <PageTitle>{translate('forgetPwd.instruction')}</PageTitle>
 
           <FormSeparator>
             <SolidInput
@@ -59,7 +56,9 @@ export function PasswordRecover() {
                 {loading ? (
                   <ActivityIndicator size="small" color="#fff" />
                 ) : (
-                  <GradientButtonLabel>Receber link</GradientButtonLabel>
+                  <GradientButtonLabel>
+                    {translate('forgetPwd.getLinkButton')}
+                  </GradientButtonLabel>
                 )}
               </GradientButtonContainer>
             </Touch>

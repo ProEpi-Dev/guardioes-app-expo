@@ -10,6 +10,7 @@ import {
   GradientButtonContainer,
   GradientButtonLabel,
 } from '../../../components/SnowForms';
+import translate from '../../../locales/i18n';
 import { Logo, PageTitle } from '../Login/styles';
 import { scale } from '../../../utils/scalling';
 import { colors } from '../../../utils/colors';
@@ -33,8 +34,8 @@ export function EmailConfirmation() {
       });
 
       Alert.alert(
-        'Quase lá!',
-        `Enviamos um novo e-mail de ativação para o endereço ${email}. Verifique sua caixa de entrada e spam.`
+        translate('register.resendemail.title'),
+        translate('register.resendemail.body', { email })
       );
     } catch (error) {
       Alert.alert('Erro', 'Não foi possível reenviar o e-mail no momento.');
@@ -51,7 +52,7 @@ export function EmailConfirmation() {
           source={require('../../../../assets/logo_gds_completa_branca.png')}
         />
 
-        <PageTitle>Quase lá!</PageTitle>
+        <PageTitle>{translate('register.confirmemail.title')}</PageTitle>
 
         <FormSeparator>
           <Text
@@ -63,9 +64,7 @@ export function EmailConfirmation() {
               paddingHorizontal: scale(20),
             }}
           >
-            Enviamos um e-mail de ativação para o endereço{' '}
-            <Text style={{ fontWeight: 'bold' }}>{email}</Text>. Verifique sua
-            caixa de entrada e spam para confirmar seu cadastro.
+            {translate('register.activationMessage', { email })}
           </Text>
         </FormSeparator>
 
@@ -77,7 +76,9 @@ export function EmailConfirmation() {
               {loading ? (
                 <ActivityIndicator size="small" color="#fff" />
               ) : (
-                <GradientButtonLabel>Reenviar confirmação</GradientButtonLabel>
+                <GradientButtonLabel>
+                  {translate('getToken.title')}
+                </GradientButtonLabel>
               )}
             </GradientButtonContainer>
           </Touch>
@@ -88,7 +89,9 @@ export function EmailConfirmation() {
             <GradientButtonContainer
               colors={[colors.azulClaro, colors.azulEscuro]}
             >
-              <GradientButtonLabel>Voltar ao Login</GradientButtonLabel>
+              <GradientButtonLabel>
+                {translate('getToken.backButton')}
+              </GradientButtonLabel>
             </GradientButtonContainer>
           </Touch>
         </FormSeparator>

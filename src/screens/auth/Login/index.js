@@ -55,8 +55,8 @@ const Login = ({ navigation }) => {
           (result.error && result.error.includes('403'))
         ) {
           Alert.alert(
-            'Quase lá!',
-            `Seu cadastro ainda não foi confirmado. Enviamos um e-mail de ativação para ${email}. Verifique sua caixa de entrada e spam.`,
+            translate('register.confirmemail.title'),
+            translate('register.confirmemail.body', { email }),
             [
               {
                 text: 'OK',
@@ -75,8 +75,8 @@ const Login = ({ navigation }) => {
     } catch (error) {
       if (error?.status === 403 || error?.response?.status === 403) {
         Alert.alert(
-          'Quase lá!',
-          `Seu cadastro ainda não foi confirmado. Enviamos um e-mail de ativação para ${email}. Verifique sua caixa de entrada e spam.`,
+          translate('register.confirmemail.title'),
+          translate('register.confirmemail.body', { email }),
           [
             {
               text: 'OK',
@@ -110,7 +110,7 @@ const Login = ({ navigation }) => {
         <KeyboardScrollView>
           <Logo source={LogoType} />
 
-          <WelcomeText>Bem vindo (a)</WelcomeText>
+          <WelcomeText>{translate('initialscreen.welcome')}</WelcomeText>
 
           <FormSeparator>
             <SolidInput
@@ -141,7 +141,9 @@ const Login = ({ navigation }) => {
                 {showProgressBar ? (
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
-                  <GradientButtonLabel>Login</GradientButtonLabel>
+                  <GradientButtonLabel>
+                    {translate('login.loginbutton')}
+                  </GradientButtonLabel>
                 )}
               </GradientButtonContainer>
             </Touch>
@@ -156,12 +158,12 @@ const Login = ({ navigation }) => {
           <SeparatorLine />
 
           <FooterContainer>
-            <FooterText>Não tem uma conta?</FooterText>
+            <FooterText>{translate('register.question')}</FooterText>
             <TransparentButton
               style={{ width: 'auto', marginTop: 0, height: 'auto' }}
               onPress={() => navigation.navigate('Register')}
             >
-              <FooterLink>Cadastre-se</FooterLink>
+              <FooterLink>{translate('register.title')}</FooterLink>
             </TransparentButton>
           </FooterContainer>
         </KeyboardScrollView>

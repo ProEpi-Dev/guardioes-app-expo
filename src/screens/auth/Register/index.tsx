@@ -90,7 +90,9 @@ export function Register({ navigation }: Props) {
           <SolidSelector
             data={contexts}
             placeholder={
-              isLoadingData ? 'Carregando...' : 'Selecione o contexto'
+              isLoadingData
+                ? translate('register.context.loading')
+                : translate('register.context.choose')
             }
             initValue={null}
             onChange={(option: any) => setSelectedContextId(option.value)}
@@ -104,7 +106,7 @@ export function Register({ navigation }: Props) {
             onChangeText={setPassword}
           />
           <SolidInput
-            placeholder={'Confirme sua senha'}
+            placeholder={translate('changePwd.confirmPwd')}
             secureTextEntry
             maxLength={100}
             value={confirmPassword}
@@ -147,7 +149,7 @@ export function Register({ navigation }: Props) {
 
         <BackButtonContainer onPress={() => navigation.goBack()}>
           <Feather name="chevron-left" size={24} color={branco} />
-          <BackButtonText>Voltar</BackButtonText>
+          <BackButtonText>{translate('register.modalButton')}</BackButtonText>
         </BackButtonContainer>
 
         <View style={{ height: insets.bottom + 20, width: '100%' }} />

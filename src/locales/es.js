@@ -60,9 +60,12 @@ export default {
     tryAgain: 'Inténtalo de nuevo',
     differentsPass: '¡Las Contraseñas no Coinciden!',
     passwordChanged: 'Restablecer la contraseña',
+    instruction:
+      'Ingresa el correo electrónico registrado para recibir el enlace de restablecimiento de contraseña.',
+    getLinkButton: 'Recibir enlace',
   },
   getToken: {
-    title: 'Código de Verificación',
+    title: 'Reenviar confirmación',
     invalidCode: 'Código invalid',
     confirm: 'Confirmar',
     loading: 'Cargando',
@@ -71,6 +74,7 @@ export default {
     spamCheckWarning:
       'Si no aparece en su cuadro de mensaje principal, verifique su Spam.',
     inputVerificationCode: 'Código',
+    backButton: 'Volver al inicio de sesión',
   },
   changePwd: {
     title: 'Redefinir contraseña',
@@ -83,6 +87,7 @@ export default {
   },
   register: {
     title: 'Regístrese',
+    question: '¿No tiene una cuenta?',
     name: 'Nombre:',
     gender: 'Género:',
     race: 'Raza:',
@@ -141,6 +146,20 @@ export default {
     riskGroupMessage:
       '\t Personas mayores de 60 años o personas de cualquier edad que tienen comorbilidades, como enfermedades cardíacas, diabetes, neumopatía, enfermedades neurológicas o renales, inmunodepresión, obesidad, asma y mujeres posparto.',
     modalButton: 'Vuelve',
+    confirmemail: {
+      title: '¡Ya casi!',
+      body: 'Tu registro aún no ha sido confirmado. Enviamos un correo de activación a {{email}}. Revisa tu bandeja de entrada y la carpeta de spam.',
+    },
+    resendemail: {
+      title: '¡Ya casi!',
+      body: 'Enviamos un nuevo correo de activación a la dirección {{email}}. Revisa tu bandeja de entrada y la carpeta de spam.',
+    },
+    activationMessage:
+      'Enviamos un correo de activación a la dirección {{email}}. Revisa tu bandeja de entrada y la carpeta de spam para confirmar tu registro.',
+    context: {
+      loading: 'Cargando...',
+      choose: 'Selecciona el contexto',
+    },
   },
   ajuda: {
     title: 'Ayuda',
@@ -366,6 +385,7 @@ export default {
         '\nCOMO ENTRAR EM CONTATO COM A PROEPI\n\nVocê pode entrar em contato com a ProEpi, através do e-mail dpo@proepi.org.br, este e-mail é um canal de comunicação do nosso encarregado de Proteção de Dados Pessoais, que se destina exclusivamente para tratar sobre quaisquer dúvidas relacionadas a política de privacidade, podendo ainda, fazer reclamação sobre qualquer violação das leis de proteção de dados, solicitar correção de dados incompletos, inexatos ou desatualizados e também requerer a revogação de consentimento e eliminação de dados do aplicativo (perfil de usuário).\nDa Legislação e do Foro\nPara a solução de qualquer controvérsia decorrente deste instrumento será aplicada integralmente a Lei Brasileira. \nFica eleito o foro da Cidade de Brasília – DF, para dirimir eventuais litígios.\n\n\nLeonardo B. Macedo\nEncarregado de Dados (DPO)\nProEpi\n',
     },
     compilation: 4,
+    readAndAccept: 'He leído y acepto:',
   },
   vigilanceTerms: {
     title: 'POLÍTICA DE PRIVACIDADE E PROTEÇÃO DE DADOS',
@@ -478,5 +498,59 @@ export default {
       'Después del período mencionado, no será posible recuperar los datos eliminados. ¿Deseas continuar?',
     cancel: 'Cancelar',
     confirm: 'Sí',
+  },
+  profile: {
+    alerts: {
+      errorTitle: 'Error',
+      errorEmptyFields: 'El nombre y el correo electrónico son obligatorios',
+      successTitle: 'Éxito',
+      successUpdate: '¡Perfil actualizado con éxito!',
+      errorUpdate: 'No se pudo actualizar el perfil.',
+    },
+    header: {
+      defaultName: 'Usuario',
+      defaultEmail: 'correo@ejemplo.com',
+    },
+    basicInfo: {
+      title: 'Información Básica',
+      edit: 'Editar',
+      fullName: 'Nombre Completo',
+      email: 'Correo Electrónico',
+      cancel: 'Cancelar',
+      save: 'Guardar',
+    },
+    password: {
+      title: 'Cambiar Contraseña',
+      description: 'Contraseña Actual, Nueva Contraseña y Confirmar contraseña',
+      updateButton: 'Actualizar contraseña',
+    },
+    additionalData: {
+      title: 'Datos Complementarios',
+      description: 'Sexo, Ubicación y Matrícula.',
+      editButton: 'Editar datos',
+    },
+  },
+  finishProfile: {
+    loadingStatus: 'Verificando perfil...',
+    title: 'Completa tu perfil',
+    placeholders: {
+      gender: 'Selecciona el género',
+      country: 'Selecciona el país',
+      location: 'Selecciona la localidad',
+      identifier: 'Identificador (Matrícula, DNI...)',
+      phone: 'Teléfono',
+    },
+    errors: {
+      required: 'Campo obligatorio',
+    },
+    infoText: 'Completa correctamente tu información para habilitar el acceso.',
+    buttons: {
+      updateProfile: 'Actualizar perfil',
+      saveExtraData: 'Guardar datos adicionales',
+      back: 'Volver',
+    },
+    extraSection: {
+      title: 'Información adicional',
+    },
   },
 };

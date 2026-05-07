@@ -17,6 +17,7 @@ import { ChangePasswordModal } from '../../../components/ChangePasswordModal';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { colors } from '../../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
+import translate from '../../../locales/i18n';
 
 export default function ProfileScreen() {
   const { user, updateUserLocal } = useAuth();
@@ -43,7 +44,10 @@ export default function ProfileScreen() {
   const handleSaveBasicInfo = async () => {
     if (!user?.id) return;
     if (!name.trim() || !email.trim()) {
-      Alert.alert('Erro', 'Nome e Email são obrigatórios');
+      Alert.alert(
+        translate('profile.alerts.errorTitle'),
+        translate('profile.alerts.errorEmptyFields')
+      );
       return;
     }
 
@@ -61,14 +65,20 @@ export default function ProfileScreen() {
         await updateUserLocal({ ...user, name, email });
       }
 
-      Alert.alert('Sucesso', 'Perfil atualizado com sucesso!');
+      Alert.alert(
+        translate('profile.alerts.successTitle'),
+        translate('profile.alerts.successUpdate')
+      );
       setIsEditingBasic(false);
       setIsChangingPassword(false);
       setPassword('');
       setConfirmPassword('');
     } catch (error) {
       console.error(error);
-      Alert.alert('Erro', 'Não foi possível atualizar o perfil.');
+      Alert.alert(
+        translate('profile.alerts.errorTitle'),
+        translate('profile.alerts.errorUpdate')
+      );
     } finally {
       setLoading(false);
     }
@@ -84,30 +94,38 @@ export default function ProfileScreen() {
             <Feather name="user" size={40} color="#348eac" />
           </View>
 
-          <Text style={styles.headerName}>{user?.name || 'Usuário'}</Text>
+          <Text style={styles.headerName}>
+            {user?.name || translate('profile.header.defaultName')}
+          </Text>
           <Text style={styles.headerEmail}>
-            {user?.email || 'email@exemplo.com'}
+            {user?.email || translate('profile.header.defaultEmail')}
           </Text>
         </View>
 
         {/* Seção 1: Dados Básicos */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Informações Básicas</Text>
+            <Text style={styles.sectionTitle}>
+              {translate('profile.basicInfo.title')}
+            </Text>
             {!isEditingBasic && (
               <TouchableOpacity onPress={() => setIsEditingBasic(true)}>
                 <View
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
                 >
                   <Feather name="edit" size={24} color={colors.principal} />
-                  <Text style={styles.editLink}>Editar</Text>
+                  <Text style={styles.editLink}>
+                    {translate('profile.basicInfo.edit')}
+                  </Text>
                 </View>
               </TouchableOpacity>
             )}
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Nome Completo</Text>
+            <Text style={styles.label}>
+              {translate('profile.basicInfo.fullName')}
+            </Text>
             <TextInput
               style={[styles.input, !isEditingBasic && styles.disabledInput]}
               value={name}
@@ -117,7 +135,9 @@ export default function ProfileScreen() {
           </View>
 
           <View style={styles.formGroup}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>
+              {translate('profile.basicInfo.email')}
+            </Text>
             <TextInput
               style={[styles.input, !isEditingBasic && styles.disabledInput]}
               value={email}
@@ -140,7 +160,9 @@ export default function ProfileScreen() {
                     setEmail(user?.email || '');
                   }}
                 >
-                  <Text style={styles.cancelText}>Cancelar</Text>
+                  <Text style={styles.cancelText}>
+                    {translate('profile.basicInfo.cancel')}
+                  </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -151,7 +173,9 @@ export default function ProfileScreen() {
                   {loading ? (
                     <ActivityIndicator color="#FFF" />
                   ) : (
-                    <Text style={styles.saveText}>Salvar</Text>
+                    <Text style={styles.saveText}>
+                      {translate('profile.basicInfo.save')}
+                    </Text>
                   )}
                 </TouchableOpacity>
               </View>
@@ -159,11 +183,13 @@ export default function ProfileScreen() {
           )}
         </View>
 
-        {/* Seção 2: Dados Complementares */}
+        {/* Seção 2: Senha */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Alterar Senha</Text>
+          <Text style={styles.sectionTitle}>
+            {translate('profile.password.title')}
+          </Text>
           <Text style={styles.sectionDescription}>
-            Senha Atual, Nova Senha e Confirme sua senha
+            {translate('profile.password.description')}
           </Text>
 
           <TouchableOpacity
@@ -173,20 +199,25 @@ export default function ProfileScreen() {
           >
             <LinearGradient
               colors={[colors.azulClaro, colors.azulEscuro]}
-              start={{ x: 0, y: 0 }} // Começa na esquerda
-              end={{ x: 1, y: 0 }} // Termina na direita
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.buttonGradient}
             >
               <Feather name="edit" size={24} color={'#fff'} />
-              <Text style={styles.returnButtonText}>Atualizar senha</Text>
+              <Text style={styles.returnButtonText}>
+                {translate('profile.password.updateButton')}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
+        {/* Seção 3: Dados Complementares */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dados Complementares</Text>
+          <Text style={styles.sectionTitle}>
+            {translate('profile.additionalData.title')}
+          </Text>
           <Text style={styles.sectionDescription}>
-            Sexo, Localização e Matrícula.
+            {translate('profile.additionalData.description')}
           </Text>
 
           <TouchableOpacity
@@ -196,12 +227,14 @@ export default function ProfileScreen() {
           >
             <LinearGradient
               colors={[colors.azulClaro, colors.azulEscuro]}
-              start={{ x: 0, y: 0 }} // Começa na esquerda
-              end={{ x: 1, y: 0 }} // Termina na direita
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
               style={styles.buttonGradient}
             >
               <Feather name="edit" size={24} color={'#fff'} />
-              <Text style={styles.returnButtonText}>Editar dados</Text>
+              <Text style={styles.returnButtonText}>
+                {translate('profile.additionalData.editButton')}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -211,7 +244,7 @@ export default function ProfileScreen() {
         visible={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
         onSuccess={() => {
-          //  console.log("Dados complementares atualizados");
+          // console.log("Dados complementares atualizados");
         }}
       />
 
@@ -219,7 +252,7 @@ export default function ProfileScreen() {
         visible={showChangePasswordModal}
         onClose={() => setShowPasswordModal(false)}
         onSuccess={() => {
-          //  console.log("Dados complementares atualizados");
+          // console.log("Senha atualizada");
         }}
       />
     </View>

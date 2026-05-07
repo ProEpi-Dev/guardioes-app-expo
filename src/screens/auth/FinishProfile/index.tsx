@@ -17,7 +17,7 @@ import {
   UserName,
   UserEmail,
 } from '../../../components/SnowForms';
-// import translate from '../../../locales/i18n';
+import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
 import { PageTitle, Logo } from './styles';
 import { BackButtonContainer, BackButtonText } from '../Register/styles';
@@ -113,7 +113,7 @@ export function FinishProfile() {
         >
           <ActivityIndicator size="large" color={branco} />
           <Text style={{ color: branco, marginTop: 10 }}>
-            Verificando perfil...
+            {translate('finishProfile.loadingStatus')}
           </Text>
         </View>
       </GradientBackground>
@@ -127,7 +127,7 @@ export function FinishProfile() {
       <KeyboardScrollView>
         <View style={{ height: insets.top + 40, width: '100%' }} />
         <Logo source={GDSLogoBR} />
-        <PageTitle>Finalize seu perfil</PageTitle>
+        <PageTitle>{translate('finishProfile.title')}</PageTitle>
 
         <FormSeparator>
           <UserInfoCard>
@@ -142,14 +142,16 @@ export function FinishProfile() {
             render={({ field: { onChange, value } }) => (
               <SolidSelector
                 data={formattedGenders}
-                placeholder="Selecione o Gênero"
+                placeholder={translate('finishProfile.placeholders.gender')}
                 initValue={value}
                 onChange={(option: any) => onChange(option.value)}
               />
             )}
           />
           {errors.genderId && (
-            <Text style={{ color: '#ff6b6b' }}>Campo obrigatório</Text>
+            <Text style={{ color: '#ff6b6b' }}>
+              {translate('finishProfile.errors.required')}
+            </Text>
           )}
 
           {/* PAÍS */}
@@ -160,7 +162,7 @@ export function FinishProfile() {
               render={({ field: { onChange, value } }) => (
                 <SolidSelector
                   data={formattedCountries}
-                  placeholder="Selecione o País"
+                  placeholder={translate('finishProfile.placeholders.country')}
                   initValue={value}
                   onChange={(option: any) => onChange(option.value)}
                 />
@@ -175,7 +177,7 @@ export function FinishProfile() {
             render={({ field: { onChange, value } }) => (
               <SolidSelector
                 data={locationsByCountry}
-                placeholder="Selecione a Localidade"
+                placeholder={translate('finishProfile.placeholders.location')}
                 initValue={value}
                 onChange={(option: any) => onChange(option.value)}
               />
@@ -188,7 +190,7 @@ export function FinishProfile() {
             name="externalIdentifier"
             render={({ field: { onChange, value } }) => (
               <SolidInput
-                placeholder="Identificador (Matrícula, CPF...)"
+                placeholder={translate('finishProfile.placeholders.identifier')}
                 maxLength={100}
                 value={value}
                 onChangeText={onChange}
@@ -202,7 +204,7 @@ export function FinishProfile() {
             name="phone"
             render={({ field: { onChange, value } }) => (
               <SolidInput
-                placeholder="Telefone"
+                placeholder={translate('finishProfile.placeholders.phone')}
                 keyboardType="phone-pad"
                 value={value}
                 onChangeText={onChange}
@@ -227,7 +229,7 @@ export function FinishProfile() {
                 opacity: 0.9,
               }}
             >
-              Preencha corretamente suas informações para liberar acesso.
+              {translate('finishProfile.infoText')}
             </Text>
           </View>
         </FormSeparator>
@@ -241,7 +243,9 @@ export function FinishProfile() {
               {updateProfileMutation.isPending ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
-                <DarkButtonLabel>Atualizar Perfil</DarkButtonLabel>
+                <DarkButtonLabel>
+                  {translate('finishProfile.buttons.updateProfile')}
+                </DarkButtonLabel>
               )}
             </DarkButton>
           </Touch>
@@ -258,7 +262,7 @@ export function FinishProfile() {
                 fontWeight: 'bold',
               }}
             >
-              Informações Adicionais
+              {translate('finishProfile.extraSection.title')}
             </Text>
 
             <ProfileExtraFormSection
@@ -287,7 +291,7 @@ export function FinishProfile() {
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
                   <DarkButtonLabel style={{ color: branco }}>
-                    Salvar Dados Extras
+                    {translate('finishProfile.buttons.saveExtraData')}
                   </DarkButtonLabel>
                 )}
               </DarkButton>
@@ -297,7 +301,9 @@ export function FinishProfile() {
 
         <BackButtonContainer onPress={() => navigation.goBack()}>
           <Feather name="chevron-left" size={24} color={branco} />
-          <BackButtonText>Voltar</BackButtonText>
+          <BackButtonText>
+            {translate('finishProfile.buttons.back')}
+          </BackButtonText>
         </BackButtonContainer>
 
         <View style={{ height: insets.bottom + 20, width: '100%' }} />
