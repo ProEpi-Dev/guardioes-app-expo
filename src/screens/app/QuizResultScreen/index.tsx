@@ -9,6 +9,7 @@ import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
+import translate from '../../../locales/i18n';
 
 export function QuizResultScreen() {
   const { user } = useAuth();
@@ -33,7 +34,9 @@ export function QuizResultScreen() {
           isPassed={resultData.isPassed}
         />
 
-        <Text style={styles.detailsTitle}>Detalhamento das Questões</Text>
+        <Text style={styles.detailsTitle}>
+          {translate('resultScreen.detail')}
+        </Text>
 
         {questions.map((question, index) => (
           <QuestionReviewCard
@@ -55,7 +58,9 @@ export function QuizResultScreen() {
             end={{ x: 1, y: 0 }} // Termina na direita
             style={styles.returnButtonGradient}
           >
-            <Text style={styles.returnButtonText}>Retornar para a trilha</Text>
+            <Text style={styles.returnButtonText}>
+              {translate('resultScreen.return')}
+            </Text>
           </LinearGradient>
         </TouchableOpacity>
       </ScrollView>

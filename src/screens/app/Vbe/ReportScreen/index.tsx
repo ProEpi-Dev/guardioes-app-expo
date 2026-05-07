@@ -27,6 +27,7 @@ import { getReportById } from '../../../../services/reports';
 import { ReportDetailsModal } from '../../../../components/VBE/ReportDetailsModal';
 import { FilterDrawer } from '../../../../components/FilterDrawer';
 import { colors } from '../../../../utils/colors';
+import { getCurrentLocale } from '../../../../locales/i18n';
 
 export function Vbe() {
   const { user } = useAuth();
@@ -63,9 +64,12 @@ export function Vbe() {
   const [fadeAnim] = useState(() => new Animated.Value(0));
   const [scaleAnim] = useState(() => new Animated.Value(0.5));
 
-  const diaDaSemana = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long',
-  });
+  const diaDaSemana = new Date().toLocaleDateString(
+    getCurrentLocale() || 'pt-BR',
+    {
+      weekday: 'long',
+    }
+  );
   const diaCapitalizado =
     diaDaSemana.charAt(0).toUpperCase() + diaDaSemana.slice(1);
 
@@ -117,7 +121,11 @@ export function Vbe() {
         feeling === 'good'
           ? translate('report.goodChoice')
           : translate('report.badChoice');
-      Alert.alert('Sentimento registrado', `Você selecionou: ${message}`);
+
+      Alert.alert(
+        translate('vbe.alerts.feelingRegistered'),
+        translate('vbe.alerts.youSelected', { message })
+      );
     }
   };
 
@@ -180,9 +188,9 @@ export function Vbe() {
             isCompliant={isCompliant}
             padBottom={0}
             bottomOffset={0}
-            goodButtonText="NADA OCORREU"
-            badButtonText="INFORMAR"
-            title="Quer informar um sinal de alerta?"
+            goodButtonText={translate('vbe.feelingCard.nothingHappened')}
+            badButtonText={translate('vbe.feelingCard.report')}
+            title={translate('vbe.feelingCard.title')}
           />
         </View>
 
@@ -197,7 +205,9 @@ export function Vbe() {
             paddingRight: 40,
           }}
         >
-          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>Meus Sinais</Text>
+          <Text style={{ fontSize: 26, fontWeight: 'bold' }}>
+            {translate('vbe.mySignals')}
+          </Text>
 
           <View style={styles.botaoFiltro}>
             <TouchableOpacity
@@ -213,7 +223,7 @@ export function Vbe() {
               >
                 <Feather name="filter" size={20} color="white" />
                 <Text style={styles.actionButtonText}>
-                  Filtro{' '}
+                  {translate('vbe.filter')}{' '}
                   {selectedFilters.length > 0
                     ? `(${selectedFilters.length})`
                     : ''}
@@ -248,7 +258,7 @@ export function Vbe() {
               <Text
                 style={{ textAlign: 'center', marginTop: 30, color: '#666' }}
               >
-                Nenhum reporte encontrado.
+                {translate('vbe.emptyList')}
               </Text>
             }
           />
@@ -273,7 +283,9 @@ export function Vbe() {
             ]}
           >
             <Text style={styles.successEmoji}>✅</Text>
-            <Text style={styles.successTitle}>{diaCapitalizado} Marcado!</Text>
+            <Text style={styles.successTitle}>
+              {translate('vbe.successAnimation', { day: diaCapitalizado })}
+            </Text>
           </Animated.View>
         </View>
       )}

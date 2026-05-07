@@ -497,6 +497,7 @@ export default {
     cancel: 'Cancelar',
     confirm: 'Sim',
   },
+
   profile: {
     alerts: {
       errorTitle: 'Erro',
@@ -550,5 +551,71 @@ export default {
     extraSection: {
       title: 'Informações Adicionais',
     },
+  },
+  vbe: {
+    alerts: {
+      feelingRegistered: 'Sentimento registrado',
+      youSelected: 'Você selecionou: {{message}}',
+    },
+    feelingCard: {
+      nothingHappened: 'NADA OCORREU',
+      report: 'INFORMAR',
+      title: 'Quer informar um sinal de alerta?',
+    },
+    mySignals: 'Meus Sinais',
+    filter: 'Filtro',
+    emptyList: 'Nenhum reporte encontrado.',
+    successAnimation: '{{day}} Marcado!',
+    streak: 'Sequência atual: {{currentStreak}} dia(s)',
+  },
+  learn: {
+    title: 'Aprenda',
+    emptyList: 'Nenhum ciclo encontrado para seu contexto.',
+  },
+  trail: {
+    title: 'Trilha: {{title}}',
+    next: 'Continuar',
+  },
+  sequence: {
+    day: 'dia',
+    days: 'dias',
+    inarow: 'seguido',
+    inarows: 'seguidos',
+    participation: 'Você participou por',
+    longestStreak: 'Maior Sequência',
+    totalParticipation: 'Participação Total',
+  },
+  emptyList: 'Nenhum quiz disponível no momento.',
+  resultScreen: {
+    detail: 'Detalhamento das Questões',
+    return: 'Retornar para a trilha',
+  },
+  quizQuestions: {
+    loading: 'Carregando...',
+    progress: 'Questão {{current}} de {{total}}',
+    answer: 'Responder',
+    finish: 'Concluir',
+    nextQuestion: 'Próxima pergunta',
+  },
+  quizInfo: {
+    evaluation: 'Avaliação',
+    instructionsTitle: 'Instruções',
+    instruction1: 'Este quiz contém perguntas de múltipla escolha',
+    instruction2: 'O objetivo é testar seus conhecimentos sobre "{{title}}"',
+    instruction3: 'Leia atentamente cada questão antes de responder',
+    instructionScore: 'Nota mínima para aprovação: {{passingScore}} pontos',
+    instructionAutoGrade:
+      'Ao finalizar, sua nota será calculada automaticamente',
+    instructionTime: 'Tempo limite: {{timeLimitMinutes}} minutos',
+    attemptStart: 'Você está iniciando a',
+    attemptNumber: '{{currentAttempt}}ª Tentativa',
+    attemptsAllowed: 'de {{maxAttempts}} tentativas permitidas',
+    unlimitedAttempts: 'Tentativas ilimitadas',
+    reviewContent: 'Revisar conteúdo',
+    startQuiz: 'Iniciar Quiz',
+  },
+  articleCard: {
+    filter: 'Filtro',
+    empty: 'Nenhum artigo encontrado.',
   },
 };

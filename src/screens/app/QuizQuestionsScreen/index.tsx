@@ -14,6 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext';
+import translate from '../../../locales/i18n';
 
 export function QuizQuestionsScreen() {
   const route = useRoute();
@@ -57,7 +58,9 @@ export function QuizQuestionsScreen() {
     return (
       <View style={styles.centerContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text style={{ marginTop: 10 }}>Carregando...</Text>
+        <Text style={{ marginTop: 10 }}>
+          {translate('quizQuestions.loading')}
+        </Text>
       </View>
     );
   }
@@ -77,7 +80,10 @@ export function QuizQuestionsScreen() {
       <View style={styles.header}>
         <Text style={styles.trailTitle}>{title}</Text>
         <Text style={styles.progressText}>
-          Questão {currentIndex + 1} de {fields.length}
+          {translate('quizQuestions.progress', {
+            current: currentIndex + 1,
+            total: fields.length,
+          })}
         </Text>
 
         <View style={styles.progressBarBg}>
@@ -133,10 +139,10 @@ export function QuizQuestionsScreen() {
             ) : (
               <Text style={styles.actionButtonText}>
                 {stepState === 'answering'
-                  ? 'Responder'
+                  ? translate('quizQuestions.answer')
                   : isLastQuestion
-                    ? 'Concluir'
-                    : 'Próxima pergunta'}
+                    ? translate('quizQuestions.finish')
+                    : translate('quizQuestions.nextQuestion')}
               </Text>
             )}
           </LinearGradient>

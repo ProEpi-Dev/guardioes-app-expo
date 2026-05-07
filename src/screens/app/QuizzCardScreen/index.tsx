@@ -5,6 +5,7 @@ import QuizCard from '../../../components/QuizCard';
 import { styles } from './styles';
 import { useQuizList } from '../../../hooks/useQuizList';
 import { useQuizNavigation } from '../../../hooks/useQuizNavigation';
+import translate from '../../../locales/i18n';
 
 export function Quiz() {
   const { participationId } = useParticipation();
@@ -15,7 +16,7 @@ export function Quiz() {
 
   const renderEmptyComponent = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>Nenhum quiz disponível no momento.</Text>
+      <Text style={styles.emptyText}>{translate('emptyList')}</Text>
     </View>
   );
 
