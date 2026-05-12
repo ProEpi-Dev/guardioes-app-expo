@@ -15,8 +15,8 @@ Este documento tem como objetivo apresentar todas as funcionalidades implementad
 
 ### Funcionalidades exclusivas (VBE)
 
-1. **Listagem de Sinais:** Exibe uma listagem em formato de *cards* com informações resumidas sobre o sinal reportado pelo líder comunitário. Ao tocar em um *card*, abre-se um modal que apresenta informações detalhadas.
-2. **Modal:** Mostra as informações completas do sinal reportado, bem como o seu *status*.
+1. **Listagem de Sinais:** Exibe uma listagem em formato de _cards_ com informações resumidas sobre o sinal reportado pelo líder comunitário. Ao tocar em um _card_, abre-se um modal que apresenta informações detalhadas.
+2. **Modal:** Mostra as informações completas do sinal reportado, bem como o seu _status_.
 3. **Filtro por Status:** Abre opções de filtro para facilitar a busca por um reporte de sinal específico.
 
 ## Tela Dias
@@ -27,13 +27,13 @@ Este documento tem como objetivo apresentar todas as funcionalidades implementad
 ## Tela Aprenda
 
 1. **Cards de Trilhas:** Mostram o nome da trilha e abrem o caminho completo de uma trilha ao serem pressionados.
-2. **Tela com Caminhos:** Exibe a sequência de conteúdos que devem ser realizados em ordem. Nessa sequência, há conteúdos e *quizzes*.
+2. **Tela com Caminhos:** Exibe a sequência de conteúdos que devem ser realizados em ordem. Nessa sequência, há conteúdos e _quizzes_.
 3. **Conteúdos:** Exibem materiais informativos relevantes para a conclusão da trilha.
 4. **Quizzes:** Primeiramente, é exibida uma tela com as informações necessárias para a realização do questionário. Em seguida, inicia-se o teste com a identificação das respostas certas e erradas após cada questão, contando com um cronômetro decrescente. Ao final, apresenta-se uma tela de resumo com as respostas de cada questão e o desempenho final do usuário.
 
 ## Tela Conteúdo
 
-1. **Cards de Conteúdo:** Exibem o nome, o *banner* e o resumo do conteúdo.
+1. **Cards de Conteúdo:** Exibem o nome, o _banner_ e o resumo do conteúdo.
 2. **Visualização do Conteúdo:** Ao abrir um conteúdo, o material é mostrado na íntegra.
 
 ## Tela Perfil
@@ -42,10 +42,10 @@ Este documento tem como objetivo apresentar todas as funcionalidades implementad
 
 ## Telas de Autenticação e Cadastro
 
-* **Tela de Login (Autenticação no App):** Permite que o usuário informe um e-mail e uma senha válidos para usar o aplicativo.
-* **Tela de Cadastro (Cadastro no App):** Permite que o usuário crie uma conta no aplicativo, baseando-se no contexto em que ele está inserido.
-* **Tela de Recuperação de Senha (Recuperar Senha):** Permite que o usuário recupere a senha da sua conta ao informar o e-mail cadastrado no aplicativo.
-* **Tela de Confirmação de E-mail (Validação de E-mail):** Tela obrigatória que aparece assim que o usuário realiza o cadastro, garantindo que um e-mail inexistente não seja cadastrado no aplicativo.
+- **Tela de Login (Autenticação no App):** Permite que o usuário informe um e-mail e uma senha válidos para usar o aplicativo.
+- **Tela de Cadastro (Cadastro no App):** Permite que o usuário crie uma conta no aplicativo, baseando-se no contexto em que ele está inserido.
+- **Tela de Recuperação de Senha (Recuperar Senha):** Permite que o usuário recupere a senha da sua conta ao informar o e-mail cadastrado no aplicativo.
+- **Tela de Confirmação de E-mail (Validação de E-mail):** Tela obrigatória que aparece assim que o usuário realiza o cadastro, garantindo que um e-mail inexistente não seja cadastrado no aplicativo.
 
 ## Tela Informações Complementares
 
