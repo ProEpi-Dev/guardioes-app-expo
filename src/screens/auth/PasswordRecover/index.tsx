@@ -43,7 +43,7 @@ export function PasswordRecover() {
               returnKeyType="next"
               maxLength={100}
               value={email}
-              onChangeText={setEmail}
+              onChangeText={(text) => setEmail(text.toLocaleLowerCase())}
               onSubmitEditing={handleSubmit}
             />
           </FormSeparator>
