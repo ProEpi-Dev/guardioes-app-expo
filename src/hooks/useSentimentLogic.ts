@@ -231,8 +231,15 @@ export const useSentimentLogic = () => {
     try {
       const status = await checkHasReportedToday();
 
-      const { _isValid, ...cleanData } = formValues;
+      const { _isValid, mapPoint, ...cleanData } = formValues;
       const loc = await getLocation();
+
+      if (mapPoint) {
+        cleanData.geo_location = {
+          latitude: mapPoint.latitude,
+          longitude: mapPoint.longitude,
+        };
+      }
 
       await createReport({
         participationId,

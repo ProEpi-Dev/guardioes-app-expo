@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import { Option } from '../../types/customSelector';
 import { FieldFactoryProps } from '../../types/formRenderer';
 import { useQuery } from '@tanstack/react-query';
 import { getLocations } from '../../services/finishProfile';
+import { PointMapModal } from '../PointMap';
+import { Feather } from '@expo/vector-icons';
 
 export const FieldFactory: React.FC<FieldFactoryProps> = ({
   field,
@@ -237,6 +239,17 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   };
 
+  const renderMapPoint = () => {
+    return (
+      <MapPointFieldSelector
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        error={error}
+      />
+    );
+  };
+
   const renderContent = () => {
     switch (field.type) {
       case 'text':
@@ -254,7 +267,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       case 'boolean':
         return null;
       case 'mapPoint':
-        return null;
+        return renderMapPoint();
       case 'location':
         return renderLocation();
       default:
@@ -491,6 +504,54 @@ const LocationFieldSelector = ({
           handleCityChange,
           readOnly || !currentStateId || cities.length === 0
         )}
+    </View>
+  );
+};
+
+const MapPointFieldSelector = ({ value, onChange, readOnly, error }: any) => {
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const temCoordenada = value && value.latitude && value.longitude;
+
+  return (
+    <View>
+      <TouchableOpacity
+        style={[
+          styles.input,
+          error ? styles.inputError : null,
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            minHeight: 52,
+          },
+        ]}
+        onPress={() => setIsMapOpen(true)}
+        disabled={readOnly}
+      >
+        <Text
+          style={{ fontSize: 16, color: temCoordenada ? '#32323b' : '#C7C7CD' }}
+        >
+          {temCoordenada
+            ? `Lat: ${value.latitude.toFixed(5)}, Lng: ${value.longitude.toFixed(5)}`
+            : 'Toque para selecionar no mapa...'}
+        </Text>
+        <Feather
+          name="map-pin"
+          size={20}
+          color={temCoordenada ? '#2E97BE' : '#C7C7CD'}
+        />
+      </TouchableOpacity>
+
+      <PointMapModal
+        visible={isMapOpen}
+        onClose={() => setIsMapOpen(false)}
+        initialCoords={temCoordenada ? value : null}
+        onConfirm={(coords) => {
+          onChange(coords);
+          setIsMapOpen(false);
+        }}
+      />
     </View>
   );
 };

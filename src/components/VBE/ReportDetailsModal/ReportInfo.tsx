@@ -34,6 +34,10 @@ export function ReportInfo({
       ].filter(Boolean);
       return parts.join(' · ');
     }
+    if (key === 'geo_location') {
+      const parts = [value.latitude, value.longitude].filter(Boolean);
+      return parts.join(' , ');
+    }
     if (Array.isArray(value)) {
       return value
         .map((v) => String(v).replace(/_/g, ' '))
