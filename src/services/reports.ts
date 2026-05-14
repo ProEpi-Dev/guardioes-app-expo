@@ -46,7 +46,7 @@ export const getReports = async (
 ): Promise<ReportTypee[]> => {
   try {
     const response = await apiClient(
-      `/v1/reports?page=1&pageSize=100&active=true&participationId=${participationId}&reportType=POSITIVE&view=app&contextId=${contextId}`
+      `/v1/reports?page=1&pageSize=100&active=true&participationId=${participationId}&reportType=NEGATIVE&view=app&contextId=${contextId}`
     );
 
     // Garante que se a API retornar um objeto paginado, extraímos o array correspondente
