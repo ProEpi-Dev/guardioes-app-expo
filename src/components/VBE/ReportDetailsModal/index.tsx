@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Modal,
   View,
@@ -7,16 +7,19 @@ import {
   ActivityIndicator,
   ScrollView,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ReportDetailsResponse, ReportTypee } from '../../../types/report';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { getMessage, sendMessage } from '../../../services/reports';
 
 interface Props {
   visible: boolean;
   onClose: () => void;
   loading: boolean;
   data?: ReportDetailsResponse;
-  integrationData?: ReportTypee; // <-- Recebe os dados de acompanhamento da lista
+  integrationData?: ReportTypee;
 }
 
 // Dicionário para deixar as chaves da API com os mesmos textos da sua imagem
@@ -39,6 +42,18 @@ export function ReportDetailsModal({
   data,
   integrationData,
 }: Props) {
+  const [mensagemDigitada, setMensagemDigitada] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  const queryClient = useQueryClient();
+
+  const { data: reportMessages } = useQuery({
+    queryKey: ['report-messages'],
+    queryFn: () => getMessage(integrationData?.id!),
+    enabled: !!integrationData?.id,
+  });
+
+  console.log(JSON.stringify(reportMessages));
+
   const insets = useSafeAreaInsets();
 
   // Função para regionalizar e formatar a data (UTC 'Z' -> Local)
@@ -92,6 +107,35 @@ export function ReportDetailsModal({
     }
 
     return String(value);
+  };
+
+  const handleEnviarMensagem = async () => {
+    if (mensagemDigitada.trim() === '') return;
+
+    if (!reportMessages?.id) {
+      console.error('Erro: ID do relatório não encontrado.');
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      await sendMessage(
+        {
+          message: mensagemDigitada,
+        },
+        reportMessages.id
+      );
+
+      console.log('Mensagem enviada com sucesso');
+
+      setMensagemDigitada('');
+      queryClient.invalidateQueries({ queryKey: ['report-messages'] });
+    } catch (e) {
+      console.log('Erro ao enviar mensagem:', e);
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -213,16 +257,7 @@ export function ReportDetailsModal({
 
               {/* Seção de Acompanhamento */}
               <View style={{ marginTop: 24 }}>
-                <Text
-                  style={{
-                    fontSize: 16,
-                    fontWeight: '500',
-                    color: '#111827',
-                    marginBottom: 12,
-                  }}
-                >
-                  Acompanhamento
-                </Text>
+                <Text style={styles.title}>Acompanhamento</Text>
                 <View
                   style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}
                 >
@@ -261,6 +296,76 @@ export function ReportDetailsModal({
                   )}
                 </View>
               </View>
+              {reportMessages?.messages && (
+                <View style={{ marginTop: 16 }}>
+                  <Text style={styles.title}>Menssagens</Text>
+                  {reportMessages.messages.map((mensagem) => {
+                    const isRecebido = mensagem.direction === 'inbound';
+
+                    return (
+                      <View
+                        key={mensagem.id}
+                        style={
+                          isRecebido
+                            ? styles.balaoRecebido
+                            : styles.balaoEnviado
+                        }
+                      >
+                        {/* Texto da mensagem */}
+                        <Text
+                          style={
+                            isRecebido
+                              ? styles.textoRecebido
+                              : styles.textoEnviado
+                          }
+                        >
+                          {mensagem.body}
+                        </Text>
+
+                        {/* Texto da data/hora */}
+                        <Text
+                          style={
+                            isRecebido
+                              ? styles.dataRecebida
+                              : styles.dataEnviada
+                          }
+                        >
+                          {formatDate(mensagem.createdAt)}
+                        </Text>
+                      </View>
+                    );
+                  })}
+                  <View style={styles.inputContainer}>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Escreva uma mensagem..."
+                      placeholderTextColor="#9CA3AF"
+                      value={mensagemDigitada}
+                      onChangeText={setMensagemDigitada}
+                      multiline={true}
+                    />
+
+                    <TouchableOpacity
+                      style={[
+                        styles.sendButton,
+                        // Desabilita a cor se estiver vazio OU se estiver enviando
+                        (!mensagemDigitada.trim() || isSending) &&
+                          styles.sendButtonDisabled,
+                      ]}
+                      onPress={handleEnviarMensagem}
+                      // Desabilita o clique se estiver vazio OU se estiver enviando
+                      disabled={!mensagemDigitada.trim() || isSending}
+                    >
+                      {/* Mostra a bolinha se estiver enviando, senão mostra o texto */}
+                      {isSending ? (
+                        <ActivityIndicator size="small" color="#FFFFFF" />
+                      ) : (
+                        <Text style={styles.sendButtonText}>Enviar</Text>
+                      )}
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </ScrollView>
           ) : (
             <Text style={{ textAlign: 'center', color: '#888', marginTop: 20 }}>
@@ -300,5 +405,87 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: '#0ea5e9',
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111827',
+    marginBottom: 12,
+  },
+  balaoRecebido: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#F3F4F6',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderBottomLeftRadius: 4,
+    maxWidth: '85%',
+    marginBottom: 12,
+  },
+  balaoEnviado: {
+    alignSelf: 'flex-end',
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderBottomRightRadius: 4,
+    maxWidth: '85%',
+    marginBottom: 12,
+  },
+  textoRecebido: {
+    color: '#111827',
+    fontSize: 15,
+  },
+  textoEnviado: {
+    color: '#FFFFFF',
+    fontSize: 15,
+  },
+  dataRecebida: {
+    color: '#6B7280',
+    fontSize: 11,
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  dataEnviada: {
+    color: '#E5E7EB',
+    fontSize: 11,
+    alignSelf: 'flex-end',
+    marginTop: 4,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#E5E7EB', // Linha cinza separando o chat do input
+    paddingTop: 12,
+    marginTop: 8,
+  },
+  input: {
+    flex: 1, // Faz o input ocupar todo o espaço livre
+    backgroundColor: '#F3F4F6',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingTop: 12, // Necessário no iOS para alinhar o texto no multiline
+    paddingBottom: 12,
+    fontSize: 15,
+    color: '#111827',
+    maxHeight: 100, // Impede que o input cresça infinitamente se o texto for gigante
+  },
+  sendButton: {
+    backgroundColor: '#007AFF', // Azul
+    borderRadius: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    marginLeft: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#93C5FD', // Azul clarinho quando não há texto
+  },
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 15,
   },
 });

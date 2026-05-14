@@ -29,3 +29,20 @@ export interface ReportTypee {
     externalSignalStageLabel: string;
   } | null;
 }
+
+export interface Messages {
+  id: number;
+  reportId: number;
+  messages: Message[];
+}
+
+interface Message {
+  id: number;
+  direction: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface MessagePayload {
+  message: string;
+}

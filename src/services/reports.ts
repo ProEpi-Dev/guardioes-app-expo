@@ -1,4 +1,6 @@
 import {
+  MessagePayload,
+  Messages,
   ReportDetailsResponse,
   ReportType,
   ReportTypee,
@@ -61,6 +63,34 @@ export const getReportById = async (reportId: number) => {
   try {
     const response = await apiClient(`/v1/reports/${reportId}`);
     return response as unknown as ReportDetailsResponse;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getMessage = async (reportId: number) => {
+  try {
+    const response = await apiClient(
+      `/v1/report-integrations/by-report/${reportId}`
+    );
+    return (response as unknown as Messages) ?? null;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const sendMessage = async (payload: MessagePayload, eventId: number) => {
+  try {
+    const response = (await apiClient(
+      `/v1/report-integrations/${eventId}/messages`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )) as any;
+
+    return response;
   } catch (error) {
     throw error;
   }
