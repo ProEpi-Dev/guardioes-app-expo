@@ -17,10 +17,10 @@ i18n.translations = {
   es,
 };
 
-// const deviceLanguage = Localization.getLocales()[0]?.languageCode;
+const deviceLanguage = Localization.getLocales()[0]?.languageCode;
 // console.log(deviceLanguage);
-// i18n.locale = deviceLanguage || 'en';
-i18n.locale = 'pt';
+i18n.locale = deviceLanguage || 'en';
+// i18n.locale = 'pt';
 
 export const setLocale = (locale) => {
   i18n.locale = locale;
