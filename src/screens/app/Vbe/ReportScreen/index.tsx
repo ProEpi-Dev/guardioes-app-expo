@@ -174,7 +174,7 @@ export function Vbe() {
         sending={sending}
         formDefinition={formDefinition}
         onFormChange={setFormValues}
-        onSubmit={handleSubmitForm}
+        onSubmit={() => handleSubmitForm(refetch)}
         title={formTitle}
       />
 

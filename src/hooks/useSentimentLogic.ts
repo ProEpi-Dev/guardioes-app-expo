@@ -222,7 +222,7 @@ export const useSentimentLogic = () => {
   };
 
   // 4. Envio do Formulário Negativo
-  const handleSubmitForm = async () => {
+  const handleSubmitForm = async (refetch?: () => void) => {
     if (!formValues._isValid)
       return Alert.alert('Atenção', 'Preencha os campos obrigatórios.');
     if (!currentFormVersionId || !participationId) return;
@@ -257,6 +257,7 @@ export const useSentimentLogic = () => {
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
+      refetch?.();
 
       if (!status.hasReported) {
         setCurrentStreakCount(status.streak + 1);
