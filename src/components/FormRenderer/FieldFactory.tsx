@@ -317,7 +317,7 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   );
 };
 
-const LocationFieldSelector = ({
+export const LocationFieldSelector = ({
   field,
   value,
   onChange,
@@ -337,7 +337,6 @@ const LocationFieldSelector = ({
   };
 
   // Lógica dinâmica para descobrir a chave do NOME baseada na chave do ID
-  // Remove "_id" (snake_case) ou "Id" (camelCase) do final da string
   const countryNameKey =
     config.countryNameKey ??
     config.countryKey.replace(/_id$/i, '').replace(/Id$/, '');
@@ -368,29 +367,21 @@ const LocationFieldSelector = ({
       loc.orgLevel === 'CITY_COUNCIL' && loc.parentId === currentStateId
   );
 
-  // Mapeia para o formato do CustomSelector
-  const mapToOptions = (list: any[]): Option[] =>
+  const mapToOptions = (list: any[]) =>
     list.map((loc) => ({
       label: loc.name,
       value: loc.id,
       key: String(loc.id),
     }));
 
-  // Handlers com a inclusão dos Nomes
   const handleCountryChange = (id: number) => {
     const selectedCountry = countries.find((c: any) => c.id === id);
-
     onChange({
       ...currentValues,
-      // Salva o País (ID e Nome)
       [config.countryKey]: id,
       [countryNameKey]: selectedCountry ? selectedCountry.name : null,
-
-      // Reseta o Estado (ID e Nome)
       [stateDistrictKey]: null,
       [stateNameKey]: null,
-
-      // Reseta a Cidade (ID e Nome)
       [cityCouncilKey]: null,
       [cityNameKey]: null,
     });
@@ -398,14 +389,10 @@ const LocationFieldSelector = ({
 
   const handleStateChange = (id: number) => {
     const selectedState = states.find((s: any) => s.id === id);
-
     onChange({
       ...currentValues,
-      // Salva o Estado (ID e Nome)
       [stateDistrictKey]: id,
       [stateNameKey]: selectedState ? selectedState.name : null,
-
-      // Reseta a Cidade (ID e Nome)
       [cityCouncilKey]: null,
       [cityNameKey]: null,
     });
@@ -413,18 +400,15 @@ const LocationFieldSelector = ({
 
   const handleCityChange = (id: number) => {
     const selectedCity = cities.find((c: any) => c.id === id);
-
     onChange({
       ...currentValues,
-      // Salva a Cidade (ID e Nome)
       [cityCouncilKey]: id,
       [cityNameKey]: selectedCity ? selectedCity.name : null,
     });
   };
 
-  // Helper para renderizar os Selects
   const renderSelector = (
-    options: Option[],
+    options: any[],
     currentValue: number | null,
     placeholder: string,
     onValueChange: (val: number) => void,
@@ -432,13 +416,15 @@ const LocationFieldSelector = ({
   ) => {
     const selectedOption = options.find((o) => o.value === currentValue);
     const displayLabel = selectedOption ? selectedOption.label : placeholder;
+    const remountKey = `${placeholder}-${currentValue || 'limpo'}`;
 
     return (
       <CustomSelector
+        key={remountKey}
         data={options}
         initValue={displayLabel}
         disabled={isDisabled}
-        onChange={(option) => onValueChange(option.value as number)}
+        onChange={(option: any) => onValueChange(option.value as number)}
         selectStyle={[
           styles.input,
           error ? styles.inputError : null,
@@ -473,9 +459,18 @@ const LocationFieldSelector = ({
     );
   };
 
+  const canShowState =
+    (config.maxLevel === 'STATE_DISTRICT' ||
+      config.maxLevel === 'CITY_COUNCIL') &&
+    (!currentCountryId || states.length > 0);
+
+  const canShowCity =
+    config.maxLevel === 'CITY_COUNCIL' &&
+    canShowState &&
+    (!currentStateId || cities.length > 0);
+
   return (
     <View style={{ gap: 12 }}>
-      {/* PAÍS */}
       {renderSelector(
         mapToOptions(countries),
         currentCountryId,
@@ -484,25 +479,22 @@ const LocationFieldSelector = ({
         readOnly
       )}
 
-      {/* ESTADO */}
-      {(config.maxLevel === 'STATE_DISTRICT' ||
-        config.maxLevel === 'CITY_COUNCIL') &&
+      {canShowState &&
         renderSelector(
           mapToOptions(states),
           currentStateId,
           'Selecione o Estado/Distrito',
           handleStateChange,
-          readOnly || !currentCountryId || states.length === 0
+          readOnly || !currentCountryId
         )}
 
-      {/* CIDADE */}
-      {config.maxLevel === 'CITY_COUNCIL' &&
+      {canShowCity &&
         renderSelector(
           mapToOptions(cities),
           currentCityId,
           'Selecione a Cidade',
           handleCityChange,
-          readOnly || !currentStateId || cities.length === 0
+          readOnly || !currentStateId
         )}
     </View>
   );
