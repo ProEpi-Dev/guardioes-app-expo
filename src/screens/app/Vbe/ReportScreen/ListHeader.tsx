@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import translate from '../../../../locales/i18n';
@@ -8,14 +14,42 @@ import { colors } from '../../../../utils/colors';
 interface ListHeaderProps {
   filterCount: number;
   onOpenFilter: () => void;
+  onRefresh: () => void;
+  isRefetching: boolean;
 }
 
-export function ListHeader({ filterCount, onOpenFilter }: ListHeaderProps) {
+export function ListHeader({
+  filterCount,
+  onOpenFilter,
+  onRefresh,
+  isRefetching,
+}: ListHeaderProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{translate('vbe.mySignals')}</Text>
 
-      <View style={styles.botaoFiltro}>
+      <View style={styles.actionsContainer}>
+        <TouchableOpacity
+          style={styles.actionButtonContainer}
+          onPress={onRefresh}
+          disabled={isRefetching}
+          activeOpacity={0.8}
+        >
+          <LinearGradient
+            colors={[colors.azulClaro, colors.azulEscuro]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.actionButtonGradient}
+          >
+            {isRefetching ? (
+              <ActivityIndicator size="small" color="white" />
+            ) : (
+              <Feather name="refresh-cw" size={20} color="white" />
+            )}
+            <Text style={styles.actionButtonText}>Atualizar</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
         <TouchableOpacity
           style={styles.actionButtonContainer}
           onPress={onOpenFilter}
@@ -60,4 +94,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   actionButtonText: { color: 'white', fontWeight: 'bold', fontSize: 14 },
+  actionsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
 });

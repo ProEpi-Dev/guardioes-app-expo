@@ -138,6 +138,8 @@ export function Vbe() {
         <ListHeader
           filterCount={selectedFilters.length}
           onOpenFilter={() => setIsDrawerOpen(true)}
+          onRefresh={refetch}
+          isRefetching={isRefetching}
         />
 
         {/* COMPONENTE 2: Lista de Relatórios */}
