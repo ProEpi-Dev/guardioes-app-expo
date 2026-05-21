@@ -74,6 +74,15 @@ export const useRegister = (navigation: any) => {
       return;
     }
 
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      Alert.alert(
+        'Senha inválida',
+        'A nova senha deve ter no mínimo 8 caracteres, contendo pelo menos uma letra minúscula, uma maiúscula e um número.'
+      );
+      return;
+    }
+
     if (password !== confirmPassword) {
       Alert.alert(translate('Senha e Confirmar Senha devem ser iguais'));
       return;
@@ -109,10 +118,35 @@ export const useRegister = (navigation: any) => {
             },
           ]
         );
+      } else {
+        let errorMessage =
+          'Não foi possível realizar o cadastro. Verifique os dados e tente novamente.';
+        if (typeof result?.error === 'string' && result.error.trim() !== '') {
+          try {
+            const parsedError = JSON.parse(result.error);
+            errorMessage =
+              parsedError?.data?.error?.message ||
+              parsedError?.message ||
+              result.error;
+          } catch {
+            errorMessage = result.error;
+          }
+        } else if (result?.data) {
+          const resData = result.data as any;
+          if (resData?.error?.message) {
+            errorMessage = resData.error.message;
+          }
+        }
+        Alert.alert('Atenção', errorMessage);
       }
-    } catch (error) {
-      Alert.alert('Erro', 'Erro inesperado ao realizar cadastro');
-      console.log(error);
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.error?.message ||
+        error?.data?.error?.message ||
+        'Erro inesperado ao realizar o cadastro. Tente novamente mais tarde.';
+
+      Alert.alert('Erro no Cadastro', errorMessage);
+      console.log('Detalhes do erro:', error);
     } finally {
       setIsRegistering(false);
     }
