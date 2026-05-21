@@ -46,7 +46,6 @@ export function ListHeader({
             ) : (
               <Feather name="refresh-cw" size={20} color="white" />
             )}
-            <Text style={styles.actionButtonText}>Atualizar</Text>
           </LinearGradient>
         </TouchableOpacity>
 
