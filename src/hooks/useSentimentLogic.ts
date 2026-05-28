@@ -263,10 +263,7 @@ export const useSentimentLogic = () => {
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
       } else {
-        Alert.alert(
-          'Obrigado por participar!',
-          'Seu registro de sintomas foi enviado.'
-        );
+        Alert.alert('Obrigado por participar!', 'Seu registro foi enviado.');
       }
     } catch (e) {
       console.error(e);

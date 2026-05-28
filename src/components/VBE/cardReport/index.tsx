@@ -25,7 +25,7 @@ export function CardReport({ data }: CardReportProps) {
     <View style={styles.card}>
       {/* Trocamos o ID pela Data formatada */}
       <Text style={styles.title}>{formatarData(data.createdAt)}</Text>
-      {data.integrationSummary?.externalSignalStageLabel && (
+      {data.integrationSummary?.externalSignalStageLabel ? (
         <View style={[styles.badge]}>
           <Text
             style={{
@@ -34,7 +34,19 @@ export function CardReport({ data }: CardReportProps) {
               fontSize: 12,
             }}
           >
-            {data.integrationSummary?.externalSignalStageLabel}
+            {data.integrationSummary.externalSignalStageLabel}
+          </Text>
+        </View>
+      ) : (
+        <View style={[styles.badgeWait]}>
+          <Text
+            style={{
+              color: '#EB9711',
+              fontWeight: '600',
+              fontSize: 12,
+            }}
+          >
+            Aguardando Recebimento
           </Text>
         </View>
       )}
@@ -67,6 +79,14 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     alignSelf: 'flex-start',
     borderColor: '#0288d1',
+    borderWidth: 1,
+  },
+  badgeWait: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 50,
+    alignSelf: 'flex-start',
+    borderColor: '#EB9711',
     borderWidth: 1,
   },
 });

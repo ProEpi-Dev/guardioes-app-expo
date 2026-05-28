@@ -65,12 +65,6 @@ export function ReportInfo({
       </Text>
 
       <View style={{ flexDirection: 'row', gap: 8, marginBottom: 24 }}>
-        <View style={[styles.badge, { backgroundColor: '#D32F2F' }]}>
-          <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>
-            {data.reportType === 'POSITIVE' ? 'Com sinal' : 'Sem sinal'}
-          </Text>
-        </View>
-
         {integrationData?.integrationSummary?.externalSignalStageLabel && (
           <View style={[styles.badge, styles.badgeOutline]}>
             <Text style={{ color: '#0ea5e9', fontWeight: '600', fontSize: 12 }}>
