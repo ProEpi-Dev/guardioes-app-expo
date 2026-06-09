@@ -1,11 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Maintance } from './src/screens/auth/Maintance';
+import {
+  Platform,
+  PermissionsAndroid,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {
   getMessaging,
@@ -17,6 +24,13 @@ import {
   onTokenRefresh,
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
+import {
+  getRemoteConfig,
+  setConfigSettings,
+  setDefaults,
+  fetchAndActivate,
+  getValue,
+} from '@react-native-firebase/remote-config';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -295,6 +309,56 @@ function AppContent() {
 }
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
+  const [isMaintenance, setIsMaintenance] = useState(false);
+
+  useEffect(() => {
+    const setupRemoteConfig = async () => {
+      try {
+        // 1. Obtém a instância principal do Remote Config
+        const rc = getRemoteConfig();
+
+        // 2. Zera o cache APENAS em desenvolvimento
+        if (__DEV__) {
+          await setConfigSettings(rc, {
+            minimumFetchIntervalMillis: 0,
+          });
+        }
+
+        // 3. Define um valor padrão local de segurança
+        await setDefaults(rc, {
+          manutencao: false,
+        });
+
+        // 4. Busca e ativa as configurações no Firebase
+        await fetchAndActivate(rc);
+
+        // 5. Lê o valor do parâmetro passando a instância e a chave
+        const maintenanceMode = getValue(rc, 'manutencao').asBoolean();
+
+        setIsMaintenance(maintenanceMode);
+      } catch (error) {
+        console.error('Erro ao buscar o Remote Config:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    setupRemoteConfig();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  // Renderiza a tela de manutenção se a flag for verdadeira
+  if (isMaintenance) {
+    return <Maintance />;
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -307,3 +371,13 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+});
