@@ -320,8 +320,14 @@ export default function App() {
 
         // 2. Zera o cache APENAS em desenvolvimento
         if (__DEV__) {
+          // Em desenvolvimento: busca os dados na hora (sem cache)
           await setConfigSettings(rc, {
             minimumFetchIntervalMillis: 0,
+          });
+        } else {
+          // Em produção: define um intervalo seguro para o cache
+          await setConfigSettings(rc, {
+            minimumFetchIntervalMillis: 600000, // 10 minutos | 1 minuto = 60000ms
           });
         }
 
