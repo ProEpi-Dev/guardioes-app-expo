@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScreenLoader from './src/components/ScreenLoader';
@@ -6,12 +6,14 @@ import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
 import { Maintance } from './src/screens/auth/Maintance';
+import { useConnection } from './src/hooks/useConnection';
 import {
   Platform,
   PermissionsAndroid,
   View,
   StyleSheet,
   ActivityIndicator,
+  Text,
 } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {
@@ -24,13 +26,6 @@ import {
   onTokenRefresh,
   setBackgroundMessageHandler,
 } from '@react-native-firebase/messaging';
-import {
-  getRemoteConfig,
-  setConfigSettings,
-  setDefaults,
-  fetchAndActivate,
-  getValue,
-} from '@react-native-firebase/remote-config';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -309,50 +304,7 @@ function AppContent() {
 }
 
 export default function App() {
-  const [loading, setLoading] = useState(true);
-  const [isMaintenance, setIsMaintenance] = useState(false);
-
-  useEffect(() => {
-    const setupRemoteConfig = async () => {
-      try {
-        // 1. Obtém a instância principal do Remote Config
-        const rc = getRemoteConfig();
-
-        // 2. Zera o cache APENAS em desenvolvimento
-        if (__DEV__) {
-          // Em desenvolvimento: busca os dados na hora (sem cache)
-          await setConfigSettings(rc, {
-            minimumFetchIntervalMillis: 0,
-          });
-        } else {
-          // Em produção: define um intervalo seguro para o cache
-          await setConfigSettings(rc, {
-            minimumFetchIntervalMillis: 600000, // 10 minutos | 1 minuto = 60000ms
-          });
-        }
-
-        // 3. Define um valor padrão local de segurança
-        await setDefaults(rc, {
-          manutencao: false,
-        });
-
-        // 4. Busca e ativa as configurações no Firebase
-        await fetchAndActivate(rc);
-
-        // 5. Lê o valor do parâmetro passando a instância e a chave
-        const maintenanceMode = getValue(rc, 'manutencao').asBoolean();
-
-        setIsMaintenance(maintenanceMode);
-      } catch (error) {
-        console.error('Erro ao buscar o Remote Config:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    setupRemoteConfig();
-  }, []);
-
+  const { loading, isMaintenance, isOffline } = useConnection();
   if (loading) {
     return (
       <View style={styles.container}>
@@ -369,6 +321,15 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ParticipationProvider>
+          {/* Se estiver offline, exibe um banner vermelho no topo */}
+          {isOffline && (
+            <View style={styles.offlineBanner}>
+              <Text style={styles.offlineText}>
+                Sem conexão com a internet. Verifique sua rede.
+              </Text>
+            </View>
+          )}
+
           <NavigationContainer ref={navigationRef}>
             <AppContent />
           </NavigationContainer>
@@ -385,5 +346,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
+  },
+  offlineBanner: {
+    backgroundColor: '#ff3333',
+    padding: 10,
+    paddingTop: Platform.OS === 'ios' ? 40 : 10, // Respeitar o notch no iOS
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999, // Garante que fique por cima de tudo
+    elevation: 10,
+  },
+  offlineText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 });
