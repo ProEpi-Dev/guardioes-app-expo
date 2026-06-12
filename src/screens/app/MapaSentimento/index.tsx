@@ -172,7 +172,7 @@ export function MapaSentimento() {
           sending={sending}
           formDefinition={formDefinition}
           onFormChange={setFormValues}
-          onSubmit={handleSubmitForm}
+          onSubmit={() => handleSubmitForm()}
           title={formTitle}
         />
       </View>
