@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingRight: 40,
-    marginTop: 15,
+    marginTop: 0,
   },
   title: { fontSize: 26, fontWeight: 'bold' },
   botaoFiltro: { alignSelf: 'flex-end' },

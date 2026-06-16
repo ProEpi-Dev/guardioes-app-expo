@@ -122,7 +122,9 @@ export function Vbe() {
       <CustomHeader userName={user?.name} />
 
       <View style={{ flex: 1, paddingBottom: TAB_BAR_HEIGHT }}>
-        <View style={{ height: 180, width: '100%', zIndex: 10 }}>
+        <View
+          style={{ marginTop: 210 + insets.top, width: '100%', zIndex: 10 }}
+        >
           <FeelingCard
             onFeelingSelected={handleFeelingSelection}
             isCompliant={isCompliant}
