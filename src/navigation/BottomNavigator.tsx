@@ -21,7 +21,7 @@ import { Vbe } from '../screens/app/Vbe/ReportScreen';
 const Tab = createBottomTabNavigator();
 
 export function BottomNavigation() {
-  const { contextId } = useParticipation();
+  const { isEventBased } = useParticipation();
   const navigation = useNavigation<DrawerNavigationProp<any>>();
   const insets = useSafeAreaInsets();
 
@@ -83,8 +83,7 @@ export function BottomNavigation() {
     >
       <Tab.Screen
         name="Home"
-        // component={MapaSentimento}
-        component={contextId !== 4 ? MapaSentimento : Vbe}
+        component={isEventBased ? Vbe : MapaSentimento}
         options={{
           tabBarLabel: 'Início',
           headerShown: false,
@@ -104,7 +103,7 @@ export function BottomNavigation() {
         }}
       />
 
-      {contextId !== 4 ? (
+      {!isEventBased ? (
         <Tab.Group>
           <Tab.Screen
             name="Dias"
