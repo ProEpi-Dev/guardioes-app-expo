@@ -155,8 +155,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
       }
 
-      const finalUserData: User = userData || {
-        email: email,
+      const participation =
+        response.participation ?? response.data?.participation ?? null;
+
+      const finalUserData: User = {
+        ...(userData || { email }),
+        participation,
       };
 
       const refreshToken = response.refreshToken || response.data?.refreshToken;
@@ -222,9 +226,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           : null);
 
       if (authToken) {
-        const finalUserData: User = userData || {
-          email: data.email,
-          name: data.name,
+        const participation =
+          response.participation ?? response.data?.participation ?? null;
+
+        const finalUserData: User = {
+          ...(userData || { email: data.email, name: data.name }),
+          participation,
         };
 
         const refreshToken =

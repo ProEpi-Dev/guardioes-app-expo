@@ -1,10 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { apiClient } from '../utils/api';
+import { ContextModuleCode } from '../types/auth';
 
 interface ParticipationContextData {
   participationId: number | null;
   contextId: number | null;
+  modules: ContextModuleCode[];
+  isEventBased: boolean;
   loadingParticipation: boolean;
 }
 
@@ -20,15 +23,29 @@ export function ParticipationProvider({
   const { user } = useAuth();
   const [participationId, setParticipationId] = useState<number | null>(null);
   const [contextId, setContextId] = useState<number | null>(null);
+  const [modules, setModules] = useState<ContextModuleCode[]>([]);
   const [loadingParticipation, setLoading] = useState(false);
 
   useEffect(() => {
     let isActive = true;
 
+    // Caminho preferencial: a participação já veio no login (sem requests).
+    const loginParticipation = user?.participation;
+    if (loginParticipation?.id && loginParticipation.context?.id) {
+      setParticipationId(loginParticipation.id);
+      setContextId(loginParticipation.context.id);
+      setModules(loginParticipation.context.modules ?? []);
+      setLoading(false);
+      return;
+    }
+
+    // Fallback: sessões antigas (logadas antes deste update) que não têm
+    // a participation persistida. Não chama /v1/contexts.
     const fetchParticipation = async () => {
       if (!user?.email) {
         setParticipationId(null);
         setContextId(null);
+        setModules([]);
         if (isActive) setLoading(false);
         return;
       }
@@ -42,8 +59,6 @@ export function ParticipationProvider({
           active: 'true',
           search: user.email.trim(),
         });
-
-        // console.log(`[ParticipationContext] Buscando usuário: /v1/users?${userParams.toString()}`);
 
         const usersRes: any = await apiClient(
           `/v1/users?${userParams.toString()}`,
@@ -73,8 +88,6 @@ export function ParticipationProvider({
           userId: foundUserId.toString(),
         });
 
-        // console.log(`[ParticipationContext] Buscando participação: /v1/participations?${partParams.toString()}`);
-
         const partRes: any = await apiClient(
           `/v1/participations?${partParams.toString()}`,
           { method: 'GET' }
@@ -83,16 +96,16 @@ export function ParticipationProvider({
 
         if (Array.isArray(partList) && partList.length > 0) {
           const myParticipation = partList[0];
-
           if (isActive) {
-            // console.log(`[ParticipationContext] Sucesso! ID: ${myParticipation.id}`);
             setParticipationId(myParticipation.id);
             setContextId(myParticipation.contextId);
+            setModules([]);
           }
         } else {
           console.warn(
             '[ParticipationContext] Nenhuma participação ativa encontrada para este userId.'
           );
+          if (isActive) setModules([]);
         }
       } catch (error) {
         console.error(
@@ -111,9 +124,17 @@ export function ParticipationProvider({
     };
   }, [user]);
 
+  const isEventBased = modules.includes('community_signal');
+
   return (
     <ParticipationContext.Provider
-      value={{ participationId, contextId, loadingParticipation }}
+      value={{
+        participationId,
+        contextId,
+        modules,
+        isEventBased,
+        loadingParticipation,
+      }}
     >
       {children}
     </ParticipationContext.Provider>
