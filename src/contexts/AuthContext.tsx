@@ -40,41 +40,76 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [form, setForm] = useState<Form | null>(null);
 
-  // Verificar se há token salvo ao iniciar
   useEffect(() => {
     checkAuthState();
   }, []);
 
   const checkAuthState = async (): Promise<void> => {
     try {
-      // Inicializar token no axios (busca do storage e atualiza defaults)
       const storedToken = await initializeAuthToken();
       const storedUser = await authStorage.getUser();
-
-      // NOVA VERIFICAÇÃO: Garantir que também temos o refresh token
       const storedRefreshToken = await authStorage.getRefreshToken();
 
-      // Se temos o token principal, o usuário E o refresh token, o usuário está logado!
       if (storedToken && storedUser && storedRefreshToken) {
-        // A verificação de 5 minutos (isTokenValid) FOI REMOVIDA DAQUI!
-        // Se o storedToken estiver expirado, o interceptor do Axios
-        // no arquivo api.js vai tratar o erro 401 e renová-lo automaticamente.
+        try {
+          const refreshResponse = await axios.post(
+            `${process.env.EXPO_PUBLIC_API_BASE_URL}/v1/auth/refresh`,
+            {
+              refreshToken: storedRefreshToken,
+            }
+          );
 
-        setToken(storedToken);
-        setUser(storedUser);
-        setIsAuthenticated(true);
+          const responseData = refreshResponse.data;
 
-        // Buscar forms se já estiver autenticado
-        await fetchForms();
+          const newToken =
+            responseData.token ||
+            responseData.accessToken ||
+            responseData.data?.token ||
+            responseData.data?.accessToken;
+
+          const newRefreshToken =
+            responseData.refreshToken || responseData.data?.refreshToken;
+
+          if (newToken) {
+            await updateAuthToken(newToken);
+            if (newRefreshToken) {
+              await authStorage.storeRefreshToken(newRefreshToken);
+            }
+            setToken(newToken);
+            setUser(storedUser);
+            setIsAuthenticated(true);
+            await fetchForms();
+          } else {
+            throw new Error(
+              'Token não recebido da API durante a renovação proativa.'
+            );
+          }
+        } catch (refreshError: any) {
+          console.warn(
+            'Erro na renovação proativa do token ao abrir o app:',
+            refreshError
+          );
+
+          if (refreshError.response && refreshError.response.status === 401) {
+            await authStorage.clearAuthData();
+            await updateAuthToken(null);
+            setIsAuthenticated(false);
+            setToken(null);
+            setUser(null);
+          } else {
+            setToken(storedToken);
+            setUser(storedUser);
+            setIsAuthenticated(true);
+            await fetchForms();
+          }
+        }
       } else {
-        // Faltam dados na memória, garantir que está deslogado
         setIsAuthenticated(false);
         setToken(null);
         setUser(null);
       }
     } catch (error) {
-      console.error('Erro ao verificar estado de autenticação:', error);
-      // Em caso de erro, garantir que está deslogado
+      console.error('Erro grave ao verificar estado de autenticação:', error);
       setIsAuthenticated(false);
       setToken(null);
       setUser(null);
@@ -96,8 +131,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }),
       })) as unknown as LoginResponse;
 
-      // A API pode retornar o token e dados do usuário em diferentes formatos
-      // Ajuste conforme a estrutura real da resposta da API
       const authToken =
         response.token ||
         response.accessToken ||
@@ -122,30 +155,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         );
       }
 
-      // Se não houver dados do usuário, criar um objeto mínimo
-      const finalUserData: User = userData || {
-        email: email,
+      const participation =
+        response.participation ?? response.data?.participation ?? null;
+
+      const finalUserData: User = {
+        ...(userData || { email }),
+        participation,
       };
 
-      // Armazenar token e dados do usuário
       const refreshToken = response.refreshToken || response.data?.refreshToken;
 
-      // Armazenar token, refresh token e dados do usuário
       await authStorage.storeToken(authToken);
       if (refreshToken) {
         await authStorage.storeRefreshToken(refreshToken);
       }
       await authStorage.storeUser(finalUserData);
 
-      // Atualizar token no axios interceptor
       await updateAuthToken(authToken);
 
-      // Atualizar estado
       setToken(authToken);
       setUser(finalUserData);
       setIsAuthenticated(true);
 
-      // Buscar forms após login bem-sucedido
       await fetchForms();
 
       return { success: true, data: response };
@@ -157,6 +188,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (apiError.status === 401) {
         errorMessage = 'Email ou senha incorretos.';
+      } else if (apiError.status === 403) {
+        errorMessage = 'Cadastro não confirmado.';
       } else if (apiError.status === 0) {
         errorMessage =
           apiError.message || 'Erro de conexão. Verifique sua internet.';
@@ -164,7 +197,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         errorMessage = apiError.message;
       }
 
-      return { success: false, error: errorMessage };
+      return { success: false, error: errorMessage, status: apiError.status };
     }
   };
 
@@ -175,7 +208,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         body: JSON.stringify(data),
       })) as unknown as LoginResponse;
 
-      // Lógica de Auto-Login: Tenta extrair token e user da resposta do registro
       const authToken =
         response.token ||
         response.accessToken ||
@@ -193,11 +225,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           : null);
 
-      // Se a API retornar o token, fazemos o login automático
       if (authToken) {
-        const finalUserData: User = userData || {
-          email: data.email,
-          name: data.name,
+        const participation =
+          response.participation ?? response.data?.participation ?? null;
+
+        const finalUserData: User = {
+          ...(userData || { email: data.email, name: data.name }),
+          participation,
         };
 
         const refreshToken =
@@ -214,13 +248,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(finalUserData);
         setIsAuthenticated(true);
 
-        await fetchForms(); // Busca os dados iniciais
+        await fetchForms();
 
         return { success: true, data: response };
       }
 
-      // Caso a API crie o usuário mas NÃO retorne o token (ex: exige confirmação de email)
-      // Retornamos sucesso, mas não autenticamos no app
       return { success: true, data: response };
     } catch (error) {
       console.error('Erro no registro:', error);
@@ -244,7 +276,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const currentRefreshToken = await authStorage.getRefreshToken();
 
-      // Avisa o servidor para revogar a sessão usando o endpoint correto
       if (currentRefreshToken) {
         try {
           await axios.post(
@@ -280,7 +311,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchForms = async (): Promise<void> => {
     try {
-      // O token será adicionado automaticamente pelo interceptor do axios
       const response = (await apiClient(
         '/v1/forms?page=1&pageSize=10&active=true',
         {
@@ -288,13 +318,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       )) as unknown as PaginatedResponse<Form>;
 
-      // Verificar se há itens e guardar o primeiro
       if (response.data && response.data.length > 0) {
         const firstForm = response.data[0];
         setForm(firstForm);
-        // console.log('Form carregado:', firstForm);
       } else {
-        // console.log('Nenhum form disponível');
         setForm(null);
       }
     } catch (error) {

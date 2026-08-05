@@ -20,13 +20,14 @@ import { useTrailContent } from '../../../../hooks/useTrailContent';
 import { useTrailNavigation } from '../../../../hooks/useTrailNavigation';
 import { styles } from './styles';
 import { TimelineItem } from '../../../../components/TimelineItem';
-import { CustomHeader } from '../../../../components/CustomHeader'; // ADICIONADO
-import { useAuth } from '../../../../contexts/AuthContext'; // ADICIONADO
+import { CustomHeader } from '../../../../components/CustomHeader';
+import { useAuth } from '../../../../contexts/AuthContext';
 import { getItemStatus } from '../../../../utils/trailContentStatus';
 import { colors } from '../../../../utils/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useSentimentLogic } from '../../../../hooks/useSentimentLogic';
 import { CommonActions, useFocusEffect } from '@react-navigation/native';
+import translate from '../../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Accordion'>;
 
@@ -47,20 +48,17 @@ export default function TrailContent({ route, navigation }: Props) {
 
   const handleBackBehavior = useCallback(() => {
     if (!isCompliant) {
-      // 1. Navega para a aba Inicial (Mapa)
       (navigation as any).navigate('Inicio', { screen: 'Home' });
 
-      // 2. Reseta silenciosamente a pilha atual para a listagem (sem animações conflitantes)
       navigation.dispatch(
         CommonActions.reset({
           index: 0,
-          routes: [{ name: 'Home' }], // "Home" aqui é o TrailCard definido no seu TrailStack
+          routes: [{ name: 'Home' }],
         })
       );
 
       return true;
     }
-    // Se está tudo certo, permite voltar pra listagem de trilhas normalmente
     navigation.goBack();
     return true;
   }, [isCompliant, navigation]);
@@ -75,7 +73,6 @@ export default function TrailContent({ route, navigation }: Props) {
     }, [handleBackBehavior])
   );
 
-  // ... (mantenha as checagens de loading/empty originais)
   if (loading || navLoading) {
     return (
       <View style={styles.center}>
@@ -97,7 +94,6 @@ export default function TrailContent({ route, navigation }: Props) {
 
   return (
     <SafeAreaView style={styles.screen} edges={['bottom', 'left', 'right']}>
-      {/* Cabeçalho igual ao da imagem */}
       <CustomHeader
         userName={user?.name}
         showBackButton={true}
@@ -112,7 +108,9 @@ export default function TrailContent({ route, navigation }: Props) {
       >
         {/* Título da Trilha centralizado */}
         <View style={styles.trailHeader}>
-          <Text style={styles.trailTitleText}>Trilha: {title}</Text>
+          <Text style={styles.trailTitleText}>
+            {translate('trail.title', { title })}
+          </Text>
         </View>
 
         {sectionsToRender.map((sectionItem: any) => (
@@ -170,7 +168,9 @@ export default function TrailContent({ route, navigation }: Props) {
               end={{ x: 1, y: 0 }} // Termina na direita
               style={styles.returnButtonGradient}
             >
-              <Text style={styles.returnButtonText}>Continuar</Text>
+              <Text style={styles.returnButtonText}>
+                {translate('trail.next')}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         )}

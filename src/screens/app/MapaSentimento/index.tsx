@@ -17,6 +17,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AlertModal } from '../../../components/AlertModal';
 import { useStreaks } from '../../../hooks/useStreaks';
 import { useParticipation } from '../../../contexts/ParticipationContext';
+import { getCurrentLocale } from '../../../locales/i18n';
+import translate from '../../../locales/i18n';
 
 export function MapaSentimento() {
   const { user } = useAuth();
@@ -50,9 +52,12 @@ export function MapaSentimento() {
   const [fadeAnim] = useState(() => new Animated.Value(0));
   const [scaleAnim] = useState(() => new Animated.Value(0.5));
 
-  const diaDaSemana = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long',
-  });
+  const diaDaSemana = new Date().toLocaleDateString(
+    getCurrentLocale() || 'pt-BR',
+    {
+      weekday: 'long',
+    }
+  );
   const diaCapitalizado =
     diaDaSemana.charAt(0).toUpperCase() + diaDaSemana.slice(1);
 
@@ -143,9 +148,11 @@ export function MapaSentimento() {
             ]}
           >
             <Text style={styles.successEmoji}>✅</Text>
-            <Text style={styles.successTitle}>{diaCapitalizado} Marcado!</Text>
+            <Text style={styles.successTitle}>
+              {translate('vbe.successAnimation', { day: diaCapitalizado })}
+            </Text>
             <Text style={styles.successSubtitle}>
-              Sequência atual: {currentStreak} dia(s) 🔥
+              {translate('vbe.streak', { currentStreak })} 🔥
             </Text>
           </Animated.View>
         </View>
@@ -165,7 +172,7 @@ export function MapaSentimento() {
           sending={sending}
           formDefinition={formDefinition}
           onFormChange={setFormValues}
-          onSubmit={handleSubmitForm}
+          onSubmit={() => handleSubmitForm()}
           title={formTitle}
         />
       </View>

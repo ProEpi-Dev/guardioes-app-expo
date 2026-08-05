@@ -143,7 +143,10 @@ export const useSentimentLogic = () => {
         return;
       }
 
-      const latestForm = await getLatestSignalForm();
+      let latestForm;
+      if (contextId) {
+        latestForm = await getLatestSignalForm(contextId);
+      }
       const versionId = latestForm.latestVersion?.id;
       const loc = await getLocation();
 
@@ -152,6 +155,7 @@ export const useSentimentLogic = () => {
           participationId,
           formVersionId: versionId,
           reportType: 'POSITIVE',
+          // reportType: contextId === 4 ? 'NEGATIVE' : 'POSITIVE',
           formResponse: {},
           occurrenceLocation: loc
             ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
@@ -178,7 +182,10 @@ export const useSentimentLogic = () => {
     setShowForm(true);
 
     try {
-      const latestForm = await getLatestSignalForm();
+      let latestForm;
+      if (contextId) {
+        latestForm = await getLatestSignalForm(contextId);
+      }
       const version = latestForm.latestVersion;
 
       if (version?.definition) {
@@ -215,7 +222,7 @@ export const useSentimentLogic = () => {
   };
 
   // 4. Envio do Formulário Negativo
-  const handleSubmitForm = async () => {
+  const handleSubmitForm = async (refetch?: () => void) => {
     if (!formValues._isValid)
       return Alert.alert('Atenção', 'Preencha os campos obrigatórios.');
     if (!currentFormVersionId || !participationId) return;
@@ -224,13 +231,21 @@ export const useSentimentLogic = () => {
     try {
       const status = await checkHasReportedToday();
 
-      const { _isValid, ...cleanData } = formValues;
+      const { _isValid, mapPoint, ...cleanData } = formValues;
       const loc = await getLocation();
+
+      if (mapPoint) {
+        cleanData.geo_location = {
+          latitude: mapPoint.latitude,
+          longitude: mapPoint.longitude,
+        };
+      }
 
       await createReport({
         participationId,
         formVersionId: currentFormVersionId,
         reportType: 'NEGATIVE',
+        // reportType: contextId === 4 ? 'POSITIVE' : 'NEGATIVE',
         formResponse: cleanData,
         occurrenceLocation: loc
           ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
@@ -242,15 +257,13 @@ export const useSentimentLogic = () => {
       setShowForm(false);
       setFormValues({});
       setTimeout(refreshPoints, 500);
+      refetch?.();
 
       if (!status.hasReported) {
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
       } else {
-        Alert.alert(
-          'Obrigado por participar!',
-          'Seu registro de sintomas foi enviado.'
-        );
+        Alert.alert('Obrigado por participar!', 'Seu registro foi enviado.');
       }
     } catch (e) {
       console.error(e);

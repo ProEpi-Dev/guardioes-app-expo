@@ -1,5 +1,5 @@
 import { I18n } from 'i18n-js';
-import * as Localization from 'expo-localization';
+// import * as Localization from 'expo-localization';
 
 import en from './en';
 import pt from './pt';
@@ -17,7 +17,10 @@ i18n.translations = {
   es,
 };
 
-i18n.locale = Localization.getLocales()[0]?.locale || 'pt';
+// const deviceLanguage = Localization.getLocales()[0]?.languageCode;
+// console.log(deviceLanguage);
+// i18n.locale = deviceLanguage || 'en';
+i18n.locale = 'pt';
 
 export const setLocale = (locale) => {
   i18n.locale = locale;

@@ -6,7 +6,7 @@ import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useStreaks } from '../../../hooks/useStreaks';
-
+import translate from '../../../locales/i18n';
 import { StatCard } from '../../../components/StatCard';
 import { StreakCalendar } from '../../../components/StreakCalendar';
 
@@ -26,10 +26,21 @@ export function SequenceScreen() {
     fetchMonthData,
   } = useStreaks(contextId || 0, participationId || 0);
 
-  const textoDia = currentStreak === 1 ? 'dia' : 'dias';
-  const textoSeguido = currentStreak === 1 ? 'seguido' : 'seguidos';
-  const textoMaior = longestStreak === 1 ? 'dia' : 'dias';
-  const textoTotal = totalReports === 1 ? 'dia' : 'dias';
+  // Utilizando o ternary (condicional) com as traduções
+  const textoDia =
+    currentStreak === 1
+      ? translate('sequence.day')
+      : translate('sequence.days');
+  const textoSeguido =
+    currentStreak === 1
+      ? translate('sequence.inarow')
+      : translate('sequence.inarows');
+  const textoMaior =
+    longestStreak === 1
+      ? translate('sequence.day')
+      : translate('sequence.days');
+  const textoTotal =
+    totalReports === 1 ? translate('sequence.day') : translate('sequence.days');
 
   const currentMonthRef = useRef({
     year: new Date().getFullYear(),
@@ -60,7 +71,7 @@ export function SequenceScreen() {
       >
         <View style={styles.messageCard}>
           <Text style={styles.messageText}>
-            Você participou por{' '}
+            {translate('sequence.participation')}{' '}
             <Text style={styles.messageHighlight}>
               {currentStreak} {textoDia}
             </Text>{' '}
@@ -79,11 +90,11 @@ export function SequenceScreen() {
 
         <View style={styles.statsContainer}>
           <StatCard
-            label="Maior Sequência"
+            label={translate('sequence.longestStreak')}
             value={`${longestStreak || 0} ${textoMaior}`}
           />
           <StatCard
-            label="Participação Total"
+            label={translate('sequence.totalParticipation')}
             value={`${totalReports || 0} ${textoTotal}`}
           />
         </View>

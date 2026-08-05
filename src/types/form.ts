@@ -7,7 +7,9 @@ export type FieldType =
   | 'select'
   | 'radio'
   | 'multiselect'
-  | 'date';
+  | 'date'
+  | 'mapPoint'
+  | 'location';
 
 export type ConditionOperator =
   | 'equals'
@@ -66,4 +68,26 @@ export interface FormVersion {
   updatedAt?: string;
   participationId: number;
   passingScore?: number | null;
+}
+
+export type FormType = 'signal' | 'quiz' | 'profile_extra';
+
+export interface ParentLocation {
+  id: number;
+  name: string;
+  parent?: ParentLocation; // Recursivo até 3 níveis
+}
+
+export interface Location {
+  id: number;
+  parentId: number | null;
+  parent?: ParentLocation; // Hierarquia até 3 níveis
+  name: string;
+  orgLevel: 'COUNTRY' | 'STATE_DISTRICT' | 'CITY_COUNCIL';
+  latitude: number | null;
+  longitude: number | null;
+  polygons: any | null;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
 }

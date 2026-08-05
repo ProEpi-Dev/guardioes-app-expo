@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import Feather from '@expo/vector-icons/Feather';
 import { scale } from '../../utils/scalling';
+import translate from '../../locales/i18n';
 
 interface Props {
   title: string;
@@ -25,7 +26,9 @@ export const LegalCheckOption: React.FC<Props> = ({
       {isChecked && <Feather name="check" size={16} color="#ffffff" />}
     </TouchableOpacity>
     <View style={styles.textContainer}>
-      <Text style={styles.baseText}>Li e aceito: </Text>
+      <Text style={styles.baseText}>
+        {translate('useTerms.readAndAccept')}{' '}
+      </Text>
       <TouchableOpacity onPress={onRead} activeOpacity={0.7}>
         <Text style={styles.linkText}>{title}</Text>
       </TouchableOpacity>

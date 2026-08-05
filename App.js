@@ -5,7 +5,16 @@ import ScreenLoader from './src/components/ScreenLoader';
 import RootNavigator from './src/navigation/RootNavigator';
 import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
-import { Platform, PermissionsAndroid } from 'react-native';
+import { Maintance } from './src/screens/auth/Maintance';
+import { useConnection } from './src/hooks/useConnection';
+import {
+  Platform,
+  PermissionsAndroid,
+  View,
+  StyleSheet,
+  ActivityIndicator,
+  Text,
+} from 'react-native';
 import * as Notifications from 'expo-notifications';
 import {
   getMessaging,
@@ -295,10 +304,32 @@ function AppContent() {
 }
 
 export default function App() {
+  const { loading, isMaintenance, isOffline } = useConnection();
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  // Renderiza a tela de manutenção se a flag for verdadeira
+  if (isMaintenance) {
+    return <Maintance />;
+  }
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ParticipationProvider>
+          {/* Se estiver offline, exibe um banner vermelho no topo */}
+          {isOffline && (
+            <View style={styles.offlineBanner}>
+              <Text style={styles.offlineText}>
+                Sem conexão com a internet. Verifique sua rede.
+              </Text>
+            </View>
+          )}
+
           <NavigationContainer ref={navigationRef}>
             <AppContent />
           </NavigationContainer>
@@ -307,3 +338,27 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+  },
+  offlineBanner: {
+    backgroundColor: '#ff3333',
+    padding: 10,
+    paddingTop: Platform.OS === 'ios' ? 40 : 10, // Respeitar o notch no iOS
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999, // Garante que fique por cima de tudo
+    elevation: 10,
+  },
+  offlineText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+});

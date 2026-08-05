@@ -18,6 +18,7 @@ import { colors } from '../../../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FilterDrawer } from '../../../components/FilterDrawer';
 import { Feather } from '@expo/vector-icons';
+import translate from '../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -105,7 +106,7 @@ export default function ArticleListScreen({ navigation }: Props) {
           >
             <Feather name="filter" size={24} color="white" />
             <Text style={styles.actionButtonText}>
-              Filtro{' '}
+              {translate('articleCard.filter')}{' '}
               {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
             </Text>
           </LinearGradient>
@@ -126,7 +127,7 @@ export default function ArticleListScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhum artigo encontrado.</Text>
+          <Text style={styles.emptyText}>{translate('articleCard.empty')}</Text>
         }
       />
 

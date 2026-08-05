@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
+import { Controller } from 'react-hook-form';
+
 import {
   DarkButton,
   DarkButtonLabel,
@@ -11,17 +13,19 @@ import {
   SolidInput,
   SolidSelector,
   Touch,
-  UserEmail,
   UserInfoCard,
   UserName,
+  UserEmail,
 } from '../../../components/SnowForms';
 import translate from '../../../locales/i18n';
 import { scale } from '../../../utils/scalling';
-import { PageTitle } from '../Login/styles';
-import { Logo } from './styles';
-import { useFinishProfile } from '../../../hooks/useFinishProfile';
-import { colors } from '../../../utils/colors';
+import { PageTitle, Logo } from './styles';
 import { BackButtonContainer, BackButtonText } from '../Register/styles';
+import { colors } from '../../../utils/colors';
+
+import { useFinishProfile } from '../../../hooks/useFinishProfile';
+
+import ProfileExtraFormSection from '../../../components/ProfileExtraFormSection';
 
 const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 
@@ -29,29 +33,79 @@ const verde = '#77bfad';
 const azul = '#2E97BE';
 const branco = '#ffffff';
 
+const DEFAULT_PROFILE_FIELD_REQUIREMENTS = {
+  gender: true,
+  country: false,
+  location: true,
+  externalIdentifier: true,
+  phone: false,
+};
+
 export function FinishProfile() {
   const insets = useSafeAreaInsets();
   const {
-    selectedGenderId,
-    setSelectedGenderId,
-    selectedLocationId,
-    setSelectedLocationId,
-    externalIdentifier,
-    setExternalIdentifier,
-    genders,
-    locations,
-    isLoading,
-    isSubmitting,
-    handleSubmit,
-    identifierInputRef,
+    user,
     navigation,
-    name,
-    email,
+    control,
+    handleSubmit,
+    errors,
+    onSubmit,
+    profileStatus,
+    statusLoading,
+    countries,
+    allLocations,
+    selectedCountryLocationId,
+    updateProfileMutation,
+    profileExtraMe,
+    setExtraValues,
+    saveProfileExtraMutation,
+    profileExtraFormRef,
+    genders,
   } = useFinishProfile();
 
-  const LogoType = GDSLogoBR;
+  const formattedCountries = useMemo(() => {
+    return countries.map((c: any) => ({
+      key: c.id,
+      label: c.name,
+      value: c.id,
+    }));
+  }, [countries]);
 
-  if (isLoading) {
+  const formattedGenders = useMemo(() => {
+    return genders
+      .filter((g: any) => g.active !== false)
+      .map((g: any) => ({
+        key: g.id,
+        label: g.name,
+        value: g.id,
+      }));
+  }, [genders]);
+
+  const profileReq =
+    profileStatus?.profileFieldRequirements ??
+    DEFAULT_PROFILE_FIELD_REQUIREMENTS;
+
+  const locationsByCountry = useMemo(() => {
+    if (profileReq.country && selectedCountryLocationId) {
+      const filtered = allLocations.filter(
+        (loc: any) => loc.parentId === selectedCountryLocationId
+      );
+      return filtered.map((l: any) => ({
+        key: l.id,
+        label: l.name,
+        value: l.id,
+      }));
+    }
+    return profileReq.country
+      ? []
+      : allLocations.map((l: any) => ({
+          key: l.id,
+          label: l.name,
+          value: l.id,
+        }));
+  }, [allLocations, profileReq.country, selectedCountryLocationId]);
+
+  if (statusLoading || !profileStatus) {
     return (
       <GradientBackground colors={[azul, verde]}>
         <View
@@ -59,7 +113,7 @@ export function FinishProfile() {
         >
           <ActivityIndicator size="large" color={branco} />
           <Text style={{ color: branco, marginTop: 10 }}>
-            Verificando perfil...
+            {translate('finishProfile.loadingStatus')}
           </Text>
         </View>
       </GradientBackground>
@@ -67,114 +121,193 @@ export function FinishProfile() {
   }
 
   return (
-    <>
-      <GradientBackground
-        colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}
-      >
-        <KeyboardScrollView>
-          <View style={{ height: insets.top + 40, width: '100%' }} />
-          <Logo source={LogoType} />
-          <PageTitle>Finalize seu perfil</PageTitle>
+    <GradientBackground
+      colors={[colors.gradientSocialLinkEscuro, colors.azulClaro]}
+    >
+      <KeyboardScrollView>
+        <View style={{ height: insets.top + 40, width: '100%' }} />
+        <Logo source={GDSLogoBR} />
+        <PageTitle>{translate('finishProfile.title')}</PageTitle>
 
-          <FormSeparator>
-            <UserInfoCard>
-              <UserName>{name}</UserName>
-              <UserEmail>{email}</UserEmail>
-            </UserInfoCard>
+        <FormSeparator>
+          <UserInfoCard>
+            <UserName>{user?.name}</UserName>
+            <UserEmail>{user?.email}</UserEmail>
+          </UserInfoCard>
 
-            <SolidSelector
-              data={genders}
-              placeholder={isLoading ? 'Carregando...' : 'Selecione o Sexo'}
-              initValue={selectedGenderId}
-              onChange={(option: any) => setSelectedGenderId(option.value)}
+          {/* GÊNERO */}
+          <Controller
+            control={control}
+            name="genderId"
+            render={({ field: { onChange, value } }) => (
+              <SolidSelector
+                data={formattedGenders}
+                placeholder={translate('finishProfile.placeholders.gender')}
+                initValue={value}
+                onChange={(option: any) => onChange(option.value)}
+              />
+            )}
+          />
+          {errors.genderId && (
+            <Text style={{ color: '#ff6b6b' }}>
+              {translate('finishProfile.errors.required')}
+            </Text>
+          )}
+
+          {/* PAÍS */}
+          {profileReq.country && (
+            <Controller
+              control={control}
+              name="countryLocationId"
+              render={({ field: { onChange, value } }) => (
+                <SolidSelector
+                  data={formattedCountries}
+                  placeholder={translate('finishProfile.placeholders.country')}
+                  initValue={value}
+                  onChange={(option: any) => onChange(option.value)}
+                />
+              )}
             />
+          )}
 
-            {/* <CustomSelector
-              data={genders}
-              placeholder="Selecione o Gênero"
-              initValue={selectedGenderId}
-              onChange={(option: any) => setSelectedGenderId(option.value)}
-            /> */}
+          {/* LOCALIDADE */}
+          <Controller
+            control={control}
+            name="locationId"
+            render={({ field: { onChange, value } }) => (
+              <SolidSelector
+                data={locationsByCountry}
+                placeholder={translate('finishProfile.placeholders.location')}
+                initValue={value}
+                onChange={(option: any) => onChange(option.value)}
+              />
+            )}
+          />
 
-            <SolidSelector
-              data={locations}
-              placeholder={
-                isLoading ? 'Carregando...' : 'Selecione a Localidade'
-              }
-              initValue={selectedLocationId}
-              onChange={(option: any) => setSelectedLocationId(option.value)}
-            />
-            {/* <CustomSelector
-              data={locations}
-              placeholder="Selecione a Localidade"
-              initValue={selectedLocationId}
-              onChange={(option: any) => setSelectedLocationId(option.value)}
-            /> */}
+          {/* IDENTIFICADOR */}
+          <Controller
+            control={control}
+            name="externalIdentifier"
+            render={({ field: { onChange, value } }) => (
+              <SolidInput
+                placeholder={translate('finishProfile.placeholders.identifier')}
+                maxLength={100}
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
 
-            <SolidInput
-              placeholder="Identificador"
-              // secureTextEntry
-              maxLength={100}
-              ref={identifierInputRef}
-              value={externalIdentifier}
-              onChangeText={setExternalIdentifier}
-            />
+          {/* TELEFONE */}
+          <Controller
+            control={control}
+            name="phone"
+            render={({ field: { onChange, value } }) => (
+              <SolidInput
+                placeholder={translate('finishProfile.placeholders.phone')}
+                keyboardType="phone-pad"
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
 
-            {/* <SnowInput
-              placeholder="Identificador (Matrícula, CPF...)"
-              keyboardType='default'
-              returnKeyType='done'
-              maxLength={20}
-              value={externalIdentifier}
-              onChangeText={setExternalIdentifier}
-              ref={identifierInputRef}
-              onSubmitEditing={handleSubmit}
-            /> */}
-
-            <View
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              width: '80%',
+              marginTop: scale(10),
+            }}
+          >
+            <AntDesign name="info-circle" size={24} color="#fff" />
+            <Text
               style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                width: '80%',
+                color: branco,
+                fontSize: scale(12),
+                marginLeft: scale(5),
+                opacity: 0.9,
               }}
             >
-              <AntDesign name="info-circle" size={24} color="#fff" />
-              <Text
+              {translate('finishProfile.infoText')}
+            </Text>
+          </View>
+        </FormSeparator>
+
+        <FormSeparator>
+          <Touch
+            onPress={handleSubmit(onSubmit)}
+            disabled={updateProfileMutation.isPending}
+          >
+            <DarkButton>
+              {updateProfileMutation.isPending ? (
+                <ActivityIndicator size="small" color="#ffffff" />
+              ) : (
+                <DarkButtonLabel>
+                  {translate('finishProfile.buttons.updateProfile')}
+                </DarkButtonLabel>
+              )}
+            </DarkButton>
+          </Touch>
+        </FormSeparator>
+
+        {/* PROFILE EXTRA SECTION */}
+        {profileExtraMe?.[0]?.form && (
+          <FormSeparator>
+            <Text
+              style={{
+                color: branco,
+                fontSize: scale(16),
+                marginBottom: scale(10),
+                fontWeight: 'bold',
+              }}
+            >
+              {translate('finishProfile.extraSection.title')}
+            </Text>
+
+            <ProfileExtraFormSection
+              ref={profileExtraFormRef}
+              onValuesChange={setExtraValues}
+              participantCountryLocationId={
+                selectedCountryLocationId ??
+                profileStatus?.profile?.countryLocationId ??
+                null
+              }
+            />
+
+            <Touch
+              onPress={() => saveProfileExtraMutation.mutate()}
+              disabled={saveProfileExtraMutation.isPending}
+            >
+              <DarkButton
                 style={{
-                  color: branco,
-                  fontSize: scale(12),
-                  marginLeft: scale(5),
-                  marginTop: scale(5),
-                  opacity: 0.9,
+                  marginTop: scale(15),
+                  backgroundColor: 'transparent',
+                  borderWidth: 1,
+                  borderColor: branco,
                 }}
               >
-                Insira seu número de matrícula, CPF ou outro identificador
-              </Text>
-            </View>
-          </FormSeparator>
-
-          <FormSeparator>
-            <Touch onPress={handleSubmit} disabled={isSubmitting}>
-              <DarkButton>
-                {isSubmitting ? (
+                {saveProfileExtraMutation.isPending ? (
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
-                  <DarkButtonLabel>
-                    {translate('register.signupButton')}
+                  <DarkButtonLabel style={{ color: branco }}>
+                    {translate('finishProfile.buttons.saveExtraData')}
                   </DarkButtonLabel>
                 )}
               </DarkButton>
             </Touch>
           </FormSeparator>
+        )}
 
-          <BackButtonContainer onPress={() => navigation.goBack()}>
-            <Feather name="chevron-left" size={24} color={branco} />
-            <BackButtonText>Voltar</BackButtonText>
-          </BackButtonContainer>
+        <BackButtonContainer onPress={() => navigation.goBack()}>
+          <Feather name="chevron-left" size={24} color={branco} />
+          <BackButtonText>
+            {translate('finishProfile.buttons.back')}
+          </BackButtonText>
+        </BackButtonContainer>
 
-          <View style={{ height: insets.bottom + 20, width: '100%' }} />
-        </KeyboardScrollView>
-      </GradientBackground>
-    </>
+        <View style={{ height: insets.bottom + 20, width: '100%' }} />
+      </KeyboardScrollView>
+    </GradientBackground>
   );
 }

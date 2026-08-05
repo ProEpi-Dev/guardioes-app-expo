@@ -34,7 +34,7 @@ export default {
     cancelButton: 'Cancelar',
   },
   initialscreen: {
-    welcome: 'Bem vindo',
+    welcome: 'Bem vindo (a)',
     signup: 'Cadastre-se',
     login: 'Entrar',
   },
@@ -60,9 +60,12 @@ export default {
     tryAgain: 'Tente novamente',
     differentsPass: 'Senhas não conferem!',
     passwordChanged: 'Senha Redefinida',
+    instruction:
+      'Digite o E-Mail cadastrado para receber o link da redefinição de senha',
+    getLinkButton: 'Receber link',
   },
   getToken: {
-    title: 'Código de Verificação',
+    title: 'Reenviar confirmação',
     invalidCode: 'Código Inválido',
     confirm: 'Confirmar',
     loading: 'Carregando',
@@ -71,6 +74,7 @@ export default {
     spamCheckWarning:
       'Caso não apareça na sua caixa de mensagem principal, verifique seu Spam.',
     inputVerificationCode: 'Código',
+    backButton: 'Voltar ao Login',
   },
   changePwd: {
     title: 'Redefinir senha',
@@ -83,6 +87,7 @@ export default {
   },
   register: {
     title: 'Cadastre-se',
+    question: 'Não tem uma conta?',
     name: 'Nome',
     gender: 'Gênero:',
     race: 'Raça:',
@@ -140,6 +145,20 @@ export default {
     riskGroupMessage:
       '\t Pessoas acima de 60 anos ou pessoas de qualquer idade que tenham comorbidades, como cardiopatia, diabetes, pneumopatia, doença neurológica ou renal, imunodepressão, obesidade, asma e puérperas (fase pós-parto).',
     modalButton: 'Voltar',
+    confirmemail: {
+      title: 'Quase lá!',
+      body: 'Seu cadastro ainda não foi confirmado. Enviamos um e-mail de ativação para {{email}}. Verifique sua caixa de entrada e spam.',
+    },
+    resendemail: {
+      title: 'Quase lá!',
+      body: 'Enviamos um novo e-mail de ativação para o endereço {{email}}. Verifique sua caixa de entrada e spam.',
+    },
+    activationMessage:
+      'Enviamos um e-mail de ativação para o endereço {{email}}. Verifique sua caixa de entrada e spam para confirmar seu cadastro.',
+    context: {
+      loading: 'Carregando...',
+      choose: 'Selecione o contexto',
+    },
   },
   ajuda: {
     title: 'Ajuda',
@@ -365,6 +384,7 @@ export default {
         '\nCOMO ENTRAR EM CONTATO COM A PROEPI\n\nVocê pode entrar em contato com a ProEpi, através do e-mail dpo@proepi.org.br, este e-mail é um canal de comunicação do nosso encarregado de Proteção de Dados Pessoais, que se destina exclusivamente para tratar sobre quaisquer dúvidas relacionadas a política de privacidade, podendo ainda, fazer reclamação sobre qualquer violação das leis de proteção de dados, solicitar correção de dados incompletos, inexatos ou desatualizados e também requerer a revogação de consentimento e eliminação de dados do aplicativo (perfil de usuário).\nDa Legislação e do Foro\nPara a solução de qualquer controvérsia decorrente deste instrumento será aplicada integralmente a Lei Brasileira. \nFica eleito o foro da Cidade de Brasília – DF, para dirimir eventuais litígios.\n\n\nLeonardo B. Macedo\nEncarregado de Dados (DPO)\nProEpi\n',
     },
     compilation: 4,
+    readAndAccept: 'Li e aceito:',
   },
   vigilanceTerms: {
     title: 'POLÍTICA DE PRIVACIDADE E PROTEÇÃO DE DADOS',
@@ -476,5 +496,126 @@ export default {
       'Após o período mencionado, não será possível recuperar os dados excluídos. Deseja continuar?',
     cancel: 'Cancelar',
     confirm: 'Sim',
+  },
+
+  profile: {
+    alerts: {
+      errorTitle: 'Erro',
+      errorEmptyFields: 'Nome e Email são obrigatórios',
+      successTitle: 'Sucesso',
+      successUpdate: 'Perfil atualizado com sucesso!',
+      errorUpdate: 'Não foi possível atualizar o perfil.',
+    },
+    header: {
+      defaultName: 'Usuário',
+      defaultEmail: 'email@exemplo.com',
+    },
+    basicInfo: {
+      title: 'Informações Básicas',
+      edit: 'Editar',
+      fullName: 'Nome Completo',
+      email: 'Email',
+      cancel: 'Cancelar',
+      save: 'Salvar',
+    },
+    password: {
+      title: 'Alterar Senha',
+      description: 'Senha Atual, Nova Senha e Confirme sua senha',
+      updateButton: 'Atualizar senha',
+    },
+    additionalData: {
+      title: 'Dados Complementares',
+      description: 'Sexo, Localização e Matrícula.',
+      editButton: 'Editar dados',
+    },
+  },
+  finishProfile: {
+    loadingStatus: 'Verificando perfil...',
+    title: 'Finalize seu perfil',
+    placeholders: {
+      gender: 'Selecione o Gênero',
+      country: 'Selecione o País',
+      location: 'Selecione a Localidade',
+      identifier: 'Identificador (Matrícula, CPF...)',
+      phone: 'Telefone',
+    },
+    errors: {
+      required: 'Campo obrigatório',
+    },
+    infoText: 'Preencha corretamente suas informações para liberar acesso.',
+    buttons: {
+      updateProfile: 'Atualizar Perfil',
+      saveExtraData: 'Salvar Dados Extras',
+      back: 'Voltar',
+    },
+    extraSection: {
+      title: 'Informações Adicionais',
+    },
+  },
+  vbe: {
+    alerts: {
+      feelingRegistered: 'Sentimento registrado',
+      youSelected: 'Você selecionou: {{message}}',
+    },
+    feelingCard: {
+      nothingHappened: 'NADA OCORREU',
+      report: 'INFORMAR',
+      title: 'Quer informar um sinal de alerta?',
+    },
+    mySignals: 'Meus Sinais',
+    filter: 'Filtro',
+    emptyList: 'Nenhum reporte encontrado.',
+    successAnimation: '{{day}} Marcado!',
+    streak: 'Sequência atual: {{currentStreak}} dia(s)',
+  },
+  learn: {
+    title: 'Aprenda',
+    emptyList: 'Nenhum ciclo encontrado para seu contexto.',
+  },
+  trail: {
+    title: 'Trilha: {{title}}',
+    next: 'Continuar',
+  },
+  sequence: {
+    day: 'dia',
+    days: 'dias',
+    inarow: 'seguido',
+    inarows: 'seguidos',
+    participation: 'Você participou por',
+    longestStreak: 'Maior Sequência',
+    totalParticipation: 'Participação Total',
+  },
+  emptyList: 'Nenhum quiz disponível no momento.',
+  resultScreen: {
+    detail: 'Detalhamento das Questões',
+    return: 'Retornar para a trilha',
+  },
+  quizQuestions: {
+    loading: 'Carregando...',
+    progress: 'Questão {{current}} de {{total}}',
+    answer: 'Responder',
+    finish: 'Concluir',
+    nextQuestion: 'Próxima pergunta',
+  },
+  quizInfo: {
+    evaluation: 'Avaliação',
+    instructionsTitle: 'Instruções',
+    instruction1: 'Este quiz contém perguntas de múltipla escolha',
+    instruction2: 'O objetivo é testar seus conhecimentos sobre "{{title}}"',
+    instruction3: 'Leia atentamente cada questão antes de responder',
+    instructionScore: 'Nota mínima para aprovação: {{passingScore}} pontos',
+    instructionAutoGrade:
+      'Ao finalizar, sua nota será calculada automaticamente',
+    instructionTime: 'Tempo limite: {{timeLimitMinutes}} minutos',
+    attemptStart: 'Você está iniciando a',
+    attemptNumber: '{{currentAttempt}}ª Tentativa',
+    attemptsAllowed: 'de {{maxAttempts}} tentativas permitidas',
+    unlimitedAttempts: 'Tentativas ilimitadas',
+    reviewContent: 'Revisar conteúdo',
+    startQuiz: 'Iniciar Quiz',
+  },
+  articleCard: {
+    filter: 'Filtro',
+    empty: 'Nenhum artigo encontrado.',
   },
 };

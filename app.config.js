@@ -40,7 +40,7 @@ module.exports = ({ config }) => {
     expo: {
       name: 'Guardiões da Saúde',
       slug: 'guardioes-expo',
-      version: '4.1.1',
+      version: '4.2.11',
       orientation: 'portrait',
       icon: './assets/514x514_ícone_gs.jpg',
       userInterfaceStyle: 'light',

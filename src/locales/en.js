@@ -60,9 +60,12 @@ export default {
     tryAgain: 'Try again',
     differentsPass: "Passwords don't match!",
     passwordChanged: 'Reset Password',
+    instruction:
+      'Enter your registered email to receive a password reset link.',
+    getLinkButton: 'Get link',
   },
   getToken: {
-    title: 'Verification Code',
+    title: 'Resend confirmation',
     invalidCode: 'Invalid Code',
     confirm: 'Confirm',
     loading: 'Loading',
@@ -70,6 +73,7 @@ export default {
     spamCheckWarning:
       "In case you don't find the email, make sure to check the spam folder.",
     inputVerificationCode: 'Code',
+    backButton: 'Back to login',
   },
   changePwd: {
     title: 'Reset Password',
@@ -82,6 +86,7 @@ export default {
   },
   register: {
     title: 'Sign up',
+    question: "Don't have an account?",
     name: 'Name:',
     gender: 'Gender:',
     race: 'Race:',
@@ -139,6 +144,20 @@ export default {
     riskGroupMessage:
       '\t People over 60 years old or people of any age who have comorbidities, such as heart disease, diabetes, pneumopathy, neurological or kidney disease, immunodepression, obesity, asthma and postpartum women.',
     modalButton: 'Back',
+    confirmemail: {
+      title: 'Almost there!',
+      body: "Your registration hasn't been confirmed yet. We sent an activation email to {{email}}. Check your inbox and spam folder.",
+    },
+    resendemail: {
+      title: 'Almost there!',
+      body: 'We sent a new activation email to the address {{email}}. Check your inbox and spam folder.',
+    },
+    activationMessage:
+      'We sent an activation email to the address {{email}}. Check your inbox and spam folder to confirm your registration.',
+    context: {
+      loading: 'Loading...',
+      choose: 'Select the context',
+    },
   },
   ajuda: {
     title: 'Help',
@@ -360,6 +379,7 @@ export default {
         '\nCOMO ENTRAR EM CONTATO COM A PROEPI\n\nVocê pode entrar em contato com a ProEpi, através do e-mail dpo@proepi.org.br, este e-mail é um canal de comunicação do nosso encarregado de Proteção de Dados Pessoais, que se destina exclusivamente para tratar sobre quaisquer dúvidas relacionadas a política de privacidade, podendo ainda, fazer reclamação sobre qualquer violação das leis de proteção de dados, solicitar correção de dados incompletos, inexatos ou desatualizados e também requerer a revogação de consentimento e eliminação de dados do aplicativo (perfil de usuário).\nDa Legislação e do Foro\nPara a solução de qualquer controvérsia decorrente deste instrumento será aplicada integralmente a Lei Brasileira. \nFica eleito o foro da Cidade de Brasília – DF, para dirimir eventuais litígios.\n\n\nLeonardo B. Macedo\nEncarregado de Dados (DPO)\nProEpi\n',
     },
     compilation: 4,
+    readAndAccept: 'I have read and accept:',
   },
   vigilanceTerms: {
     title: 'POLÍTICA DE PRIVACIDADE E PROTEÇÃO DE DADOS',
@@ -472,5 +492,125 @@ export default {
       'After the mentioned period, it will not be possible to recover the deleted data. Do you want to proceed?',
     cancel: 'Cancel',
     confirm: 'Yes',
+  },
+  profile: {
+    alerts: {
+      errorTitle: 'Error',
+      errorEmptyFields: 'Name and Email are required',
+      successTitle: 'Success',
+      successUpdate: 'Profile updated successfully!',
+      errorUpdate: 'Could not update profile.',
+    },
+    header: {
+      defaultName: 'User',
+      defaultEmail: 'email@example.com',
+    },
+    basicInfo: {
+      title: 'Basic Information',
+      edit: 'Edit',
+      fullName: 'Full Name',
+      email: 'Email',
+      cancel: 'Cancel',
+      save: 'Save',
+    },
+    password: {
+      title: 'Change Password',
+      description: 'Current Password, New Password and Confirm your password',
+      updateButton: 'Update password',
+    },
+    additionalData: {
+      title: 'Additional Information',
+      description: 'Gender, Location and Registration ID.',
+      editButton: 'Edit data',
+    },
+  },
+  finishProfile: {
+    loadingStatus: 'Checking profile...',
+    title: 'Finish your profile',
+    placeholders: {
+      gender: 'Select Gender',
+      country: 'Select Country',
+      location: 'Select Location',
+      identifier: 'Identifier (Registration ID, SSN...)',
+      phone: 'Phone',
+    },
+    errors: {
+      required: 'Required field',
+    },
+    infoText: 'Fill in your information correctly to grant access.',
+    buttons: {
+      updateProfile: 'Update Profile',
+      saveExtraData: 'Save Extra Data',
+      back: 'Back',
+    },
+    extraSection: {
+      title: 'Additional Information',
+    },
+  },
+  vbe: {
+    alerts: {
+      feelingRegistered: 'Feeling registered',
+      youSelected: 'You selected: {{message}}',
+    },
+    feelingCard: {
+      nothingHappened: 'NOTHING HAPPENED',
+      report: 'REPORT',
+      title: 'Do you want to report a warning signal?',
+    },
+    mySignals: 'My Signals',
+    filter: 'Filter',
+    emptyList: 'No reports found.',
+    successAnimation: '{{day}} Checked!',
+    streak: 'Current streak: {{currentStreak}} day(s)',
+  },
+  learn: {
+    title: 'Learn',
+    emptyList: 'No cycles found for your context.',
+  },
+  trail: {
+    title: 'Trail: {{title}}',
+    next: 'Continue',
+  },
+  sequence: {
+    day: 'day',
+    days: 'days',
+    inarow: 'in a row',
+    inarows: 'in a row',
+    participation: 'You participated for',
+    longestStreak: 'Longest Streak',
+    totalParticipation: 'Total Participation',
+  },
+  emptyList: 'No quizzes available at the moment.',
+  resultScreen: {
+    detail: 'Question Details',
+    return: 'Return to trail',
+  },
+  quizQuestions: {
+    loading: 'Loading...',
+    progress: 'Question {{current}} of {{total}}',
+    answer: 'Answer',
+    finish: 'Finish',
+    nextQuestion: 'Next question',
+  },
+  quizInfo: {
+    evaluation: 'Evaluation',
+    instructionsTitle: 'Instructions',
+    instruction1: 'This quiz contains multiple-choice questions',
+    instruction2: 'The objective is to test your knowledge about "{{title}}"',
+    instruction3: 'Read each question carefully before answering',
+    instructionScore: 'Minimum passing score: {{passingScore}} points',
+    instructionAutoGrade:
+      'Upon completion, your score will be calculated automatically',
+    instructionTime: 'Time limit: {{timeLimitMinutes}} minutes',
+    attemptStart: 'You are starting',
+    attemptNumber: 'Attempt #{{currentAttempt}}',
+    attemptsAllowed: 'of {{maxAttempts}} allowed attempts',
+    unlimitedAttempts: 'Unlimited attempts',
+    reviewContent: 'Review content',
+    startQuiz: 'Start Quiz',
+  },
+  articleCard: {
+    filter: 'Filter',
+    empty: 'No articles found.',
   },
 };

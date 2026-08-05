@@ -9,6 +9,7 @@ import { useAuth } from '../../../../contexts/AuthContext';
 import { colors } from '../../../../utils/colors';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TrailListItem } from '../../../../components/TrailListItem';
+import translate from '../../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootTrailParamList, 'Home'>;
 
@@ -62,7 +63,7 @@ export default function TrailCard({ navigation }: Props) {
           size={36}
           color={colors.secundaria}
         />
-        <Text style={styles.textTitle}>Aprenda</Text>
+        <Text style={styles.textTitle}>{translate('learn.title')}</Text>
       </View>
 
       <FlatList
@@ -78,9 +79,7 @@ export default function TrailCard({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>
-            Nenhum ciclo encontrado para seu contexto.
-          </Text>
+          <Text style={styles.emptyText}>{translate('learn.emptyList')}</Text>
         }
       />
     </View>

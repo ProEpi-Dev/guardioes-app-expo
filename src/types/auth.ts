@@ -1,9 +1,29 @@
 // Tipos para autenticação
 
+export type ContextModuleCode = 'self_health' | 'community_signal';
+
+export interface ParticipationContextInfo {
+  id: number;
+  name?: string;
+  modules?: ContextModuleCode[];
+}
+
+export interface ParticipationInfo {
+  id: number;
+  userId?: number;
+  context: ParticipationContextInfo;
+  startDate?: string;
+  endDate?: string | null;
+  active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface User {
   id?: number;
   email: string;
   name?: string;
+  participation?: ParticipationInfo | null;
   [key: string]: unknown; // Permite propriedades adicionais
 }
 
@@ -11,10 +31,12 @@ export interface LoginResponse {
   token?: string;
   accessToken?: string;
   user?: User;
+  participation?: ParticipationInfo | null;
   data?: {
     token?: string;
     accessToken?: string;
     user?: User;
+    participation?: ParticipationInfo | null;
     refreshToken?: any;
   };
   id?: number;
@@ -27,6 +49,7 @@ export interface LoginResult {
   success: boolean;
   data?: LoginResponse;
   error?: string;
+  status?: number;
 }
 
 export interface ApiError {
@@ -75,6 +98,9 @@ export type RootStackParamList = {
   Register: undefined;
   FinishProfile: undefined;
   Home: undefined;
+  EmailConfirmation: { email: string };
+  Vbe: undefined;
+  Situation: undefined;
 };
 
 export interface RegisterData {

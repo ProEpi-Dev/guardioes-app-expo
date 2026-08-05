@@ -34,3 +34,15 @@ Nesta seção, temos um uso combinado de **Drawer** (Menu lateral) e **Stacks** 
 
 4. **Profile Stack (`ProfileStack.tsx`)**:
    - Onde o usuário gerencia seus dados da conta, configurações e altera a senha via `ChangePasswordModal` ou componentes internos.
+
+## Rotas por Contexto
+
+Com a implementação do contexto da Vigilância Baseada em Eventos (VBE), redirecionar o usuário para a sua respectiva tela é essencial. Para isso no `src/navigation/BottomNavigator.tsx`, há uma verificação do contexto ao qual a pessoa que vez login está inserida. Onde:
+
+1. Contexto VBE:
+   - Carrega tela inicial de reporte por evento (`src/screens/app/Vbe/ReportScreen`).
+   - Carrega as demais telas personalizadas para aquele contexto.
+
+2. Contexto Guardiões da Saúde:
+   - Carrega a tela inicial com mapa (`src/screens/app/MapaSentimento`).
+   - Carrega as demais telas personalizadas para aquele contexto.

@@ -7,6 +7,8 @@ import { Register } from '../screens/auth/Register';
 import { RootStackParamList } from '../types/auth';
 import { FinishProfile } from '../screens/auth/FinishProfile';
 import { PasswordRecover } from '../screens/auth/PasswordRecover';
+import { EmailConfirmation } from '../screens/auth/EmailConfirmation';
+import { Vbe } from '../screens/app/Vbe/ReportScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -26,6 +28,8 @@ export default function RootNavigator() {
       <Stack.Screen name="Register" component={Register} />
       <Stack.Screen name="FinishProfile" component={FinishProfile} />
       <Stack.Screen name="Home" component={DrawerNavigator} />
+      <Stack.Screen name="EmailConfirmation" component={EmailConfirmation} />
+      <Stack.Screen name="Vbe" component={Vbe} />
     </Stack.Navigator>
   );
 }

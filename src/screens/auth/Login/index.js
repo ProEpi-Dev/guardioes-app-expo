@@ -50,13 +50,48 @@ const Login = ({ navigation }) => {
       if (result.success) {
         navigation.navigate('FinishProfile');
       } else {
-        Alert.alert('Erro', result.error || 'Erro ao fazer login');
-        setShowProgressBar(false);
+        if (
+          result.status === 403 ||
+          (result.error && result.error.includes('403'))
+        ) {
+          Alert.alert(
+            translate('register.confirmemail.title'),
+            translate('register.confirmemail.body', { email }),
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  setShowProgressBar(false);
+                  navigation.navigate('EmailConfirmation', { email });
+                },
+              },
+            ]
+          );
+        } else {
+          Alert.alert('Erro', result.error || 'Erro ao fazer login');
+          setShowProgressBar(false);
+        }
       }
     } catch (error) {
-      Alert.alert('Erro', 'Erro inesperado ao fazer login');
-      console.error('Erro no login:', error);
-      setShowProgressBar(false);
+      if (error?.status === 403 || error?.response?.status === 403) {
+        Alert.alert(
+          translate('register.confirmemail.title'),
+          translate('register.confirmemail.body', { email }),
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                setShowProgressBar(false);
+                navigation.navigate('EmailConfirmation', { email });
+              },
+            },
+          ]
+        );
+      } else {
+        Alert.alert('Erro', 'Erro inesperado ao fazer login');
+        console.error('Erro no login:', error);
+        setShowProgressBar(false);
+      }
     }
   };
 
@@ -75,7 +110,7 @@ const Login = ({ navigation }) => {
         <KeyboardScrollView>
           <Logo source={LogoType} />
 
-          <WelcomeText>Bem vindo (a)</WelcomeText>
+          <WelcomeText>{translate('initialscreen.welcome')}</WelcomeText>
 
           <FormSeparator>
             <SolidInput
@@ -84,7 +119,7 @@ const Login = ({ navigation }) => {
               returnKeyType="next"
               maxLength={100}
               value={email}
-              onChangeText={(text) => setEmail(text)}
+              onChangeText={(text) => setEmail(text.toLocaleLowerCase())}
               onSubmitEditing={() => passwordInput.current.focus()}
             />
             <SolidInput
@@ -106,7 +141,9 @@ const Login = ({ navigation }) => {
                 {showProgressBar ? (
                   <ActivityIndicator size="small" color="#ffffff" />
                 ) : (
-                  <GradientButtonLabel>Login</GradientButtonLabel>
+                  <GradientButtonLabel>
+                    {translate('login.loginbutton')}
+                  </GradientButtonLabel>
                 )}
               </GradientButtonContainer>
             </Touch>
@@ -121,12 +158,12 @@ const Login = ({ navigation }) => {
           <SeparatorLine />
 
           <FooterContainer>
-            <FooterText>Não tem uma conta?</FooterText>
+            <FooterText>{translate('register.question')}</FooterText>
             <TransparentButton
               style={{ width: 'auto', marginTop: 0, height: 'auto' }}
               onPress={() => navigation.navigate('Register')}
             >
-              <FooterLink>Cadastre-se</FooterLink>
+              <FooterLink>{translate('register.title')}</FooterLink>
             </TransparentButton>
           </FooterContainer>
         </KeyboardScrollView>

@@ -40,6 +40,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
     null
   );
   const [externalIdentifier, setExternalIdentifier] = useState('');
+  const [phone, setPhone] = useState<string | ''>('');
 
   const insets = useSafeAreaInsets();
 
@@ -58,6 +59,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         setSelectedGenderId(status.profile.genderId ?? null);
         setSelectedLocationId(status.profile.locationId ?? null);
         setExternalIdentifier(status.profile.externalIdentifier || '');
+        setPhone(status.profile.phone || '');
       }
 
       const [rawGenders, rawLocations] = await Promise.all([
@@ -85,7 +87,12 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   };
 
   const handleSave = async () => {
-    if (!selectedGenderId || !selectedLocationId || !externalIdentifier) {
+    if (
+      !selectedGenderId ||
+      !selectedLocationId ||
+      !externalIdentifier ||
+      !phone
+    ) {
       Alert.alert('Atenção', 'Preencha todos os campos.');
       return;
     }
@@ -96,6 +103,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         genderId: selectedGenderId,
         locationId: selectedLocationId,
         externalIdentifier,
+        phone: phone,
       });
 
       Alert.alert('Dados atualizados!');
@@ -155,6 +163,14 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               style={styles.input}
               value={externalIdentifier}
               onChangeText={setExternalIdentifier}
+              placeholder="Digite sua matrícula"
+            />
+
+            <Text style={styles.label}>Telefone</Text>
+            <TextInput
+              style={styles.input}
+              value={phone}
+              onChangeText={setPhone}
               placeholder="Digite sua matrícula"
             />
 

@@ -14,6 +14,7 @@ import { useQuizInfo } from '../../../hooks/useQuizInfo';
 import { CustomHeader } from '../../../components/CustomHeader';
 import { useAuth } from '../../../contexts/AuthContext';
 import { colors } from '../../../utils/colors';
+import translate from '../../../locales/i18n';
 
 export function QuizInfoScreen() {
   const { user } = useAuth();
@@ -47,36 +48,40 @@ export function QuizInfoScreen() {
         <View style={styles.headerTitles}>
           <Text style={styles.trailTitle}>{title}</Text>
           <View style={styles.separator} />
-          <Text style={styles.evaluationTitle}>Avaliação</Text>
+          <Text style={styles.evaluationTitle}>
+            {translate('quizInfo.evaluation')}
+          </Text>
         </View>
 
         <View style={styles.instructionsContainer}>
           <View style={styles.iconHeader}>
             <Feather name="info" size={26} color={colors.secundaria} />
-            <Text style={styles.sectionTitle}>Instruções</Text>
+            <Text style={styles.sectionTitle}>
+              {translate('quizInfo.instructionsTitle')}
+            </Text>
           </View>
 
           <View style={styles.bulletsContainer}>
             <Text style={styles.instructionText}>
-              • Este quiz contém perguntas de múltipla escolha
+              • {translate('quizInfo.instruction1')}
             </Text>
             <Text style={styles.instructionText}>
-              • O objetivo é testar seus conhecimentos sobre "{title}"
+              • {translate('quizInfo.instruction2', { title })}
             </Text>
             <Text style={styles.instructionText}>
-              • Leia atentamente cada questão antes de responder
+              • {translate('quizInfo.instruction3')}
             </Text>
             {passingScore !== undefined && passingScore !== null && (
               <Text style={styles.instructionText}>
-                • Nota mínima para aprovação: {passingScore} pontos
+                • {translate('quizInfo.instructionScore', { passingScore })}
               </Text>
             )}
             <Text style={styles.instructionText}>
-              • Ao finalizar, sua nota será calculada automaticamente
+              • {translate('quizInfo.instructionAutoGrade')}
             </Text>
             {timeLimitMinutes ? (
               <Text style={styles.instructionText}>
-                • Tempo limite: {timeLimitMinutes} minutos
+                • {translate('quizInfo.instructionTime', { timeLimitMinutes })}
               </Text>
             ) : null}
           </View>
@@ -86,12 +91,16 @@ export function QuizInfoScreen() {
           <View style={styles.orangeCircle}>
             <Text style={styles.orangeIcon}>i</Text>
           </View>
-          <Text style={styles.attemptLabel}>Você está iniciando a</Text>
-          <Text style={styles.attemptNumber}>{currentAttempt}ª Tentativa</Text>
+          <Text style={styles.attemptLabel}>
+            {translate('quizInfo.attemptStart')}
+          </Text>
+          <Text style={styles.attemptNumber}>
+            {translate('quizInfo.attemptNumber', { currentAttempt })}
+          </Text>
           <Text style={styles.attemptSub}>
             {maxAttempts && maxAttempts > 0
-              ? `de ${maxAttempts} tentativas permitidas`
-              : 'Tentativas ilimitadas'}
+              ? translate('quizInfo.attemptsAllowed', { maxAttempts })
+              : translate('quizInfo.unlimitedAttempts')}
           </Text>
         </View>
 
@@ -106,7 +115,9 @@ export function QuizInfoScreen() {
               {loadingContent ? (
                 <ActivityIndicator color={colors.secundaria} />
               ) : (
-                <Text style={styles.secondaryButtonText}>Revisar conteúdo</Text>
+                <Text style={styles.secondaryButtonText}>
+                  {translate('quizInfo.reviewContent')}
+                </Text>
               )}
             </TouchableOpacity>
           )}
@@ -122,7 +133,9 @@ export function QuizInfoScreen() {
               end={{ x: 1, y: 0 }}
               style={styles.primaryButtonGradient}
             >
-              <Text style={styles.primaryButtonText}>Iniciar Quiz</Text>
+              <Text style={styles.primaryButtonText}>
+                {translate('quizInfo.startQuiz')}
+              </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,10 @@ import { CustomDatePicker } from '../CustomDatePicker';
 import { CustomSelector } from '../CustomSelector';
 import { Option } from '../../types/customSelector';
 import { FieldFactoryProps } from '../../types/formRenderer';
+import { useQuery } from '@tanstack/react-query';
+import { getLocations } from '../../services/finishProfile';
+import { PointMapModal } from '../PointMap';
+import { Feather } from '@expo/vector-icons';
 
 export const FieldFactory: React.FC<FieldFactoryProps> = ({
   field,
@@ -223,6 +227,29 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     );
   };
 
+  const renderLocation = () => {
+    return (
+      <LocationFieldSelector
+        field={field}
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        error={error}
+      />
+    );
+  };
+
+  const renderMapPoint = () => {
+    return (
+      <MapPointFieldSelector
+        value={value}
+        onChange={onChange}
+        readOnly={readOnly}
+        error={error}
+      />
+    );
+  };
+
   const renderContent = () => {
     switch (field.type) {
       case 'text':
@@ -239,6 +266,10 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         return renderMultiselectField();
       case 'boolean':
         return null;
+      case 'mapPoint':
+        return renderMapPoint();
+      case 'location':
+        return renderLocation();
       default:
         return (
           <Text style={{ color: 'red' }}>Tipo desconhecido: {field.type}</Text>
@@ -282,6 +313,237 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
       {renderContent()}
 
       {error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
+  );
+};
+
+export const LocationFieldSelector = ({
+  field,
+  value,
+  onChange,
+  readOnly,
+  error,
+}: any) => {
+  const { data: allLocations = [] } = useQuery({
+    queryKey: ['locations', 'all-active', 'all-pages'],
+    queryFn: () => getLocations(),
+  });
+
+  const config = field.locationConfig ?? {
+    maxLevel: 'CITY_COUNCIL',
+    countryKey: 'countryLocationId',
+    stateDistrictKey: 'stateDistrictLocationId',
+    cityCouncilKey: 'cityCouncilLocationId',
+  };
+
+  // Lógica dinâmica para descobrir a chave do NOME baseada na chave do ID
+  const countryNameKey =
+    config.countryNameKey ??
+    config.countryKey.replace(/_id$/i, '').replace(/Id$/, '');
+  const stateDistrictKey = config.stateDistrictKey ?? 'stateDistrictLocationId';
+  const stateNameKey =
+    config.stateNameKey ??
+    stateDistrictKey.replace(/_id$/i, '').replace(/Id$/, '');
+  const cityCouncilKey = config.cityCouncilKey ?? 'cityCouncilLocationId';
+  const cityNameKey =
+    config.cityNameKey ??
+    cityCouncilKey.replace(/_id$/i, '').replace(/Id$/, '');
+
+  const currentValues = value || {};
+  const currentCountryId = currentValues[config.countryKey] || null;
+  const currentStateId = currentValues[stateDistrictKey] || null;
+  const currentCityId = currentValues[cityCouncilKey] || null;
+
+  // Filtragem em Cascata
+  const countries = allLocations.filter(
+    (loc: any) => loc.orgLevel === 'COUNTRY'
+  );
+  const states = allLocations.filter(
+    (loc: any) =>
+      loc.orgLevel === 'STATE_DISTRICT' && loc.parentId === currentCountryId
+  );
+  const cities = allLocations.filter(
+    (loc: any) =>
+      loc.orgLevel === 'CITY_COUNCIL' && loc.parentId === currentStateId
+  );
+
+  const mapToOptions = (list: any[]) =>
+    list.map((loc) => ({
+      label: loc.name,
+      value: loc.id,
+      key: String(loc.id),
+    }));
+
+  const handleCountryChange = (id: number) => {
+    const selectedCountry = countries.find((c: any) => c.id === id);
+    onChange({
+      ...currentValues,
+      [config.countryKey]: id,
+      [countryNameKey]: selectedCountry ? selectedCountry.name : null,
+      [stateDistrictKey]: null,
+      [stateNameKey]: null,
+      [cityCouncilKey]: null,
+      [cityNameKey]: null,
+    });
+  };
+
+  const handleStateChange = (id: number) => {
+    const selectedState = states.find((s: any) => s.id === id);
+    onChange({
+      ...currentValues,
+      [stateDistrictKey]: id,
+      [stateNameKey]: selectedState ? selectedState.name : null,
+      [cityCouncilKey]: null,
+      [cityNameKey]: null,
+    });
+  };
+
+  const handleCityChange = (id: number) => {
+    const selectedCity = cities.find((c: any) => c.id === id);
+    onChange({
+      ...currentValues,
+      [cityCouncilKey]: id,
+      [cityNameKey]: selectedCity ? selectedCity.name : null,
+    });
+  };
+
+  const renderSelector = (
+    options: any[],
+    currentValue: number | null,
+    placeholder: string,
+    onValueChange: (val: number) => void,
+    isDisabled: boolean
+  ) => {
+    const selectedOption = options.find((o) => o.value === currentValue);
+    const displayLabel = selectedOption ? selectedOption.label : placeholder;
+    const remountKey = `${placeholder}-${currentValue || 'limpo'}`;
+
+    return (
+      <CustomSelector
+        key={remountKey}
+        data={options}
+        initValue={displayLabel}
+        disabled={isDisabled}
+        onChange={(option: any) => onValueChange(option.value as number)}
+        selectStyle={[
+          styles.input,
+          error ? styles.inputError : null,
+          { justifyContent: 'center' },
+        ]}
+        selectTextStyle={{ fontSize: 16, color: '#32323b' }}
+        initValueTextStyle={{
+          fontSize: 16,
+          color: selectedOption ? '#32323b' : '#C7C7CD',
+        }}
+        overlayStyle={{ backgroundColor: 'rgba(0,0,0,0.5)', padding: 20 }}
+        optionContainerStyle={{
+          backgroundColor: 'white',
+          borderRadius: 12,
+          maxHeight: '50%',
+          overflow: 'hidden',
+        }}
+        optionStyle={{
+          padding: 16,
+          borderBottomWidth: 1,
+          borderBottomColor: '#f0f0f0',
+        }}
+        cancelContainerStyle={{
+          marginTop: 12,
+          backgroundColor: 'white',
+          borderRadius: 12,
+          overflow: 'hidden',
+        }}
+        cancelStyle={{ padding: 16, alignItems: 'center' }}
+        cancelTextStyle={{ color: '#e74c3c', fontSize: 16, fontWeight: '600' }}
+      />
+    );
+  };
+
+  const canShowState =
+    (config.maxLevel === 'STATE_DISTRICT' ||
+      config.maxLevel === 'CITY_COUNCIL') &&
+    (!currentCountryId || states.length > 0);
+
+  const canShowCity =
+    config.maxLevel === 'CITY_COUNCIL' &&
+    canShowState &&
+    (!currentStateId || cities.length > 0);
+
+  return (
+    <View style={{ gap: 12 }}>
+      {renderSelector(
+        mapToOptions(countries),
+        currentCountryId,
+        'Selecione o País',
+        handleCountryChange,
+        readOnly
+      )}
+
+      {canShowState &&
+        renderSelector(
+          mapToOptions(states),
+          currentStateId,
+          'Selecione o Estado/Distrito',
+          handleStateChange,
+          readOnly || !currentCountryId
+        )}
+
+      {canShowCity &&
+        renderSelector(
+          mapToOptions(cities),
+          currentCityId,
+          'Selecione a Cidade',
+          handleCityChange,
+          readOnly || !currentStateId
+        )}
+    </View>
+  );
+};
+
+const MapPointFieldSelector = ({ value, onChange, readOnly, error }: any) => {
+  const [isMapOpen, setIsMapOpen] = useState(false);
+
+  const temCoordenada = value && value.latitude && value.longitude;
+
+  return (
+    <View>
+      <TouchableOpacity
+        style={[
+          styles.input,
+          error ? styles.inputError : null,
+          {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            minHeight: 52,
+          },
+        ]}
+        onPress={() => setIsMapOpen(true)}
+        disabled={readOnly}
+      >
+        <Text
+          style={{ fontSize: 16, color: temCoordenada ? '#32323b' : '#C7C7CD' }}
+        >
+          {temCoordenada
+            ? `Lat: ${value.latitude.toFixed(5)}, Lng: ${value.longitude.toFixed(5)}`
+            : 'Toque para selecionar no mapa...'}
+        </Text>
+        <Feather
+          name="map-pin"
+          size={20}
+          color={temCoordenada ? '#2E97BE' : '#C7C7CD'}
+        />
+      </TouchableOpacity>
+
+      <PointMapModal
+        visible={isMapOpen}
+        onClose={() => setIsMapOpen(false)}
+        initialCoords={temCoordenada ? value : null}
+        onConfirm={(coords) => {
+          onChange(coords);
+          setIsMapOpen(false);
+        }}
+      />
     </View>
   );
 };
