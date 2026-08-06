@@ -1,9 +1,10 @@
 import React, { forwardRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { getParticipationExtra } from '../../services/finishProfile';
-import { FormRenderer } from '../FormRenderer';
+import { FormRenderer } from '../FormRenderer/indexProfile';
 import { scale } from '../../utils/scalling';
+import { PageTitle } from '../../screens/auth/FinishProfile/styles';
 
 interface ProfileExtraFormSectionProps {
   onValuesChange: (values: Record<string, unknown>) => void;
@@ -33,10 +34,7 @@ const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
       <View style={styles.container}>
         <View style={styles.divider} />
 
-        <Text style={styles.title}>Informações Adicionais</Text>
-        <Text style={styles.subtitle}>
-          Preencha os dados extras do seu perfil
-        </Text>
+        <PageTitle>Informações Adicionais</PageTitle>
 
         <View style={styles.formContainer}>
           <FormRenderer

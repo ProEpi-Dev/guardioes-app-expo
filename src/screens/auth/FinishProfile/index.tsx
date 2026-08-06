@@ -212,6 +212,42 @@ export function FinishProfile() {
             )}
           />
 
+          {/* PROFILE EXTRA SECTION */}
+          {profileExtraMe?.form && (
+            <FormSeparator>
+              <ProfileExtraFormSection
+                ref={profileExtraFormRef}
+                onValuesChange={setExtraValues}
+                participantCountryLocationId={
+                  selectedCountryLocationId ??
+                  profileStatus?.profile?.countryLocationId ??
+                  null
+                }
+              />
+
+              <Touch
+                onPress={() => saveProfileExtraMutation.mutate()}
+                disabled={saveProfileExtraMutation.isPending}
+              >
+                <DarkButton
+                  style={{
+                    backgroundColor: 'transparent',
+                    borderWidth: 1,
+                    borderColor: branco,
+                  }}
+                >
+                  {saveProfileExtraMutation.isPending ? (
+                    <ActivityIndicator size="small" color="#ffffff" />
+                  ) : (
+                    <DarkButtonLabel style={{ color: branco }}>
+                      {translate('finishProfile.buttons.saveExtraData')}
+                    </DarkButtonLabel>
+                  )}
+                </DarkButton>
+              </Touch>
+            </FormSeparator>
+          )}
+
           <View
             style={{
               flexDirection: 'row',
@@ -250,54 +286,6 @@ export function FinishProfile() {
             </DarkButton>
           </Touch>
         </FormSeparator>
-
-        {/* PROFILE EXTRA SECTION */}
-        {profileExtraMe?.[0]?.form && (
-          <FormSeparator>
-            <Text
-              style={{
-                color: branco,
-                fontSize: scale(16),
-                marginBottom: scale(10),
-                fontWeight: 'bold',
-              }}
-            >
-              {translate('finishProfile.extraSection.title')}
-            </Text>
-
-            <ProfileExtraFormSection
-              ref={profileExtraFormRef}
-              onValuesChange={setExtraValues}
-              participantCountryLocationId={
-                selectedCountryLocationId ??
-                profileStatus?.profile?.countryLocationId ??
-                null
-              }
-            />
-
-            <Touch
-              onPress={() => saveProfileExtraMutation.mutate()}
-              disabled={saveProfileExtraMutation.isPending}
-            >
-              <DarkButton
-                style={{
-                  marginTop: scale(15),
-                  backgroundColor: 'transparent',
-                  borderWidth: 1,
-                  borderColor: branco,
-                }}
-              >
-                {saveProfileExtraMutation.isPending ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
-                ) : (
-                  <DarkButtonLabel style={{ color: branco }}>
-                    {translate('finishProfile.buttons.saveExtraData')}
-                  </DarkButtonLabel>
-                )}
-              </DarkButton>
-            </Touch>
-          </FormSeparator>
-        )}
 
         <BackButtonContainer onPress={() => navigation.goBack()}>
           <Feather name="chevron-left" size={24} color={branco} />
