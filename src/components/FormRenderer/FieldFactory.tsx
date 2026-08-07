@@ -23,8 +23,10 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
   readOnly,
   onChange,
   containerStyle,
+  lightText = false,
 }) => {
   const commonInputStyles = [styles.input, error ? styles.inputError : null];
+  const dynamicLabelStyle = { color: lightText ? '#FFFFFF' : '#32323b' };
 
   const renderTextField = () => (
     <TextInput
@@ -150,7 +152,13 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
               disabled={readOnly}
               activeOpacity={0.7}
             >
-              <Text style={[styles.optionText, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.optionText,
+                  { color: textColor },
+                  dynamicLabelStyle,
+                ]}
+              >
                 {opt.label}
               </Text>
             </TouchableOpacity>
@@ -219,7 +227,9 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
               >
                 {isSelected && <Text style={styles.checkboxMark}>✓</Text>}
               </View>
-              <Text style={styles.checkboxLabel}>{option.label}</Text>
+              <Text style={[styles.checkboxLabel, dynamicLabelStyle]}>
+                {option.label}
+              </Text>
             </TouchableOpacity>
           );
         })}
@@ -281,7 +291,13 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
     return (
       <View style={[styles.fieldContainer, containerStyle]}>
         <View style={styles.switchContainer}>
-          <Text style={[styles.label, { flex: 1, marginBottom: 0 }]}>
+          <Text
+            style={[
+              styles.label,
+              { flex: 1, marginBottom: 0 },
+              dynamicLabelStyle,
+            ]}
+          >
             {field.label}
             {field.required && <Text style={styles.required}> *</Text>}
           </Text>
@@ -305,7 +321,13 @@ export const FieldFactory: React.FC<FieldFactoryProps> = ({
         containerStyle,
       ]}
     >
-      <Text style={[styles.label, field.type === 'radio' && styles.quizLabel]}>
+      <Text
+        style={[
+          styles.label,
+          field.type === 'radio' && styles.quizLabel,
+          dynamicLabelStyle,
+        ]}
+      >
         {field.label}
         {field.required && <Text style={styles.required}> *</Text>}
       </Text>
@@ -556,7 +578,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 8,
-    color: '#32323b',
+    color: '#000',
   },
   required: {
     color: '#e74c3c',

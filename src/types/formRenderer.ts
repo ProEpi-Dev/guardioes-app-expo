@@ -8,6 +8,7 @@ export interface FieldFactoryProps {
   readOnly: boolean;
   onChange: (value: any) => void;
   containerStyle?: StyleProp<ViewStyle>;
+  lightText?: boolean;
 }
 
 export interface FormRendererProps {
@@ -15,4 +16,5 @@ export interface FormRendererProps {
   initialValues?: Record<string, any>;
   onChange?: (values: Record<string, any>) => void;
   readOnly?: boolean;
+  lightText?: boolean;
 }

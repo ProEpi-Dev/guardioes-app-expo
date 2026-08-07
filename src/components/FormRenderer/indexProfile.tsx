@@ -6,7 +6,7 @@ import { styles } from './styles';
 import { FormRendererProps } from '../../types/formRenderer';
 
 export const FormRenderer: React.FC<FormRendererProps> = (props) => {
-  const { definition, readOnly = false } = props;
+  const { definition, readOnly = false, lightText = false } = props;
   const { values, errors, visibleFields, updateValue } = useForm(props);
 
   return (
@@ -22,10 +22,14 @@ export const FormRenderer: React.FC<FormRendererProps> = (props) => {
         showsVerticalScrollIndicator={true}
       >
         {definition.title && (
-          <Text style={styles.title}>{definition.title}</Text>
+          <Text style={[styles.title, lightText && { color: '#FFF' }]}>
+            {definition.title}
+          </Text>
         )}
         {definition.description && (
-          <Text style={styles.description}>{definition.description}</Text>
+          <Text style={[styles.description, lightText && { color: '#E0E0E0' }]}>
+            {definition.description}
+          </Text>
         )}
 
         {visibleFields.map((field) => (
@@ -36,6 +40,7 @@ export const FormRenderer: React.FC<FormRendererProps> = (props) => {
             error={errors[field.id]}
             readOnly={readOnly}
             onChange={(val) => updateValue(field.name, val)}
+            lightText={lightText}
           />
         ))}
       </ScrollView>

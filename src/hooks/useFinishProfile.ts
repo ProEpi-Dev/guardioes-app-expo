@@ -176,7 +176,6 @@ export const useFinishProfile = () => {
       });
     },
     onSuccess: async () => {
-      Alert.alert('Sucesso', 'Informações adicionais salvas!');
       await Promise.all([
         queryClient.invalidateQueries({
           queryKey: ['participation-profile-extra-me'],

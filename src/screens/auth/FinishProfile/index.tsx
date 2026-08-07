@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ActivityIndicator } from 'react-native';
+import { View, Text, ActivityIndicator, Alert } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { Controller } from 'react-hook-form';
@@ -31,7 +31,7 @@ const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 
 const verde = '#77bfad';
 const azul = '#2E97BE';
-const branco = '#ffffff';
+const branco = '#fff';
 
 const DEFAULT_PROFILE_FIELD_REQUIREMENTS = {
   gender: true,
@@ -105,20 +105,62 @@ export function FinishProfile() {
         }));
   }, [allLocations, profileReq.country, selectedCountryLocationId]);
 
+  const isSubmitting =
+    updateProfileMutation.isPending || saveProfileExtraMutation.isPending;
+
+  // Função que engloba as duas submissões
+  const handleCombinedSubmit = handleSubmit(async (data) => {
+    const isUnb = user?.participation?.context?.name
+      ?.toLowerCase()
+      .includes('unb');
+
+    if (isUnb && data.externalIdentifier) {
+      const matriculaRegex = /^\d{9}$/;
+      if (!matriculaRegex.test(data.externalIdentifier)) {
+        Alert.alert(
+          'Matrícula Inválida',
+          'A matrícula deve conter exatamente 9 números, sem espaços ou caracteres especiais.'
+        );
+        return; // Interrompe o processo se a matrícula for inválida
+      }
+    }
+
+    if (profileExtraMe?.form) {
+      try {
+        await saveProfileExtraMutation.mutateAsync();
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+    }
+    // Salva os dados básicos e finaliza
+    onSubmit(data);
+  });
+
   if (statusLoading || !profileStatus) {
     return (
       <GradientBackground colors={[azul, verde]}>
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
-          <ActivityIndicator size="large" color={branco} />
-          <Text style={{ color: branco, marginTop: 10 }}>
+          <ActivityIndicator size="large" color="#fff" />
+          <Text style={{ color: '#fff', marginTop: 10 }}>
             {translate('finishProfile.loadingStatus')}
           </Text>
         </View>
       </GradientBackground>
     );
   }
+
+  // Estilo padronizado para as labels (Textos antes dos inputs)
+  const labelStyle = {
+    color: branco,
+    width: '80%' as const,
+    textAlign: 'left' as const,
+    marginBottom: scale(6),
+    fontSize: scale(13),
+    fontWeight: '600' as const,
+  };
 
   return (
     <GradientBackground
@@ -136,6 +178,7 @@ export function FinishProfile() {
           </UserInfoCard>
 
           {/* GÊNERO */}
+          <Text style={labelStyle}>Selecione o seu Gênero:</Text>
           <Controller
             control={control}
             name="genderId"
@@ -149,28 +192,34 @@ export function FinishProfile() {
             )}
           />
           {errors.genderId && (
-            <Text style={{ color: '#ff6b6b' }}>
+            <Text style={{ color: '#ff6b6b', width: '80%', marginBottom: 15 }}>
               {translate('finishProfile.errors.required')}
             </Text>
           )}
 
           {/* PAÍS */}
           {profileReq.country && (
-            <Controller
-              control={control}
-              name="countryLocationId"
-              render={({ field: { onChange, value } }) => (
-                <SolidSelector
-                  data={formattedCountries}
-                  placeholder={translate('finishProfile.placeholders.country')}
-                  initValue={value}
-                  onChange={(option: any) => onChange(option.value)}
-                />
-              )}
-            />
+            <>
+              <Text style={labelStyle}>Selecione o seu País:</Text>
+              <Controller
+                control={control}
+                name="countryLocationId"
+                render={({ field: { onChange, value } }) => (
+                  <SolidSelector
+                    data={formattedCountries}
+                    placeholder={translate(
+                      'finishProfile.placeholders.country'
+                    )}
+                    initValue={value}
+                    onChange={(option: any) => onChange(option.value)}
+                  />
+                )}
+              />
+            </>
           )}
 
           {/* LOCALIDADE */}
+          <Text style={labelStyle}>Selecione sua Localidade:</Text>
           <Controller
             control={control}
             name="locationId"
@@ -185,6 +234,7 @@ export function FinishProfile() {
           />
 
           {/* IDENTIFICADOR */}
+          <Text style={labelStyle}>Digite seu Identificador:</Text>
           <Controller
             control={control}
             name="externalIdentifier"
@@ -199,6 +249,7 @@ export function FinishProfile() {
           />
 
           {/* TELEFONE */}
+          <Text style={labelStyle}>Digite seu Telefone:</Text>
           <Controller
             control={control}
             name="phone"
@@ -224,27 +275,6 @@ export function FinishProfile() {
                   null
                 }
               />
-
-              <Touch
-                onPress={() => saveProfileExtraMutation.mutate()}
-                disabled={saveProfileExtraMutation.isPending}
-              >
-                <DarkButton
-                  style={{
-                    backgroundColor: 'transparent',
-                    borderWidth: 1,
-                    borderColor: branco,
-                  }}
-                >
-                  {saveProfileExtraMutation.isPending ? (
-                    <ActivityIndicator size="small" color="#ffffff" />
-                  ) : (
-                    <DarkButtonLabel style={{ color: branco }}>
-                      {translate('finishProfile.buttons.saveExtraData')}
-                    </DarkButtonLabel>
-                  )}
-                </DarkButton>
-              </Touch>
             </FormSeparator>
           )}
 
@@ -259,7 +289,7 @@ export function FinishProfile() {
             <AntDesign name="info-circle" size={24} color="#fff" />
             <Text
               style={{
-                color: branco,
+                color: '#fff',
                 fontSize: scale(12),
                 marginLeft: scale(5),
                 opacity: 0.9,
@@ -271,12 +301,9 @@ export function FinishProfile() {
         </FormSeparator>
 
         <FormSeparator>
-          <Touch
-            onPress={handleSubmit(onSubmit)}
-            disabled={updateProfileMutation.isPending}
-          >
+          <Touch onPress={handleCombinedSubmit} disabled={isSubmitting}>
             <DarkButton>
-              {updateProfileMutation.isPending ? (
+              {isSubmitting ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
                 <DarkButtonLabel>
@@ -288,7 +315,7 @@ export function FinishProfile() {
         </FormSeparator>
 
         <BackButtonContainer onPress={() => navigation.goBack()}>
-          <Feather name="chevron-left" size={24} color={branco} />
+          <Feather name="chevron-left" size={24} color="#fff" />
           <BackButtonText>
             {translate('finishProfile.buttons.back')}
           </BackButtonText>
