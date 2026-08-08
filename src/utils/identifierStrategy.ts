@@ -32,7 +32,7 @@ export class DefaultIdentifierStrategy implements IdentifierStrategy {
     return 'Seu identificador externo';
   }
 
-  validate(value: string | undefined): string | null {
+  validate(_value: string | undefined): string | null {
     // Validação genérica ou nula
     return null;
   }
@@ -42,7 +42,9 @@ export class IdentifierStrategyContext {
   private strategy: IdentifierStrategy;
 
   constructor(isUnb: boolean) {
-    this.strategy = isUnb ? new UnbIdentifierStrategy() : new DefaultIdentifierStrategy();
+    this.strategy = isUnb
+      ? new UnbIdentifierStrategy()
+      : new DefaultIdentifierStrategy();
   }
 
   getStrategy() {

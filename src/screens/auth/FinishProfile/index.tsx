@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { Controller } from 'react-hook-form';
@@ -61,7 +61,6 @@ export function FinishProfile() {
     saveProfileExtraMutation,
     profileExtraFormRef,
     genders,
-    formMethods,
     identifierStrategy,
   } = useFinishProfile();
 
@@ -101,10 +100,10 @@ export function FinishProfile() {
     return profileReq.country
       ? []
       : allLocations.map((l: any) => ({
-        key: l.id,
-        label: l.name,
-        value: l.id,
-      }));
+          key: l.id,
+          label: l.name,
+          value: l.id,
+        }));
   }, [allLocations, profileReq.country, selectedCountryLocationId]);
 
   const isSubmitting =
@@ -112,7 +111,6 @@ export function FinishProfile() {
 
   // Função que engloba as duas submissões
   const handleCombinedSubmit = handleSubmit(async (data) => {
-
     if (profileExtraMe?.form) {
       try {
         await saveProfileExtraMutation.mutateAsync();
@@ -236,7 +234,14 @@ export function FinishProfile() {
             )}
           />
           {errors.externalIdentifier && (
-            <Text style={{ color: '#ff6b6b', width: '80%', marginBottom: 15, fontSize: scale(11) }}>
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
               {String(errors.externalIdentifier.message)}
             </Text>
           )}
@@ -255,7 +260,14 @@ export function FinishProfile() {
             )}
           />
           {errors.confirmExternalIdentifier && (
-            <Text style={{ color: '#ff6b6b', width: '80%', marginBottom: 15, fontSize: scale(11) }}>
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
               {String(errors.confirmExternalIdentifier.message)}
             </Text>
           )}

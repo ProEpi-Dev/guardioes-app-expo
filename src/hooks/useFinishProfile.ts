@@ -23,7 +23,10 @@ import {
 import { isLocationDescendantOfCountry } from '../utils/locationHierarchy';
 import { resolveProfileExtraPayload } from '../utils/profileExtraPayload';
 
-import { IdentifierStrategy, IdentifierStrategyContext } from '../utils/identifierStrategy';
+import {
+  IdentifierStrategy,
+  IdentifierStrategyContext,
+} from '../utils/identifierStrategy';
 
 const createProfileSchema = (strategy: IdentifierStrategy) => {
   return z
@@ -98,9 +101,12 @@ export const useFinishProfile = () => {
     queryFn: () => getGenders(),
   });
 
-  const isUnb = user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const identifierStrategy = useMemo(() => new IdentifierStrategyContext(isUnb).getStrategy(), [isUnb]);
+  const isUnb =
+    user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
+  const identifierStrategy = useMemo(
+    () => new IdentifierStrategyContext(isUnb).getStrategy(),
+    [isUnb]
+  );
 
   // Configuração do Form
   const formMethods = useForm<ProfileFormData>({
@@ -142,7 +148,8 @@ export const useFinishProfile = () => {
         countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
         locationId: profileStatus.profile.locationId ?? undefined,
         externalIdentifier: profileStatus.profile.externalIdentifier || '',
-        confirmExternalIdentifier: profileStatus.profile.externalIdentifier || '',
+        confirmExternalIdentifier:
+          profileStatus.profile.externalIdentifier || '',
         phone: (profileStatus.profile as any).phone || '',
       });
     }
@@ -219,7 +226,10 @@ export const useFinishProfile = () => {
   });
 
   const onSubmit = (data: ProfileFormData) => {
-    const { confirmExternalIdentifier, ...payload } = data;
+    const {
+      confirmExternalIdentifier: _confirmExternalIdentifier,
+      ...payload
+    } = data;
     updateProfileMutation.mutate(payload);
   };
 
