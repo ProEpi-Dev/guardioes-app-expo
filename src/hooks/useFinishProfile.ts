@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useForm } from 'react-hook-form';
@@ -23,15 +23,39 @@ import {
 import { isLocationDescendantOfCountry } from '../utils/locationHierarchy';
 import { resolveProfileExtraPayload } from '../utils/profileExtraPayload';
 
-const profileSchema = z.object({
-  genderId: z.number().optional(),
-  countryLocationId: z.number().optional(),
-  locationId: z.number().optional(),
-  externalIdentifier: z.string().optional(),
-  phone: z.string().optional(),
-});
+import { IdentifierStrategy, IdentifierStrategyContext } from '../utils/identifierStrategy';
 
-type ProfileFormData = z.infer<typeof profileSchema>;
+const createProfileSchema = (strategy: IdentifierStrategy) => {
+  return z
+    .object({
+      genderId: z.number().optional(),
+      countryLocationId: z.number().optional(),
+      locationId: z.number().optional(),
+      externalIdentifier: z.string().optional(),
+      confirmExternalIdentifier: z.string().optional(),
+      phone: z.string().optional(),
+    })
+    .superRefine((data, ctx) => {
+      const error = strategy.validate(data.externalIdentifier);
+      if (error) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: error,
+          path: ['externalIdentifier'],
+        });
+      }
+
+      if (data.externalIdentifier !== data.confirmExternalIdentifier) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Os identificadores não conferem.',
+          path: ['confirmExternalIdentifier'],
+        });
+      }
+    });
+};
+
+type ProfileFormData = z.infer<ReturnType<typeof createProfileSchema>>;
 
 export const useFinishProfile = () => {
   const { user } = useAuth();
@@ -74,14 +98,19 @@ export const useFinishProfile = () => {
     queryFn: () => getGenders(),
   });
 
+  const isUnb = user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const identifierStrategy = useMemo(() => new IdentifierStrategyContext(isUnb).getStrategy(), [isUnb]);
+
   // Configuração do Form
   const formMethods = useForm<ProfileFormData>({
-    resolver: zodResolver(profileSchema),
+    resolver: zodResolver(createProfileSchema(identifierStrategy)),
     defaultValues: {
       genderId: undefined,
       countryLocationId: undefined,
       locationId: undefined,
       externalIdentifier: '',
+      confirmExternalIdentifier: '',
       phone: '',
     },
   });
@@ -113,6 +142,7 @@ export const useFinishProfile = () => {
         countryLocationId: profileStatus.profile.countryLocationId ?? undefined,
         locationId: profileStatus.profile.locationId ?? undefined,
         externalIdentifier: profileStatus.profile.externalIdentifier || '',
+        confirmExternalIdentifier: profileStatus.profile.externalIdentifier || '',
         phone: (profileStatus.profile as any).phone || '',
       });
     }
@@ -189,7 +219,8 @@ export const useFinishProfile = () => {
   });
 
   const onSubmit = (data: ProfileFormData) => {
-    updateProfileMutation.mutate(data);
+    const { confirmExternalIdentifier, ...payload } = data;
+    updateProfileMutation.mutate(payload);
   };
 
   return {
@@ -214,5 +245,6 @@ export const useFinishProfile = () => {
     profileExtraFormRef,
     genders,
     gendersLoading,
+    identifierStrategy,
   };
 };
