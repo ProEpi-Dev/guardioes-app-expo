@@ -1,10 +1,37 @@
 import axios from 'axios';
 import * as authStorage from '../services/authStorage';
+import {
+  maintenanceFromResponse,
+  setMaintenance,
+} from '../services/maintenanceStore';
+import { getCurrentLocale } from '../locales/i18n';
 
 // Variáveis de controle
 let _currentToken = null;
 let isRefreshing = false;
 let failedQueue = [];
+
+/**
+ * Sem timeout a requisição fica pendurada indefinidamente em rede ruim, e a
+ * tela que a disparou nunca sai do estado de carregando.
+ */
+const REQUEST_TIMEOUT_MS = 20000;
+
+/**
+ * A API responde no envelope { error: { code, message } }. Ler `data.message`
+ * — como era feito antes — nunca acertava, e todo erro caía no texto genérico
+ * de conexão, inclusive os que traziam explicação do backend.
+ */
+const extractErrorMessage = (error) => {
+  const data = error.response?.data;
+
+  return (
+    data?.error?.message ||
+    data?.message ||
+    (error.code === 'ECONNABORTED' ? 'Tempo de conexão esgotado.' : null) ||
+    'Erro de conexão.'
+  );
+};
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach((prom) => {
@@ -20,19 +47,41 @@ const processQueue = (error, token = null) => {
 // 1. Criar a instância PRIMEIRO
 const axiosInstance = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_BASE_URL,
+  timeout: REQUEST_TIMEOUT_MS,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
+// O backend resolve os textos de indisponibilidade por Accept-Language, com
+// fallback pt. Hoje o i18n do app é fixo em pt, mas enviar o header já deixa
+// isso correto para quando o idioma do dispositivo voltar a ser usado.
+axiosInstance.interceptors.request.use((config) => {
+  config.headers['Accept-Language'] = getCurrentLocale();
+  return config;
+});
+
 // 2. Adicionar o ÚNICO interceptor de resposta
 axiosInstance.interceptors.response.use(
   (response) => {
+    // Qualquer resposta bem-sucedida prova que a janela terminou, mesmo que o
+    // recheck periódico ainda não tenha rodado.
+    setMaintenance(null);
     // Retorna direto os dados da API
     return response.data;
   },
   async (error) => {
     const originalRequest = error.config;
+
+    // Publica a indisponibilidade assim que ela aparece em qualquer chamada,
+    // sem esperar o próximo health check.
+    const maintenance = maintenanceFromResponse(
+      error.response?.status,
+      error.response?.data
+    );
+    if (maintenance) {
+      setMaintenance(maintenance);
+    }
 
     // Se o erro for 401 e a requisição ainda não tiver sido repetida
     if (
@@ -118,11 +167,12 @@ axiosInstance.interceptors.response.use(
     }
 
     // O antigo tratamento de erros fica embutido aqui no final (substituindo o segundo interceptor)
-    throw {
-      status: error.response?.status || 0,
-      message: error.response?.data?.message || 'Erro de conexão.',
-      data: error.response?.data || null,
-    };
+    const apiError = new Error(extractErrorMessage(error));
+    apiError.status = error.response?.status || 0;
+    apiError.code = error.response?.data?.error?.code || null;
+    apiError.data = error.response?.data || null;
+    apiError.maintenance = maintenance;
+    throw apiError;
   }
 );
 
