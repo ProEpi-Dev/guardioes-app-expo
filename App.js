@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import ScreenLoader from './src/components/ScreenLoader';
@@ -304,7 +304,19 @@ function AppContent() {
 }
 
 export default function App() {
-  const { loading, isMaintenance, isOffline } = useConnection();
+  const { loading, isMaintenance, isOffline, maintenance, recheck } =
+    useConnection();
+  const [retrying, setRetrying] = useState(false);
+
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      await recheck();
+    } finally {
+      setRetrying(false);
+    }
+  };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -313,9 +325,16 @@ export default function App() {
     );
   }
 
-  // Renderiza a tela de manutenção se a flag for verdadeira
+  // Só o modo `full` bloqueia o app. Em `banner` e `read_only` a navegação
+  // segue, e cada tela trata a falha da sua própria chamada.
   if (isMaintenance) {
-    return <Maintance />;
+    return (
+      <Maintance
+        maintenance={maintenance}
+        onRetry={handleRetry}
+        retrying={retrying}
+      />
+    );
   }
   return (
     <QueryClientProvider client={queryClient}>
@@ -329,6 +348,15 @@ export default function App() {
               </Text>
             </View>
           )}
+
+          {/* Janela anunciada que não bloqueia: avisa sem tirar o app do ar. */}
+          {!isOffline &&
+            maintenance?.fromApi &&
+            maintenance.mode !== 'full' && (
+              <View style={styles.maintenanceBanner}>
+                <Text style={styles.offlineText}>{maintenance.message}</Text>
+              </View>
+            )}
 
           <NavigationContainer ref={navigationRef}>
             <AppContent />
@@ -354,6 +382,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 999, // Garante que fique por cima de tudo
+    elevation: 10,
+  },
+  // Âmbar em vez de vermelho: é aviso de janela anunciada, não falha de rede.
+  maintenanceBanner: {
+    backgroundColor: '#b26a00',
+    padding: 10,
+    paddingTop: Platform.OS === 'ios' ? 40 : 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 999,
     elevation: 10,
   },
   offlineText: {
