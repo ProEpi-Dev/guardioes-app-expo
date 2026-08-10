@@ -26,6 +26,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import ProfileExtraFormSection from '../ProfileExtraFormSection';
 import { resolveProfileExtraPayload } from '../../utils/profileExtraPayload';
 import { useAuth } from '../../contexts/AuthContext';
+import { IdentifierStrategyContext } from '../../utils/identifierStrategy';
 
 interface Props {
   visible: boolean;
@@ -49,10 +50,13 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   const [externalIdentifier, setExternalIdentifier] = useState('');
   const [phone, setPhone] = useState<string | ''>('');
 
-  const [extraValues, setExtraValues] = useState<Record<string, unknown>>({});
+  const extraValuesRef = React.useRef<Record<string, unknown>>({});
   const queryClient = useQueryClient();
 
   const insets = useSafeAreaInsets();
+
+  const isUnb = user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
+  const identifierStrategy = React.useMemo(() => new IdentifierStrategyContext(isUnb).getStrategy(), [isUnb]);
 
   useEffect(() => {
     if (visible) {
@@ -104,19 +108,10 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
       return;
     }
 
-    const isUnb = user?.participation?.context?.name
-      ?.toLowerCase()
-      .includes('unb');
-
-    if (isUnb && externalIdentifier) {
-      const matriculaRegex = /^\d{9}$/;
-      if (!matriculaRegex.test(externalIdentifier)) {
-        Alert.alert(
-          'Matrícula Inválida',
-          'A matrícula deve conter exatamente 9 números, sem espaços ou caracteres especiais.'
-        );
-        return; // Interrompe o salvamento
-      }
+    const error = identifierStrategy.validate(externalIdentifier);
+    if (error) {
+      Alert.alert('Atenção', error);
+      return; // Interrompe o salvamento
     }
 
     try {
@@ -137,7 +132,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         : profileExtraData;
 
       if (profileExtra?.form) {
-        const resolved = resolveProfileExtraPayload(profileExtra, extraValues);
+        const resolved = resolveProfileExtraPayload(profileExtra, extraValuesRef.current);
 
         if ('error' in resolved) {
           Alert.alert(
@@ -210,12 +205,12 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               placeholder="Selecione sua localização"
             />
 
-            <Text style={styles.label}>Matrícula / Identificador</Text>
+            <Text style={styles.label}>{identifierStrategy.getLabel()}</Text>
             <TextInput
               style={styles.input}
               value={externalIdentifier}
               onChangeText={setExternalIdentifier}
-              placeholder="Digite sua matrícula"
+              placeholder={identifierStrategy.getPlaceholder()}
             />
 
             <Text style={styles.label}>Telefone</Text>
@@ -227,7 +222,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
             />
             <ProfileExtraFormSection
               lightMode={true}
-              onValuesChange={setExtraValues}
+              onValuesChange={(v) => { extraValuesRef.current = v; }}
             />
 
             <TouchableOpacity

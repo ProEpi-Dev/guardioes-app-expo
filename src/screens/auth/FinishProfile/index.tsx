@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AntDesign, Feather } from '@expo/vector-icons';
 import { Controller } from 'react-hook-form';
@@ -61,6 +61,7 @@ export function FinishProfile() {
     saveProfileExtraMutation,
     profileExtraFormRef,
     genders,
+    identifierStrategy,
   } = useFinishProfile();
 
   const formattedCountries = useMemo(() => {
@@ -110,21 +111,6 @@ export function FinishProfile() {
 
   // Função que engloba as duas submissões
   const handleCombinedSubmit = handleSubmit(async (data) => {
-    const isUnb = user?.participation?.context?.name
-      ?.toLowerCase()
-      .includes('unb');
-
-    if (isUnb && data.externalIdentifier) {
-      const matriculaRegex = /^\d{9}$/;
-      if (!matriculaRegex.test(data.externalIdentifier)) {
-        Alert.alert(
-          'Matrícula Inválida',
-          'A matrícula deve conter exatamente 9 números, sem espaços ou caracteres especiais.'
-        );
-        return; // Interrompe o processo se a matrícula for inválida
-      }
-    }
-
     if (profileExtraMe?.form) {
       try {
         await saveProfileExtraMutation.mutateAsync();
@@ -234,19 +220,57 @@ export function FinishProfile() {
           />
 
           {/* IDENTIFICADOR */}
-          <Text style={labelStyle}>Digite seu Identificador:</Text>
+          <Text style={labelStyle}>{identifierStrategy.getLabel()}</Text>
           <Controller
             control={control}
             name="externalIdentifier"
             render={({ field: { onChange, value } }) => (
               <SolidInput
-                placeholder={translate('finishProfile.placeholders.identifier')}
+                placeholder={identifierStrategy.getPlaceholder()}
                 maxLength={100}
                 value={value}
                 onChangeText={onChange}
               />
             )}
           />
+          {errors.externalIdentifier && (
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
+              {String(errors.externalIdentifier.message)}
+            </Text>
+          )}
+
+          <Text style={labelStyle}>Confirme seu Identificador:</Text>
+          <Controller
+            control={control}
+            name="confirmExternalIdentifier"
+            render={({ field: { onChange, value } }) => (
+              <SolidInput
+                placeholder="Confirme seu identificador"
+                maxLength={100}
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          {errors.confirmExternalIdentifier && (
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
+              {String(errors.confirmExternalIdentifier.message)}
+            </Text>
+          )}
 
           {/* TELEFONE */}
           <Text style={labelStyle}>Digite seu Telefone:</Text>
@@ -314,7 +338,15 @@ export function FinishProfile() {
           </Touch>
         </FormSeparator>
 
-        <BackButtonContainer onPress={() => navigation.goBack()}>
+        <BackButtonContainer
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            }
+          }}
+        >
           <Feather name="chevron-left" size={24} color="#fff" />
           <BackButtonText>
             {translate('finishProfile.buttons.back')}
