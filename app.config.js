@@ -45,6 +45,18 @@ module.exports = ({ config }) => {
       icon: './assets/514x514_ícone_gs.jpg',
       userInterfaceStyle: 'light',
       newArchEnabled: true,
+      // EAS Update: a partir desta build, correções que não tocam código nativo
+      // chegam na próxima abertura do app, sem passar pelas lojas.
+      updates: {
+        url: 'https://u.expo.dev/80b44ef1-f17e-4e58-a13b-f140c23d6e3a',
+        // 0 = não segura o splash esperando update; aplica no próximo boot.
+        fallbackToCacheTimeout: 0,
+      },
+      // Amarra o update à versão do app: uma build 4.2.11 só recebe updates
+      // publicados para 4.2.11, o que impede JS novo rodar sobre nativo antigo.
+      runtimeVersion: {
+        policy: 'appVersion',
+      },
       splash: {
         image: './assets/logo_gds_completa_branca.png',
         resizeMode: 'contain',
