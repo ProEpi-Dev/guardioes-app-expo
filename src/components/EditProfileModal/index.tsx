@@ -55,8 +55,12 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
 
   const insets = useSafeAreaInsets();
 
-  const isUnb = user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
-  const identifierStrategy = React.useMemo(() => new IdentifierStrategyContext(isUnb).getStrategy(), [isUnb]);
+  const isUnb =
+    user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
+  const identifierStrategy = React.useMemo(
+    () => new IdentifierStrategyContext(isUnb).getStrategy(),
+    [isUnb]
+  );
 
   useEffect(() => {
     if (visible) {
@@ -132,7 +136,10 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         : profileExtraData;
 
       if (profileExtra?.form) {
-        const resolved = resolveProfileExtraPayload(profileExtra, extraValuesRef.current);
+        const resolved = resolveProfileExtraPayload(
+          profileExtra,
+          extraValuesRef.current
+        );
 
         if ('error' in resolved) {
           Alert.alert(
@@ -222,7 +229,9 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
             />
             <ProfileExtraFormSection
               lightMode={true}
-              onValuesChange={(v) => { extraValuesRef.current = v; }}
+              onValuesChange={(v) => {
+                extraValuesRef.current = v;
+              }}
             />
 
             <TouchableOpacity
