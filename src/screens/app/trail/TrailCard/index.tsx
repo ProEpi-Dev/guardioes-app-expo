@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { ActivityIndicator, FlatList, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootTrailParamList, TrackCycle } from '../../../../types/trail';
@@ -16,6 +16,12 @@ type Props = NativeStackScreenProps<RootTrailParamList, 'Home'>;
 export default function TrailCard({ navigation }: Props) {
   const { user } = useAuth();
   const { cycles, isLoading, isRefreshing, handleRefresh, error } = useTrails();
+
+  const filteredCycles = useMemo(() => {
+    if (!cycles) return [];
+
+    return cycles.filter((item) => item.status !== 'closed');
+  }, [cycles]);
 
   const handlePress = useCallback(
     (item: TrackCycle) => {
@@ -68,7 +74,7 @@ export default function TrailCard({ navigation }: Props) {
 
       <FlatList
         style={styles.list}
-        data={cycles}
+        data={filteredCycles}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <TrailListItem item={item} onPress={handlePress} />

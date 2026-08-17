@@ -1,17 +1,18 @@
 import React, { forwardRef } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { getParticipationExtra } from '../../services/finishProfile';
-import { FormRenderer } from '../FormRenderer';
+import { FormRenderer } from '../FormRenderer/indexProfile';
 import { scale } from '../../utils/scalling';
 
 interface ProfileExtraFormSectionProps {
   onValuesChange: (values: Record<string, unknown>) => void;
   participantCountryLocationId?: number | null;
+  lightMode?: boolean;
 }
 
 const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
-  ({ onValuesChange }, _ref) => {
+  ({ onValuesChange, lightMode }, _ref) => {
     const { data, isLoading } = useQuery({
       queryKey: ['participation-profile-extra-me'],
       queryFn: () => getParticipationExtra(),
@@ -31,19 +32,19 @@ const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
 
     return (
       <View style={styles.container}>
-        <View style={styles.divider} />
-
-        <Text style={styles.title}>Informações Adicionais</Text>
-        <Text style={styles.subtitle}>
-          Preencha os dados extras do seu perfil
+        <View
+          style={[styles.divider, lightMode && { backgroundColor: '#eee' }]}
+        />
+        <Text style={[styles.title, lightMode && { color: '#333' }]}>
+          Informações Adicionais
         </Text>
-
         <View style={styles.formContainer}>
           <FormRenderer
             key={profileExtra.form.version.id}
             definition={definition}
             initialValues={initialValues}
             onChange={onValuesChange}
+            lightText={!lightMode}
           />
         </View>
       </View>
@@ -54,9 +55,7 @@ const ProfileExtraFormSection = forwardRef<any, ProfileExtraFormSectionProps>(
 ProfileExtraFormSection.displayName = 'ProfileExtraFormSection';
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-  },
+  container: { width: '100%' },
   divider: {
     height: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
@@ -68,15 +67,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
     marginBottom: scale(8),
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: scale(14),
-    color: '#e0e0e0',
-    marginBottom: scale(20),
-  },
-  formContainer: {
-    width: '100%',
-  },
+  formContainer: { width: '100%' },
 });
 
 export default ProfileExtraFormSection;

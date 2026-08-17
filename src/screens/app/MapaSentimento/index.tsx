@@ -19,12 +19,14 @@ import { useStreaks } from '../../../hooks/useStreaks';
 import { useParticipation } from '../../../contexts/ParticipationContext';
 import { getCurrentLocale } from '../../../locales/i18n';
 import translate from '../../../locales/i18n';
+import { useVerifyProfile } from '../../../hooks/useVerifyProfile';
 
 export function MapaSentimento() {
   const { user } = useAuth();
   const insets = useSafeAreaInsets();
   const TAB_BAR_HEIGHT = 60 + insets.bottom;
   const { location } = useUserLocationQuery();
+  useVerifyProfile();
 
   const {
     mapPoints,

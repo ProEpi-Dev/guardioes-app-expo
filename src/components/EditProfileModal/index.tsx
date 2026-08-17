@@ -16,11 +16,17 @@ import {
   getLocations,
   getProfileStatus,
   updateUserProfile,
+  putParticipationExtra,
 } from '../../services/finishProfile';
 import { CustomSelector } from '../SnowForms';
 import { DropdownOption } from '../../types/finishProfile';
 import { percentage } from '../../utils/scalling';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useQueryClient } from '@tanstack/react-query';
+import ProfileExtraFormSection from '../ProfileExtraFormSection';
+import { resolveProfileExtraPayload } from '../../utils/profileExtraPayload';
+import { useAuth } from '../../contexts/AuthContext';
+import { IdentifierStrategyContext } from '../../utils/identifierStrategy';
 
 interface Props {
   visible: boolean;
@@ -29,6 +35,8 @@ interface Props {
 }
 
 export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
+  const { user } = useAuth();
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -42,7 +50,17 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   const [externalIdentifier, setExternalIdentifier] = useState('');
   const [phone, setPhone] = useState<string | ''>('');
 
+  const extraValuesRef = React.useRef<Record<string, unknown>>({});
+  const queryClient = useQueryClient();
+
   const insets = useSafeAreaInsets();
+
+  const isUnb =
+    user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
+  const identifierStrategy = React.useMemo(
+    () => new IdentifierStrategyContext(isUnb).getStrategy(),
+    [isUnb]
+  );
 
   useEffect(() => {
     if (visible) {
@@ -53,7 +71,6 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   const loadData = async () => {
     try {
       setLoading(true);
-
       const status = await getProfileStatus();
       if (status?.profile) {
         setSelectedGenderId(status.profile.genderId ?? null);
@@ -61,12 +78,10 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         setExternalIdentifier(status.profile.externalIdentifier || '');
         setPhone(status.profile.phone || '');
       }
-
       const [rawGenders, rawLocations] = await Promise.all([
         getGenders(),
         getLocations(),
       ]);
-
       setGenders(
         rawGenders
           .filter((g: any) => g.active)
@@ -93,12 +108,19 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
       !externalIdentifier ||
       !phone
     ) {
-      Alert.alert('Atenção', 'Preencha todos os campos.');
+      Alert.alert('Atenção', 'Preencha todos os campos básicos.');
       return;
+    }
+
+    const error = identifierStrategy.validate(externalIdentifier);
+    if (error) {
+      Alert.alert('Atenção', error);
+      return; // Interrompe o salvamento
     }
 
     try {
       setSaving(true);
+
       await updateUserProfile({
         genderId: selectedGenderId,
         locationId: selectedLocationId,
@@ -106,7 +128,39 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
         phone: phone,
       });
 
-      Alert.alert('Dados atualizados!');
+      const profileExtraData: any = queryClient.getQueryData([
+        'participation-profile-extra-me',
+      ]);
+      const profileExtra = Array.isArray(profileExtraData)
+        ? profileExtraData[0]
+        : profileExtraData;
+
+      if (profileExtra?.form) {
+        const resolved = resolveProfileExtraPayload(
+          profileExtra,
+          extraValuesRef.current
+        );
+
+        if ('error' in resolved) {
+          Alert.alert(
+            'Atenção',
+            'Verifique os campos obrigatórios nas informações adicionais.'
+          );
+          setSaving(false);
+          return;
+        }
+
+        await putParticipationExtra({
+          formVersionId: profileExtra.form.version.id,
+          formResponse: resolved.ok,
+        });
+
+        queryClient.invalidateQueries({
+          queryKey: ['participation-profile-extra-me'],
+        });
+      }
+
+      Alert.alert('Sucesso', 'Dados atualizados!');
       onSuccess();
       onClose();
     } catch (error) {
@@ -158,12 +212,12 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               placeholder="Selecione sua localização"
             />
 
-            <Text style={styles.label}>Matrícula / Identificador</Text>
+            <Text style={styles.label}>{identifierStrategy.getLabel()}</Text>
             <TextInput
               style={styles.input}
               value={externalIdentifier}
               onChangeText={setExternalIdentifier}
-              placeholder="Digite sua matrícula"
+              placeholder={identifierStrategy.getPlaceholder()}
             />
 
             <Text style={styles.label}>Telefone</Text>
@@ -171,7 +225,13 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               style={styles.input}
               value={phone}
               onChangeText={setPhone}
-              placeholder="Digite sua matrícula"
+              placeholder="Digite seu telefone"
+            />
+            <ProfileExtraFormSection
+              lightMode={true}
+              onValuesChange={(v) => {
+                extraValuesRef.current = v;
+              }}
             />
 
             <TouchableOpacity

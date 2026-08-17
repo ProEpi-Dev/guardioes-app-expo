@@ -47,17 +47,16 @@ export const getGenders = async (): Promise<any[]> => {
   return [];
 };
 
-export const getParticipationExtra = async (): Promise<
-  ParticipationProfileExtraMeResponse[]
-> => {
-  const response = (await apiClient('/v1/participation-profile-extra/me', {
-    method: 'GET',
-  })) as any;
-  if (Array.isArray(response)) {
-    return response;
-  }
-  return [];
-};
+export const getParticipationExtra =
+  async (): Promise<ParticipationProfileExtraMeResponse | null> => {
+    const response = (await apiClient('/v1/participation-profile-extra/me', {
+      method: 'GET',
+    })) as any;
+    if (response && response.form) {
+      return response;
+    }
+    return null;
+  };
 
 export const putParticipationExtra = async (
   payload: SaveParticipationProfileExtraDto

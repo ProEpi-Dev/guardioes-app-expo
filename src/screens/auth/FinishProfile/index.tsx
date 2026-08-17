@@ -31,7 +31,7 @@ const GDSLogoBR = require('../../../../assets/logo_gds_completa_branca.png');
 
 const verde = '#77bfad';
 const azul = '#2E97BE';
-const branco = '#ffffff';
+const branco = '#fff';
 
 const DEFAULT_PROFILE_FIELD_REQUIREMENTS = {
   gender: true,
@@ -61,6 +61,7 @@ export function FinishProfile() {
     saveProfileExtraMutation,
     profileExtraFormRef,
     genders,
+    identifierStrategy,
   } = useFinishProfile();
 
   const formattedCountries = useMemo(() => {
@@ -105,20 +106,47 @@ export function FinishProfile() {
         }));
   }, [allLocations, profileReq.country, selectedCountryLocationId]);
 
+  const isSubmitting =
+    updateProfileMutation.isPending || saveProfileExtraMutation.isPending;
+
+  // Função que engloba as duas submissões
+  const handleCombinedSubmit = handleSubmit(async (data) => {
+    if (profileExtraMe?.form) {
+      try {
+        await saveProfileExtraMutation.mutateAsync();
+      } catch (error) {
+        console.log(error);
+        return;
+      }
+    }
+    // Salva os dados básicos e finaliza
+    onSubmit(data);
+  });
+
   if (statusLoading || !profileStatus) {
     return (
       <GradientBackground colors={[azul, verde]}>
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
         >
-          <ActivityIndicator size="large" color={branco} />
-          <Text style={{ color: branco, marginTop: 10 }}>
+          <ActivityIndicator size="large" color="#fff" />
+          <Text style={{ color: '#fff', marginTop: 10 }}>
             {translate('finishProfile.loadingStatus')}
           </Text>
         </View>
       </GradientBackground>
     );
   }
+
+  // Estilo padronizado para as labels (Textos antes dos inputs)
+  const labelStyle = {
+    color: branco,
+    width: '80%' as const,
+    textAlign: 'left' as const,
+    marginBottom: scale(6),
+    fontSize: scale(13),
+    fontWeight: '600' as const,
+  };
 
   return (
     <GradientBackground
@@ -136,6 +164,7 @@ export function FinishProfile() {
           </UserInfoCard>
 
           {/* GÊNERO */}
+          <Text style={labelStyle}>Selecione o seu Gênero:</Text>
           <Controller
             control={control}
             name="genderId"
@@ -149,28 +178,34 @@ export function FinishProfile() {
             )}
           />
           {errors.genderId && (
-            <Text style={{ color: '#ff6b6b' }}>
+            <Text style={{ color: '#ff6b6b', width: '80%', marginBottom: 15 }}>
               {translate('finishProfile.errors.required')}
             </Text>
           )}
 
           {/* PAÍS */}
           {profileReq.country && (
-            <Controller
-              control={control}
-              name="countryLocationId"
-              render={({ field: { onChange, value } }) => (
-                <SolidSelector
-                  data={formattedCountries}
-                  placeholder={translate('finishProfile.placeholders.country')}
-                  initValue={value}
-                  onChange={(option: any) => onChange(option.value)}
-                />
-              )}
-            />
+            <>
+              <Text style={labelStyle}>Selecione o seu País:</Text>
+              <Controller
+                control={control}
+                name="countryLocationId"
+                render={({ field: { onChange, value } }) => (
+                  <SolidSelector
+                    data={formattedCountries}
+                    placeholder={translate(
+                      'finishProfile.placeholders.country'
+                    )}
+                    initValue={value}
+                    onChange={(option: any) => onChange(option.value)}
+                  />
+                )}
+              />
+            </>
           )}
 
           {/* LOCALIDADE */}
+          <Text style={labelStyle}>Selecione sua Localidade:</Text>
           <Controller
             control={control}
             name="locationId"
@@ -185,20 +220,60 @@ export function FinishProfile() {
           />
 
           {/* IDENTIFICADOR */}
+          <Text style={labelStyle}>{identifierStrategy.getLabel()}</Text>
           <Controller
             control={control}
             name="externalIdentifier"
             render={({ field: { onChange, value } }) => (
               <SolidInput
-                placeholder={translate('finishProfile.placeholders.identifier')}
+                placeholder={identifierStrategy.getPlaceholder()}
                 maxLength={100}
                 value={value}
                 onChangeText={onChange}
               />
             )}
           />
+          {errors.externalIdentifier && (
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
+              {String(errors.externalIdentifier.message)}
+            </Text>
+          )}
+
+          <Text style={labelStyle}>Confirme seu Identificador:</Text>
+          <Controller
+            control={control}
+            name="confirmExternalIdentifier"
+            render={({ field: { onChange, value } }) => (
+              <SolidInput
+                placeholder="Confirme seu identificador"
+                maxLength={100}
+                value={value}
+                onChangeText={onChange}
+              />
+            )}
+          />
+          {errors.confirmExternalIdentifier && (
+            <Text
+              style={{
+                color: '#ff6b6b',
+                width: '80%',
+                marginBottom: 15,
+                fontSize: scale(11),
+              }}
+            >
+              {String(errors.confirmExternalIdentifier.message)}
+            </Text>
+          )}
 
           {/* TELEFONE */}
+          <Text style={labelStyle}>Digite seu Telefone:</Text>
           <Controller
             control={control}
             name="phone"
@@ -212,6 +287,21 @@ export function FinishProfile() {
             )}
           />
 
+          {/* PROFILE EXTRA SECTION */}
+          {profileExtraMe?.form && (
+            <FormSeparator>
+              <ProfileExtraFormSection
+                ref={profileExtraFormRef}
+                onValuesChange={setExtraValues}
+                participantCountryLocationId={
+                  selectedCountryLocationId ??
+                  profileStatus?.profile?.countryLocationId ??
+                  null
+                }
+              />
+            </FormSeparator>
+          )}
+
           <View
             style={{
               flexDirection: 'row',
@@ -223,7 +313,7 @@ export function FinishProfile() {
             <AntDesign name="info-circle" size={24} color="#fff" />
             <Text
               style={{
-                color: branco,
+                color: '#fff',
                 fontSize: scale(12),
                 marginLeft: scale(5),
                 opacity: 0.9,
@@ -235,12 +325,9 @@ export function FinishProfile() {
         </FormSeparator>
 
         <FormSeparator>
-          <Touch
-            onPress={handleSubmit(onSubmit)}
-            disabled={updateProfileMutation.isPending}
-          >
+          <Touch onPress={handleCombinedSubmit} disabled={isSubmitting}>
             <DarkButton>
-              {updateProfileMutation.isPending ? (
+              {isSubmitting ? (
                 <ActivityIndicator size="small" color="#ffffff" />
               ) : (
                 <DarkButtonLabel>
@@ -251,56 +338,16 @@ export function FinishProfile() {
           </Touch>
         </FormSeparator>
 
-        {/* PROFILE EXTRA SECTION */}
-        {profileExtraMe?.[0]?.form && (
-          <FormSeparator>
-            <Text
-              style={{
-                color: branco,
-                fontSize: scale(16),
-                marginBottom: scale(10),
-                fontWeight: 'bold',
-              }}
-            >
-              {translate('finishProfile.extraSection.title')}
-            </Text>
-
-            <ProfileExtraFormSection
-              ref={profileExtraFormRef}
-              onValuesChange={setExtraValues}
-              participantCountryLocationId={
-                selectedCountryLocationId ??
-                profileStatus?.profile?.countryLocationId ??
-                null
-              }
-            />
-
-            <Touch
-              onPress={() => saveProfileExtraMutation.mutate()}
-              disabled={saveProfileExtraMutation.isPending}
-            >
-              <DarkButton
-                style={{
-                  marginTop: scale(15),
-                  backgroundColor: 'transparent',
-                  borderWidth: 1,
-                  borderColor: branco,
-                }}
-              >
-                {saveProfileExtraMutation.isPending ? (
-                  <ActivityIndicator size="small" color="#ffffff" />
-                ) : (
-                  <DarkButtonLabel style={{ color: branco }}>
-                    {translate('finishProfile.buttons.saveExtraData')}
-                  </DarkButtonLabel>
-                )}
-              </DarkButton>
-            </Touch>
-          </FormSeparator>
-        )}
-
-        <BackButtonContainer onPress={() => navigation.goBack()}>
-          <Feather name="chevron-left" size={24} color={branco} />
+        <BackButtonContainer
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            }
+          }}
+        >
+          <Feather name="chevron-left" size={24} color="#fff" />
           <BackButtonText>
             {translate('finishProfile.buttons.back')}
           </BackButtonText>
