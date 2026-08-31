@@ -539,6 +539,27 @@ export default {
       identifier: 'Identificador (Matrícula, CPF...)',
       phone: 'Telefone',
     },
+    identifier: {
+      studentSelector: {
+        label: 'Você é estudante da UnB?',
+        placeholder: 'Selecione',
+        yes: 'Sim',
+        no: 'Não',
+      },
+      unb: {
+        label: 'Digite sua Matrícula:',
+        placeholder: 'Matrícula (9 números)',
+        validationError: 'A matrícula deve conter exatamente 9 números, sem espaços ou caracteres especiais.',
+      },
+      default: {
+        label: 'CPF, RG ou outro identificador:',
+        placeholder: 'Seu identificador externo',
+        validationError: 'O identificador deve conter apenas letras e números, sem espaços ou caracteres especiais.',
+      },
+      confirmLabel: 'Confirme seu Identificador:',
+      confirmPlaceholder: 'Confirme seu identificador',
+      mismatchError: 'Os identificadores não conferem.',
+    },
     errors: {
       required: 'Campo obrigatório',
     },

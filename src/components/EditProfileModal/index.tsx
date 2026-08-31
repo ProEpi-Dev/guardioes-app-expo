@@ -26,7 +26,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import ProfileExtraFormSection from '../ProfileExtraFormSection';
 import { resolveProfileExtraPayload } from '../../utils/profileExtraPayload';
 import { useAuth } from '../../contexts/AuthContext';
-import { IdentifierStrategyContext } from '../../utils/identifierStrategy';
+import { getIdentifierStrategy } from '../../utils/identifierStrategy';
+import translate from '../../locales/i18n';
 
 interface Props {
   visible: boolean;
@@ -49,6 +50,7 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
   );
   const [externalIdentifier, setExternalIdentifier] = useState('');
   const [phone, setPhone] = useState<string | ''>('');
+  const [isStudent, setIsStudent] = useState<boolean | null>(null);
 
   const extraValuesRef = React.useRef<Record<string, unknown>>({});
   const queryClient = useQueryClient();
@@ -57,10 +59,24 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
 
   const isUnb =
     user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
-  const identifierStrategy = React.useMemo(
-    () => new IdentifierStrategyContext(isUnb).getStrategy(),
-    [isUnb]
-  );
+  const identifierStrategy = React.useMemo(() => {
+    if (isUnb && isStudent === true) {
+      return getIdentifierStrategy('unb_student');
+    }
+    return getIdentifierStrategy('default');
+  }, [isUnb, isStudent]);
+
+  const studentOptions: DropdownOption[] = React.useMemo(() => [
+    { key: 'yes', label: translate('finishProfile.identifier.studentSelector.yes'), value: true },
+    { key: 'no', label: translate('finishProfile.identifier.studentSelector.no'), value: false },
+  ], []);
+
+  // Limpar identificador ao trocar o tipo de estudante
+  React.useEffect(() => {
+    if (isStudent !== null) {
+      setExternalIdentifier('');
+    }
+  }, [isStudent]);
 
   useEffect(() => {
     if (visible) {
@@ -212,13 +228,32 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
               placeholder="Selecione sua localização"
             />
 
-            <Text style={styles.label}>{identifierStrategy.getLabel()}</Text>
-            <TextInput
-              style={styles.input}
-              value={externalIdentifier}
-              onChangeText={setExternalIdentifier}
-              placeholder={identifierStrategy.getPlaceholder()}
-            />
+            {/* SELETOR ESTUDANTE UNB */}
+            {isUnb && (
+              <>
+                <Text style={styles.label}>{translate('finishProfile.identifier.studentSelector.label')}</Text>
+                <CustomSelector
+                  lightMode={true}
+                  data={studentOptions}
+                  initValue={isStudent}
+                  placeholder={translate('finishProfile.identifier.studentSelector.placeholder')}
+                  onChange={(item: DropdownOption) => setIsStudent(item.value as boolean)}
+                />
+              </>
+            )}
+
+            {/* IDENTIFICADOR - só aparece após selecionar tipo (para UnB) ou diretamente (para outros) */}
+            {(!isUnb || isStudent !== null) && (
+              <>
+                <Text style={styles.label}>{identifierStrategy.label}</Text>
+                <TextInput
+                  style={styles.input}
+                  value={externalIdentifier}
+                  onChangeText={setExternalIdentifier}
+                  placeholder={identifierStrategy.placeholder}
+                />
+              </>
+            )}
 
             <Text style={styles.label}>Telefone</Text>
             <TextInput
