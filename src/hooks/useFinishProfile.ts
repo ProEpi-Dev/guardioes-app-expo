@@ -25,10 +25,19 @@ import { resolveProfileExtraPayload } from '../utils/profileExtraPayload';
 
 import {
   IdentifierStrategy,
-  IdentifierStrategyContext,
+  getIdentifierStrategy,
 } from '../utils/identifierStrategy';
+import translate from '../locales/i18n';
 
-const createProfileSchema = (strategy: IdentifierStrategy) => {
+export const DEFAULT_PROFILE_FIELD_REQUIREMENTS = {
+  gender: true,
+  country: false,
+  location: true,
+  externalIdentifier: true,
+  phone: false,
+};
+
+const createProfileSchema = (strategy: IdentifierStrategy, profileReq: any) => {
   return z
     .object({
       genderId: z.number().optional(),
@@ -39,19 +48,46 @@ const createProfileSchema = (strategy: IdentifierStrategy) => {
       phone: z.string().optional(),
     })
     .superRefine((data, ctx) => {
-      const error = strategy.validate(data.externalIdentifier);
-      if (error) {
+      if (profileReq?.gender && !data.genderId) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: error,
-          path: ['externalIdentifier'],
+          message: translate('finishProfile.errors.required'),
+          path: ['genderId'],
         });
       }
 
-      if (data.externalIdentifier !== data.confirmExternalIdentifier) {
+      if (profileReq?.location && !data.locationId) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: 'Os identificadores não conferem.',
+          message: translate('finishProfile.errors.required'),
+          path: ['locationId'],
+        });
+      }
+
+      if (profileReq?.externalIdentifier && !data.externalIdentifier) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: translate('finishProfile.errors.required'),
+          path: ['externalIdentifier'],
+        });
+        return;
+      }
+
+      if (data.externalIdentifier) {
+        const error = strategy.validate(data.externalIdentifier);
+        if (error) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: error,
+            path: ['externalIdentifier'],
+          });
+        }
+      }
+
+      if (data.externalIdentifier && data.externalIdentifier !== data.confirmExternalIdentifier) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: translate('finishProfile.identifier.mismatchError'),
           path: ['confirmExternalIdentifier'],
         });
       }
@@ -67,6 +103,7 @@ export const useFinishProfile = () => {
 
   const [extraValues, setExtraValues] = useState<Record<string, unknown>>({});
   const profileExtraFormRef = useRef<any>(null);
+  const [isStudent, setIsStudent] = useState<boolean | null>(null);
 
   // Queries
   const {
@@ -103,14 +140,26 @@ export const useFinishProfile = () => {
 
   const isUnb =
     user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
-  const identifierStrategy = useMemo(
-    () => new IdentifierStrategyContext(isUnb).getStrategy(),
-    [isUnb]
+  
+  const identifierStrategy = useMemo(() => {
+    if (isUnb && isStudent === true) {
+      return getIdentifierStrategy('unb_student');
+    }
+    return getIdentifierStrategy('default');
+  }, [isUnb, isStudent]);
+
+  const profileReq = useMemo(() => {
+    return profileStatus?.profileFieldRequirements ?? DEFAULT_PROFILE_FIELD_REQUIREMENTS;
+  }, [profileStatus]);
+
+  const resolver = useMemo(
+    () => zodResolver(createProfileSchema(identifierStrategy, profileReq)),
+    [identifierStrategy, profileReq]
   );
 
   // Configuração do Form
   const formMethods = useForm<ProfileFormData>({
-    resolver: zodResolver(createProfileSchema(identifierStrategy)),
+    resolver,
     defaultValues: {
       genderId: undefined,
       countryLocationId: undefined,
@@ -173,6 +222,14 @@ export const useFinishProfile = () => {
       setValue('locationId', undefined);
     }
   }, [selectedCountryLocationId, selectedLocationId, allLocations, setValue]);
+
+  // Limpar campos de identificador ao trocar o tipo de estudante
+  useEffect(() => {
+    if (isStudent !== null) {
+      setValue('externalIdentifier', '');
+      setValue('confirmExternalIdentifier', '');
+    }
+  }, [isStudent, setValue]);
 
   // Mutations
   const updateProfileMutation = useMutation({
@@ -256,5 +313,8 @@ export const useFinishProfile = () => {
     genders,
     gendersLoading,
     identifierStrategy,
+    isUnb,
+    isStudent,
+    setIsStudent,
   };
 };

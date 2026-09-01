@@ -23,7 +23,7 @@ import { PageTitle, Logo } from './styles';
 import { BackButtonContainer, BackButtonText } from '../Register/styles';
 import { colors } from '../../../utils/colors';
 
-import { useFinishProfile } from '../../../hooks/useFinishProfile';
+import { useFinishProfile, DEFAULT_PROFILE_FIELD_REQUIREMENTS } from '../../../hooks/useFinishProfile';
 
 import ProfileExtraFormSection from '../../../components/ProfileExtraFormSection';
 
@@ -33,13 +33,7 @@ const verde = '#77bfad';
 const azul = '#2E97BE';
 const branco = '#fff';
 
-const DEFAULT_PROFILE_FIELD_REQUIREMENTS = {
-  gender: true,
-  country: false,
-  location: true,
-  externalIdentifier: true,
-  phone: false,
-};
+
 
 export function FinishProfile() {
   const insets = useSafeAreaInsets();
@@ -62,7 +56,16 @@ export function FinishProfile() {
     profileExtraFormRef,
     genders,
     identifierStrategy,
+    isUnb,
+    isStudent,
+    setIsStudent,
+    formMethods,
   } = useFinishProfile();
+
+  const studentOptions = useMemo(() => [
+    { key: 'yes', label: translate('finishProfile.identifier.studentSelector.yes'), value: true },
+    { key: 'no', label: translate('finishProfile.identifier.studentSelector.no'), value: false },
+  ], []);
 
   const formattedCountries = useMemo(() => {
     return countries.map((c: any) => ({
@@ -219,57 +222,79 @@ export function FinishProfile() {
             )}
           />
 
-          {/* IDENTIFICADOR */}
-          <Text style={labelStyle}>{identifierStrategy.getLabel()}</Text>
-          <Controller
-            control={control}
-            name="externalIdentifier"
-            render={({ field: { onChange, value } }) => (
-              <SolidInput
-                placeholder={identifierStrategy.getPlaceholder()}
-                maxLength={100}
-                value={value}
-                onChangeText={onChange}
+          {/* SELETOR ESTUDANTE UNB */}
+          {isUnb && (
+            <>
+              <Text style={labelStyle}>{translate('finishProfile.identifier.studentSelector.label')}</Text>
+              <SolidSelector
+                data={studentOptions}
+                placeholder={translate('finishProfile.identifier.studentSelector.placeholder')}
+                initValue={isStudent}
+                onChange={(option: any) => setIsStudent(option.value)}
               />
-            )}
-          />
-          {errors.externalIdentifier && (
-            <Text
-              style={{
-                color: '#ff6b6b',
-                width: '80%',
-                marginBottom: 15,
-                fontSize: scale(11),
-              }}
-            >
-              {String(errors.externalIdentifier.message)}
-            </Text>
+            </>
           )}
 
-          <Text style={labelStyle}>Confirme seu Identificador:</Text>
-          <Controller
-            control={control}
-            name="confirmExternalIdentifier"
-            render={({ field: { onChange, value } }) => (
-              <SolidInput
-                placeholder="Confirme seu identificador"
-                maxLength={100}
-                value={value}
-                onChangeText={onChange}
+          {/* IDENTIFICADOR */}
+          {(!isUnb || isStudent !== null) && (
+            <>
+              <Text style={labelStyle}>{identifierStrategy.label}</Text>
+              <Controller
+                control={control}
+                name="externalIdentifier"
+                render={({ field: { onChange, value } }) => (
+                  <SolidInput
+                    placeholder={identifierStrategy.placeholder}
+                    maxLength={100}
+                    value={value}
+                    onChangeText={onChange}
+                  />
+                )}
               />
-            )}
-          />
-          {errors.confirmExternalIdentifier && (
-            <Text
-              style={{
-                color: '#ff6b6b',
-                width: '80%',
-                marginBottom: 15,
-                fontSize: scale(11),
-              }}
-            >
-              {String(errors.confirmExternalIdentifier.message)}
-            </Text>
+              {errors.externalIdentifier && (
+                <Text
+                  style={{
+                    color: '#ff6b6b',
+                    width: '80%',
+                    marginBottom: 15,
+                    fontSize: scale(11),
+                  }}
+                >
+                  {String(errors.externalIdentifier.message)}
+                </Text>
+              )}
+
+              {/* CONFIRMAÇÃO IDENTIFICADOR (Renderiza apenas se o primeiro tiver valor) */}
+              {formMethods.watch('externalIdentifier') ? (
+                <>
+                  <Text style={labelStyle}>{translate('finishProfile.identifier.confirmLabel')}</Text>
+                  <Controller
+                    control={control}
+                    name="confirmExternalIdentifier"
+                    render={({ field: { onChange, value } }) => (
+                      <SolidInput
+                        placeholder={translate('finishProfile.identifier.confirmPlaceholder')}
+                        maxLength={100}
+                        value={value}
+                        onChangeText={onChange}
+                      />
+                    )}
+                  />
+                  {errors.confirmExternalIdentifier && (
+                    <Text
+                      style={{
+                        color: '#ff6b6b',
+                        width: '80%',
+                        marginBottom: 15,
+                        fontSize: scale(11),
+                      }}
+                    >
+                      {String(errors.confirmExternalIdentifier.message)}
+                    </Text>
+                  )}
+                </>
+              ) : null}
+            </>
           )}
 
           {/* TELEFONE */}
