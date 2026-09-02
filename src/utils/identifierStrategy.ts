@@ -32,6 +32,8 @@ const defaultStrategy: IdentifierStrategy = {
   },
 };
 
-export const getIdentifierStrategy = (type: IdentifierStrategyType): IdentifierStrategy => {
+export const getIdentifierStrategy = (
+  type: IdentifierStrategyType
+): IdentifierStrategy => {
   return type === 'unb_student' ? unbStudentStrategy : defaultStrategy;
 };

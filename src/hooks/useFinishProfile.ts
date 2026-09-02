@@ -84,7 +84,10 @@ const createProfileSchema = (strategy: IdentifierStrategy, profileReq: any) => {
         }
       }
 
-      if (data.externalIdentifier && data.externalIdentifier !== data.confirmExternalIdentifier) {
+      if (
+        data.externalIdentifier &&
+        data.externalIdentifier !== data.confirmExternalIdentifier
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: translate('finishProfile.identifier.mismatchError'),
@@ -140,7 +143,7 @@ export const useFinishProfile = () => {
 
   const isUnb =
     user?.participation?.context?.name?.toLowerCase().includes('unb') || false;
-  
+
   const identifierStrategy = useMemo(() => {
     if (isUnb && isStudent === true) {
       return getIdentifierStrategy('unb_student');
@@ -149,7 +152,10 @@ export const useFinishProfile = () => {
   }, [isUnb, isStudent]);
 
   const profileReq = useMemo(() => {
-    return profileStatus?.profileFieldRequirements ?? DEFAULT_PROFILE_FIELD_REQUIREMENTS;
+    return (
+      profileStatus?.profileFieldRequirements ??
+      DEFAULT_PROFILE_FIELD_REQUIREMENTS
+    );
   }, [profileStatus]);
 
   const resolver = useMemo(

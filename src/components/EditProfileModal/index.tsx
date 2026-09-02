@@ -66,10 +66,21 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
     return getIdentifierStrategy('default');
   }, [isUnb, isStudent]);
 
-  const studentOptions: DropdownOption[] = React.useMemo(() => [
-    { key: 'yes', label: translate('finishProfile.identifier.studentSelector.yes'), value: true },
-    { key: 'no', label: translate('finishProfile.identifier.studentSelector.no'), value: false },
-  ], []);
+  const studentOptions: DropdownOption[] = React.useMemo(
+    () => [
+      {
+        key: 'yes',
+        label: translate('finishProfile.identifier.studentSelector.yes'),
+        value: true,
+      },
+      {
+        key: 'no',
+        label: translate('finishProfile.identifier.studentSelector.no'),
+        value: false,
+      },
+    ],
+    []
+  );
 
   // Limpar identificador ao trocar o tipo de estudante
   React.useEffect(() => {
@@ -231,13 +242,19 @@ export function EditProfileModal({ visible, onClose, onSuccess }: Props) {
             {/* SELETOR ESTUDANTE UNB */}
             {isUnb && (
               <>
-                <Text style={styles.label}>{translate('finishProfile.identifier.studentSelector.label')}</Text>
+                <Text style={styles.label}>
+                  {translate('finishProfile.identifier.studentSelector.label')}
+                </Text>
                 <CustomSelector
                   lightMode={true}
                   data={studentOptions}
                   initValue={isStudent}
-                  placeholder={translate('finishProfile.identifier.studentSelector.placeholder')}
-                  onChange={(item: DropdownOption) => setIsStudent(item.value as boolean)}
+                  placeholder={translate(
+                    'finishProfile.identifier.studentSelector.placeholder'
+                  )}
+                  onChange={(item: DropdownOption) =>
+                    setIsStudent(item.value as boolean)
+                  }
                 />
               </>
             )}
