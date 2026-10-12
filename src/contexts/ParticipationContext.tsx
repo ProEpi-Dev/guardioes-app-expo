@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { apiClient } from '../utils/api';
+import * as authStorage from '../services/authStorage';
 import { ContextModuleCode } from '../types/auth';
 
 interface ParticipationContextData {
@@ -100,6 +101,18 @@ export function ParticipationProvider({
             setParticipationId(myParticipation.id);
             setContextId(myParticipation.contextId);
             setModules([]);
+          }
+          if (myParticipation.contextId) {
+            authStorage
+              .storeUser({
+                ...user,
+                participation: {
+                  id: myParticipation.id,
+                  userId: foundUserId,
+                  context: { id: myParticipation.contextId, modules: [] },
+                },
+              })
+              .catch(() => undefined);
           }
         } else {
           console.warn(

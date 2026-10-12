@@ -36,6 +36,7 @@ export function MapaSentimento() {
     setShowForm,
     formDefinition,
     formTitle,
+    isOfflineForm,
     loadingForm,
     sending,
     setFormValues,
@@ -176,6 +177,7 @@ export function MapaSentimento() {
           onFormChange={setFormValues}
           onSubmit={() => handleSubmitForm()}
           title={formTitle}
+          offline={isOfflineForm}
         />
       </View>
     </View>

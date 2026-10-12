@@ -30,6 +30,7 @@ export function Vbe() {
     setShowForm,
     formDefinition,
     formTitle,
+    isOfflineForm,
     loadingForm,
     sending,
     setFormValues,
@@ -178,6 +179,7 @@ export function Vbe() {
         onFormChange={setFormValues}
         onSubmit={() => handleSubmitForm(refetch)}
         title={formTitle}
+        offline={isOfflineForm}
       />
 
       <ReportDetailsModal

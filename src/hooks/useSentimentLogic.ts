@@ -3,11 +3,39 @@ import { Alert, DeviceEventEmitter } from 'react-native';
 import { useParticipation } from '../contexts/ParticipationContext';
 import { useUserLocationQuery } from './useUserLocationQuery';
 import { useSentimentMap } from './useSentimentMap';
-import { getLatestSignalForm } from '../services/forms';
-import { createReport } from '../services/reports';
+import { loadSignalForm } from '../services/forms';
+import type { ReportPayload } from '../services/reports';
 import { checkMandatoryCompliance } from '../services/trail';
 import { useFocusEffect } from '@react-navigation/native';
 import { getReportStreaks } from '../services/streaks';
+import {
+  QueueFullError,
+  enqueueReport,
+  hasPendingPositiveOnDay,
+  removeReport,
+} from '../services/offlineReportQueue';
+import { flushQueue } from '../services/reportSync';
+import {
+  getCachedCompliance,
+  setCachedCompliance,
+} from '../services/offlineCache';
+import { isOnline, nowReportDate, todayLocalDay } from '../utils/reportDate';
+
+/** Tipos de campo que dependem de internet e somem do formulário offline. */
+const ONLINE_ONLY_FIELD_TYPES = ['mapPoint'];
+
+const removeOnlineOnlyFields = (definition: any) => ({
+  ...definition,
+  fields: (definition?.fields ?? []).filter(
+    (field: any) => !ONLINE_ONLY_FIELD_TYPES.includes(field?.type)
+  ),
+});
+
+type SubmitOutcome =
+  | { status: 'sent' }
+  | { status: 'queued' }
+  | { status: 'rejected'; message: string }
+  | { status: 'not_saved' };
 
 export const useSentimentLogic = () => {
   // Hooks Externos
@@ -40,6 +68,7 @@ export const useSentimentLogic = () => {
     number | null
   >(null);
   const [formValues, setFormValues] = useState<Record<string, any>>({});
+  const [isOfflineForm, setIsOfflineForm] = useState(false);
 
   // Estados de Loading
   const [loadingForm, setLoadingForm] = useState(false);
@@ -67,6 +96,12 @@ export const useSentimentLogic = () => {
           return;
         }
 
+        if (!(await isOnline())) {
+          const cached = await getCachedCompliance(participationId);
+          if (isActive && cached !== null) setIsCompliant(cached);
+          return;
+        }
+
         try {
           const response: any = await checkMandatoryCompliance(participationId);
 
@@ -85,6 +120,7 @@ export const useSentimentLogic = () => {
 
             // console.log('Compliance Check (Sentiment) [Refreshed]:', userIsCompliant);
             setIsCompliant(userIsCompliant);
+            setCachedCompliance(participationId, userIsCompliant);
             lastComplianceCheck.current = Date.now();
           }
         } catch (err) {
@@ -106,11 +142,16 @@ export const useSentimentLogic = () => {
     if (!contextId || !participationId)
       return { hasReported: false, streak: 0 };
 
-    // Pega a data local de hoje no formato YYYY-MM-DD
-    const tzOffset = new Date().getTimezoneOffset() * 60000;
-    const todayLocal = new Date(Date.now() - tzOffset)
-      .toISOString()
-      .split('T')[0];
+    const todayLocal = todayLocalDay();
+
+    const hasPendingToday = await hasPendingPositiveOnDay(
+      participationId,
+      todayLocal
+    ).catch(() => false);
+
+    if (!(await isOnline())) {
+      return { hasReported: hasPendingToday, streak: 0 };
+    }
 
     try {
       const data = await getReportStreaks({
@@ -119,13 +160,62 @@ export const useSentimentLogic = () => {
         startDate: todayLocal,
         endDate: todayLocal,
       });
-      const hasReported = data?.reportedDays && data.reportedDays.length > 0;
+      const hasReported =
+        hasPendingToday || (data?.reportedDays && data.reportedDays.length > 0);
       return { hasReported, streak: data?.currentStreak || 0 };
     } catch (e) {
       console.error('Erro ao verificar ofensiva:', e);
-      return { hasReported: false, streak: 0 };
+      return { hasReported: hasPendingToday, streak: 0 };
     }
   };
+
+  const submitReport = async (
+    payload: ReportPayload
+  ): Promise<SubmitOutcome> => {
+    if (!participationId) return { status: 'not_saved' };
+
+    let queuedId: string;
+    try {
+      const queued = await enqueueReport(participationId, payload);
+      queuedId = queued.id;
+    } catch (error) {
+      console.error('Erro ao salvar report localmente:', error);
+      Alert.alert(
+        'Não foi possível salvar',
+        error instanceof QueueFullError
+          ? 'Há muitos registros aguardando envio. Conecte-se à internet para enviá-los antes de registrar novos.'
+          : 'Não há espaço disponível no aparelho para salvar o registro.'
+      );
+      return { status: 'not_saved' };
+    }
+
+    try {
+      const result = await flushQueue(participationId);
+      if (result.sentIds.includes(queuedId)) return { status: 'sent' };
+      if (result.failedIds.includes(queuedId)) {
+        await removeReport(queuedId);
+        return {
+          status: 'rejected',
+          message: result.errors[queuedId] ?? 'Falha no envio.',
+        };
+      }
+    } catch (error) {
+      console.error('Erro ao sincronizar reports:', error);
+    }
+
+    return { status: 'queued' };
+  };
+
+  const alertQueued = () =>
+    Alert.alert(
+      'Registro salvo 📶',
+      'Não foi possível enviar agora. Seu registro foi salvo no aparelho e será enviado automaticamente quando a conexão voltar.'
+    );
+
+  const buildOccurrenceLocation = (loc: any) =>
+    loc
+      ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
+      : null;
 
   // 1. Fluxo do Sentimento Positivo
   const handlePositiveSentiment = async () => {
@@ -143,30 +233,39 @@ export const useSentimentLogic = () => {
         return;
       }
 
-      let latestForm;
-      if (contextId) {
-        latestForm = await getLatestSignalForm(contextId);
+      const latestForm = contextId
+        ? (await loadSignalForm(contextId)).form
+        : null;
+      const versionId = latestForm?.latestVersion?.id;
+
+      if (!versionId) {
+        Alert.alert(
+          'Sem conexão',
+          'Conecte-se à internet ao menos uma vez para habilitar o registro offline.'
+        );
+        return;
       }
-      const versionId = latestForm.latestVersion?.id;
+
       const loc = await getLocation();
 
-      if (versionId) {
-        await createReport({
-          participationId,
-          formVersionId: versionId,
-          reportType: 'POSITIVE',
-          // reportType: contextId === 4 ? 'NEGATIVE' : 'POSITIVE',
-          formResponse: {},
-          occurrenceLocation: loc
-            ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
-            : null,
-        });
+      const outcome = await submitReport({
+        participationId,
+        formVersionId: versionId,
+        reportType: 'POSITIVE',
+        // reportType: contextId === 4 ? 'NEGATIVE' : 'POSITIVE',
+        formResponse: {},
+        occurrenceLocation: buildOccurrenceLocation(loc),
+        reportDate: nowReportDate(),
+      });
 
-        DeviceEventEmitter.emit('report_created');
-
+      if (outcome.status === 'sent') {
         setCurrentStreakCount(status.streak + 1);
         setShowSuccessAnimation(true);
         setTimeout(refreshPoints, 500);
+      } else if (outcome.status === 'queued') {
+        alertQueued();
+      } else if (outcome.status === 'rejected') {
+        Alert.alert('Erro', 'Falha ao registrar sentimento.');
       }
     } catch (e) {
       console.error(e);
@@ -182,19 +281,31 @@ export const useSentimentLogic = () => {
     setShowForm(true);
 
     try {
-      let latestForm;
-      if (contextId) {
-        latestForm = await getLatestSignalForm(contextId);
-      }
-      const version = latestForm.latestVersion;
+      const { form: latestForm, fromCache } = contextId
+        ? await loadSignalForm(contextId)
+        : { form: null, fromCache: false };
+      const version = latestForm?.latestVersion;
 
-      if (version?.definition) {
-        setFormDefinition(version.definition);
-        setCurrentFormVersionId(version.id);
-        setFormTitle(latestForm.title);
-      } else {
+      if (!version?.definition) {
+        if (fromCache || !(await isOnline())) {
+          Alert.alert(
+            'Sem conexão',
+            'Conecte-se à internet ao menos uma vez para habilitar o registro offline.'
+          );
+          setShowForm(false);
+          return;
+        }
         throw new Error('Definição ausente');
       }
+
+      setIsOfflineForm(fromCache);
+      setFormDefinition(
+        fromCache
+          ? removeOnlineOnlyFields(version.definition)
+          : version.definition
+      );
+      setCurrentFormVersionId(version.id);
+      setFormTitle(latestForm.title);
     } catch (e) {
       console.error(e);
       Alert.alert('Erro', 'Falha ao carregar formulário.');
@@ -241,21 +352,30 @@ export const useSentimentLogic = () => {
         };
       }
 
-      await createReport({
+      const outcome = await submitReport({
         participationId,
         formVersionId: currentFormVersionId,
         reportType: 'NEGATIVE',
         // reportType: contextId === 4 ? 'POSITIVE' : 'NEGATIVE',
         formResponse: cleanData,
-        occurrenceLocation: loc
-          ? { latitude: loc.coords.latitude, longitude: loc.coords.longitude }
-          : null,
+        occurrenceLocation: buildOccurrenceLocation(loc),
+        reportDate: nowReportDate(),
       });
 
-      DeviceEventEmitter.emit('report_created');
+      if (outcome.status === 'rejected') {
+        Alert.alert('Erro', 'Falha no envio.');
+        return;
+      }
+      if (outcome.status === 'not_saved') return;
 
       setShowForm(false);
       setFormValues({});
+
+      if (outcome.status === 'queued') {
+        alertQueued();
+        return;
+      }
+
       setTimeout(refreshPoints, 500);
       refetch?.();
 
@@ -286,6 +406,7 @@ export const useSentimentLogic = () => {
     setFormValues,
     handleSubmitForm,
     isCompliant,
+    isOfflineForm,
     showSuccessAnimation,
     setShowSuccessAnimation,
     currentStreakCount,
