@@ -13,7 +13,7 @@ export function ArticleWebView({ content }: ArticleWebViewProps) {
       <!DOCTYPE html>
       <html>
         <head>
-          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
           <style>
             :root {
               --primary-color: #0066cc;
@@ -158,6 +158,9 @@ export function ArticleWebView({ content }: ArticleWebViewProps) {
       javaScriptEnabled={true}
       domStorageEnabled={true}
       allowsFullscreenVideo={true}
+      setBuiltInZoomControls={true}
+      setDisplayZoomControls={false}
+      scalesPageToFit={true}
     />
   );
 }

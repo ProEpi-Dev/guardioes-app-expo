@@ -15,7 +15,7 @@ import {
  * Tempo máximo esperando a consulta de status. Sem isso a Promise fica
  * pendurada indefinidamente em rede ruim e o app trava no splash.
  */
-const STATUS_TIMEOUT_MS = 8000;
+const STATUS_TIMEOUT_MS = 30000;
 
 /** Enquanto houver indisponibilidade, reconsulta para o app voltar sozinho. */
 const RECHECK_INTERVAL_MS = 30000;
@@ -156,12 +156,6 @@ function maintenanceFromStatusError(error: unknown): MaintenanceInfo | null {
 
   if (error.response?.status === 503) {
     return maintenanceFromResponse(503, error.response.data);
-  }
-
-  // Sem resposta: servidor inalcançável ou timeout. É indisponibilidade de
-  // fato, mas não anunciada — não há mensagem do backend para exibir.
-  if (!error.response) {
-    return UNANNOUNCED_OUTAGE;
   }
 
   // Qualquer outra resposta significa que a API respondeu. Cobre também o app
