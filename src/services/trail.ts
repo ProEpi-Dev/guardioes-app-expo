@@ -101,6 +101,8 @@ export const mergeTrailWithProgress = async (
   if (!trailFullData || !trailFullData.section) return [];
 
   const lockedMap = progressData?.sequence_locked || {};
+  const scheduleStateMap = progressData?.sequence_schedule_state || {};
+  const scheduleWindowMap = progressData?.sequence_schedule_window || {};
   const progressList = progressData?.sequence_progress || [];
 
   const sectionsPromises = trailFullData.section.map(async (section: any) => {
@@ -182,6 +184,8 @@ export const mergeTrailWithProgress = async (
       return {
         ...seq,
         isLocked: isLocked !== undefined ? isLocked : true,
+        scheduleState: scheduleStateMap[String(seq.id)] ?? null,
+        scheduleEnd: scheduleWindowMap[String(seq.id)]?.end ?? null,
         progressStatus: progressStatus,
         rawBackendStatus: rawBackendStatus,
         score: realScore,
