@@ -8,6 +8,21 @@ import {
   getUserSubmissions,
 } from '../services/quiz';
 
+/**
+ * Resultado do usuário para o quiz, em qualquer versão do formulário: quando a
+ * coordenação publica uma versão nova, quem respondeu a anterior não pode voltar
+ * a ver o quiz como não feito. Prioriza o envio aprovado; sem aprovação, o mais
+ * recente (a lista já vem do mais recente para o mais antigo).
+ */
+const findUserResult = (submissions: any[], quiz: any) => {
+  const versionId = quiz.latestVersion?.id;
+  const ofQuiz = submissions.filter(
+    (res: any) =>
+      res.formVersion?.form?.id === quiz.id || res.formVersionId === versionId
+  );
+  return ofQuiz.find((res: any) => res.isPassed) || ofQuiz[0];
+};
+
 export const useQuizList = (participationId: number | null) => {
   const [content, setContent] = useState<Quizes[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,10 +56,7 @@ export const useQuizList = (participationId: number | null) => {
           ]);
 
         const mergedContent = quizzesData.map((quiz: any) => {
-          const versionId = quiz.latestVersion?.id;
-          const userResult = submissionsData.find(
-            (res: any) => res.formVersionId === versionId
-          );
+          const userResult = findUserResult(submissionsData, quiz);
 
           const linkedContentRelation = contentMappingData.find(
             (relation: any) => String(relation.formId) === String(quiz.id)
