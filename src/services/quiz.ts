@@ -31,7 +31,9 @@ export const getActiveQuizzes = async () => {
 export const getUserSubmissions = async (participationId: number) => {
   const params = new URLSearchParams({
     participationId: String(participationId),
-    pageSize: '50',
+    // Máximo aceito pelo backend. Com 50, quem acumula muitas tentativas no
+    // semestre perderia os quizzes mais antigos da trilha.
+    pageSize: '100',
     page: '1',
   });
 
