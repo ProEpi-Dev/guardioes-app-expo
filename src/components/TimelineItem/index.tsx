@@ -1,7 +1,10 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { Sequence } from '../../types/trail';
-import { getItemStatus } from '../../utils/trailContentStatus';
+import {
+  getExpiredItemLabel,
+  getItemStatus,
+} from '../../utils/trailContentStatus';
 import { styles } from './styles';
 import { colors } from '../../utils/colors';
 
@@ -41,6 +44,7 @@ export const TimelineItem: React.FC<Props> = ({
   const getThemeColors = () => {
     if (status === 'completed') return { main: '#4CAF50', bg: '#4CAF50' };
     if (status === 'failed') return { main: '#D32F2F', bg: '#D32F2F' };
+    if (status === 'expired') return { main: '#B45309', bg: '#F59E0B' };
     if (status === 'current' || status === 'available')
       return { main: colors.botãoBem, bg: colors.botãoBem };
 
@@ -49,9 +53,12 @@ export const TimelineItem: React.FC<Props> = ({
 
   const theme = getThemeColors();
   const isLocked = status === 'locked';
+  const isExpired = status === 'expired';
+  // Item com prazo encerrado continua sem ação, como o bloqueado.
+  const isDisabled = isLocked || isExpired;
 
   const handlePress = () => {
-    if (isLocked) return;
+    if (isDisabled) return;
     if (seq.form) onPressQuiz(seq);
     else if (seq.content) onPressArticle(seq.content);
   };
@@ -61,7 +68,7 @@ export const TimelineItem: React.FC<Props> = ({
       activeOpacity={0.7}
       style={styles.itemContainer}
       onPress={handlePress}
-      disabled={isLocked}
+      disabled={isDisabled}
     >
       <View style={styles.timelineContainer}>
         {!isLastItem && <View style={styles.verticalLine} />}
@@ -88,7 +95,13 @@ export const TimelineItem: React.FC<Props> = ({
             <Text style={styles.cardTitle}>{title}</Text>
             <Text style={styles.cardDescription}>{description}</Text>
 
-            {isQuiz && !isLocked && (
+            {isExpired && (
+              <Text style={[styles.metaTextSmall, { color: theme.main }]}>
+                {getExpiredItemLabel(seq)}
+              </Text>
+            )}
+
+            {isQuiz && !isDisabled && (
               <View style={styles.metaContainer}>
                 <View style={styles.scoreRow}>
                   <View

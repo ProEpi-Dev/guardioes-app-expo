@@ -3,6 +3,8 @@ import {
   SaveParticipationProfileExtraDto,
 } from '../types/participation-profile-extra';
 import { apiClient } from '../utils/api';
+import { getCachedLocations, setCachedLocations } from './offlineCache';
+import { isNetworkError } from '../utils/reportDate';
 
 export interface ProfileStatus {
   isComplete: boolean;
@@ -76,11 +78,23 @@ export const putParticipationExtra = async (
 };
 
 export const getLocations = async (): Promise<any[]> => {
-  const response = (await apiClient(
-    '/v1/locations?page=1&pageSize=100&active=true',
-    { method: 'GET' }
-  )) as any;
+  let response: any;
+  try {
+    response = (await apiClient(
+      '/v1/locations?page=1&pageSize=100&active=true',
+      { method: 'GET' }
+    )) as any;
+  } catch (error) {
+    if (isNetworkError(error)) {
+      const cached = await getCachedLocations();
+      if (cached) return cached;
+    }
+    throw error;
+  }
   if (response && Array.isArray(response.data)) {
+    if (response.data.length > 0) {
+      await setCachedLocations(response.data);
+    }
     return response.data;
   }
   return [];

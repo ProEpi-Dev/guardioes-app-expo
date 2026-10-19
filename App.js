@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from './src/contexts/AuthContext';
 import { ParticipationProvider } from './src/contexts/ParticipationContext';
 import { Maintance } from './src/screens/auth/Maintance';
 import { useConnection } from './src/hooks/useConnection';
+import { OfflineBanner } from './src/components/OfflineBanner';
 import {
   Platform,
   PermissionsAndroid,
@@ -340,14 +341,8 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <ParticipationProvider>
-          {/* Se estiver offline, exibe um banner vermelho no topo */}
-          {isOffline && (
-            <View style={styles.offlineBanner}>
-              <Text style={styles.offlineText}>
-                Sem conexão com a internet. Verifique sua rede.
-              </Text>
-            </View>
-          )}
+          {/* Banner offline + sincronização dos reports guardados no aparelho */}
+          <OfflineBanner isOffline={isOffline} />
 
           {/* Janela anunciada que não bloqueia: avisa sem tirar o app do ar. */}
           {!isOffline &&
@@ -374,15 +369,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
-  },
-  offlineBanner: {
-    backgroundColor: '#ff3333',
-    padding: 10,
-    paddingTop: Platform.OS === 'ios' ? 40 : 10, // Respeitar o notch no iOS
-    alignItems: 'center',
-    justifyContent: 'center',
-    zIndex: 999, // Garante que fique por cima de tudo
-    elevation: 10,
   },
   // Âmbar em vez de vermelho: é aviso de janela anunciada, não falha de rede.
   maintenanceBanner: {

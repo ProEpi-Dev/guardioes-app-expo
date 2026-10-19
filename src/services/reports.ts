@@ -7,12 +7,13 @@ import {
 } from '../types/report';
 import { apiClient } from '../utils/api';
 
-interface ReportPayload {
+export interface ReportPayload {
   participationId: number;
   formVersionId: number;
   reportType: 'POSITIVE' | 'NEGATIVE';
   formResponse: any;
   occurrenceLocation: { latitude: number; longitude: number } | null;
+  reportDate: string;
 }
 
 export const createReport = async (payload: ReportPayload) => {

@@ -35,4 +35,20 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginRight: 16, // Dá um espaço antes do botão de fechar
   },
+  offlineNotice: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF4E0',
+    borderBottomWidth: 1,
+    borderColor: '#F5D7A1',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+  },
+  offlineNoticeText: {
+    flex: 1,
+    marginLeft: 10,
+    color: '#8A5300',
+    fontSize: 13,
+    lineHeight: 18,
+  },
 });

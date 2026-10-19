@@ -72,6 +72,10 @@ export interface Sequence {
   timeLimitMinutes?: number | null;
   isLocked?: boolean;
   progressStatus?: 'not_started' | 'in_progress' | 'completed';
+  /** sequence_schedule_state do backend: janela do item hoje. */
+  scheduleState?: 'open' | 'upcoming' | 'expired' | null;
+  /** Último dia da janela do item (yyyy-MM-dd), de sequence_schedule_window. */
+  scheduleEnd?: string | null;
 }
 
 export interface TrailContentData {

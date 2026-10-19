@@ -21,7 +21,7 @@ const STATUS_TIMEOUT_MS = 30000;
 const RECHECK_INTERVAL_MS = 30000;
 
 /** Sem previsão de retorno anunciada — usado quando o servidor não responde. */
-const UNANNOUNCED_OUTAGE: MaintenanceInfo = {
+const _UNANNOUNCED_OUTAGE: MaintenanceInfo = {
   mode: 'full',
   title: '',
   message: '',

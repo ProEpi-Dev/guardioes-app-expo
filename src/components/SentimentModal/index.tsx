@@ -24,6 +24,7 @@ export function SentimentModal({
   onFormChange,
   onSubmit,
   title,
+  offline = false,
 }: SentimentModalProps) {
   const azul = '#2E97BE';
 
@@ -52,6 +53,16 @@ export function SentimentModal({
             </View>
           ) : (
             <>
+              {offline && (
+                <View style={styles.offlineNotice}>
+                  <Feather name="wifi-off" size={18} color="#8A5300" />
+                  <Text style={styles.offlineNoticeText}>
+                    Você está offline. Apenas o registro de saúde está
+                    disponível; ele será enviado automaticamente quando a
+                    conexão voltar.
+                  </Text>
+                </View>
+              )}
               <View style={styles.content}>
                 {formDefinition && (
                   <FormRenderer
