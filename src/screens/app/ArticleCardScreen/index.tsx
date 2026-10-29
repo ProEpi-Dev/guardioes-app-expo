@@ -7,20 +7,31 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { Feather } from '@expo/vector-icons';
 import ArticleCard from '../../../components/ArticleCard';
 import { RootStackParamList, Article } from '../../../types/article';
 import { useArticles } from '../../../hooks/useArticles';
 import { styles } from './styles';
 import { useAuth } from '../../../contexts/AuthContext';
 import { CustomHeader } from '../../../components/CustomHeader';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FilterDrawer } from '../../../components/FilterDrawer';
-import { Feather } from '@expo/vector-icons';
 import translate from '../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
+  texto: 'file-text',
+  video: 'video',
+  audio: 'headphones',
+};
+
+const normalize = (text?: string) =>
+  (text ?? '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
 
 export default function ArticleListScreen({ navigation }: Props) {
   const { user } = useAuth();
@@ -36,29 +47,25 @@ export default function ArticleListScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const bottomBarHeight = 60 + insets.bottom;
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => setSelectedId(null);
+    }, [])
+  );
+
+  const selectedType = useMemo(
+    () => contentTypes.find((type) => type.id === selectedId),
+    [contentTypes, selectedId]
+  );
 
   const filteredArticles = useMemo(() => {
-    if (selectedFilters.length === 0) {
-      return articles;
-    }
+    if (selectedId === null) return [];
     return articles.filter(
-      (article) =>
-        article.content_type &&
-        selectedFilters.includes(article.content_type.id)
+      (article) => article.content_type?.id === selectedId
     );
-  }, [articles, selectedFilters]);
-
-  const toggleFilter = (id: number) => {
-    setSelectedFilters((prev) =>
-      prev.includes(id)
-        ? prev.filter((filterId) => filterId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const clearFilters = () => setSelectedFilters([]);
+  }, [articles, selectedId]);
 
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
@@ -92,26 +99,37 @@ export default function ArticleListScreen({ navigation }: Props) {
     <>
       <CustomHeader userName={user?.name} />
 
-      <View style={styles.botaoFiltro}>
-        <TouchableOpacity
-          style={styles.actionButtonContainer}
-          onPress={() => setIsDrawerOpen(true)}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={[colors.azulClaro, colors.azulEscuro]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.actionButtonGradient}
+      {selectedType ? (
+        <View style={styles.selectedFilterContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setSelectedId(null)}
+            activeOpacity={0.8}
           >
-            <Feather name="filter" size={24} color="white" />
-            <Text style={styles.actionButtonText}>
-              {translate('articleCard.filter')}{' '}
-              {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
+            <Feather name="arrow-left" size={28} color={colors.azulEscuro} />
+          </TouchableOpacity>
+          <Text style={styles.selectedFilterText}>{selectedType.name}</Text>
+          <View style={styles.backButtonSpacer} />
+        </View>
+      ) : (
+        <View style={styles.filterButtonsContainer}>
+          {contentTypes.map((type) => (
+            <TouchableOpacity
+              key={type.id}
+              style={styles.filterButton}
+              onPress={() => setSelectedId(type.id)}
+              activeOpacity={0.8}
+            >
+              <Feather
+                name={ICONS[normalize(type.name)] ?? 'file'}
+                size={22}
+                color={colors.azulEscuro}
+              />
+              <Text style={styles.filterButtonText}>{type.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       <FlatList
         style={styles.list}
@@ -127,17 +145,12 @@ export default function ArticleListScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>{translate('articleCard.empty')}</Text>
+          selectedId !== null ? (
+            <Text style={styles.emptyText}>
+              {translate('articleCard.empty')}
+            </Text>
+          ) : null
         }
-      />
-
-      <FilterDrawer
-        visible={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        contentTypes={contentTypes}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        onClearFilters={clearFilters}
       />
     </>
   );

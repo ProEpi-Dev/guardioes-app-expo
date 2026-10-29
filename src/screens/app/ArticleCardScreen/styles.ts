@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { scale } from '../../../utils/scalling';
+import { colors } from '../../../utils/colors';
 
 export const styles = StyleSheet.create({
   list: {
@@ -23,30 +24,53 @@ export const styles = StyleSheet.create({
     marginTop: 20,
     color: '#666',
   },
-  botaoFiltro: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
+  filterButtonsContainer: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
     gap: 12,
   },
-  actionButtonContainer: {
-    borderRadius: 30,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-  },
-  actionButtonGradient: {
+  filterButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 16,
-    gap: 10,
+    gap: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    borderWidth: 3,
+    borderColor: colors.azulEscuro,
+    backgroundColor: 'white',
   },
-  actionButtonText: {
-    color: '#FFF',
-    fontSize: scale(15),
-    fontWeight: 'bold',
+  filterButtonText: {
+    fontSize: scale(18),
+    fontWeight: '700',
+    color: colors.azulEscuro,
+    flexShrink: 1,
+    textAlign: 'center',
+  },
+  selectedFilterContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 8,
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  backButtonSpacer: {
+    width: 40,
+  },
+  selectedFilterText: {
+    flex: 1,
+    fontSize: scale(18),
+    fontWeight: '700',
+    color: colors.azulEscuro,
+    textAlign: 'center',
   },
 });
