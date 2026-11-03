@@ -7,20 +7,39 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import ArticleCard from '../../../components/ArticleCard';
 import { RootStackParamList, Article } from '../../../types/article';
 import { useArticles } from '../../../hooks/useArticles';
 import { styles } from './styles';
 import { useAuth } from '../../../contexts/AuthContext';
 import { CustomHeader } from '../../../components/CustomHeader';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '../../../utils/colors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FilterDrawer } from '../../../components/FilterDrawer';
-import { Feather } from '@expo/vector-icons';
 import translate from '../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+type MCIName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+const ICONS: Record<string, MCIName> = {
+  'boletim epidemiologico': 'clipboard-pulse-outline',
+  noticia: 'newspaper-variant-outline',
+  artigos: 'file-document-outline',
+};
+
+const ALL = 'all' as const;
+const ALL_LABEL = 'Todos';
+
+type SelectedFilter = number | typeof ALL | null;
+
+const normalize = (text?: string) =>
+  (text ?? '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 
 export default function ArticleListScreen({ navigation }: Props) {
   const { user } = useAuth();
@@ -36,29 +55,29 @@ export default function ArticleListScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const bottomBarHeight = 60 + insets.bottom;
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<number[]>([]);
+  const [selectedId, setSelectedId] = useState<SelectedFilter>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => setSelectedId(null);
+    }, [])
+  );
+
+  const selectedName = useMemo(() => {
+    if (selectedId === null) return null;
+    if (selectedId === ALL) return ALL_LABEL;
+    return contentTypes.find((type) => type.id === selectedId)?.name ?? null;
+  }, [contentTypes, selectedId]);
+
+  const hasNoArticles = !articles?.length;
 
   const filteredArticles = useMemo(() => {
-    if (selectedFilters.length === 0) {
-      return articles;
-    }
+    if (selectedId === null || !articles) return [];
+    if (selectedId === ALL) return articles;
     return articles.filter(
-      (article) =>
-        article.content_type &&
-        selectedFilters.includes(article.content_type.id)
+      (article) => article.content_type?.id === selectedId
     );
-  }, [articles, selectedFilters]);
-
-  const toggleFilter = (id: number) => {
-    setSelectedFilters((prev) =>
-      prev.includes(id)
-        ? prev.filter((filterId) => filterId !== id)
-        : [...prev, id]
-    );
-  };
-
-  const clearFilters = () => setSelectedFilters([]);
+  }, [articles, selectedId]);
 
   const renderItem = useCallback(
     ({ item }: { item: Article }) => (
@@ -92,26 +111,66 @@ export default function ArticleListScreen({ navigation }: Props) {
     <>
       <CustomHeader userName={user?.name} />
 
-      <View style={styles.botaoFiltro}>
-        <TouchableOpacity
-          style={styles.actionButtonContainer}
-          onPress={() => setIsDrawerOpen(true)}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={[colors.azulClaro, colors.azulEscuro]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.actionButtonGradient}
+      {selectedName ? (
+        <View style={styles.selectedFilterContainer}>
+          <TouchableOpacity
+            style={styles.backButton}
+            onPress={() => setSelectedId(null)}
+            activeOpacity={0.8}
           >
-            <Feather name="filter" size={24} color="white" />
-            <Text style={styles.actionButtonText}>
-              {translate('articleCard.filter')}{' '}
-              {selectedFilters.length > 0 ? `(${selectedFilters.length})` : ''}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
-      </View>
+            <Feather name="arrow-left" size={28} color={colors.secundaria} />
+          </TouchableOpacity>
+          <Text style={styles.selectedFilterText}>{selectedName}</Text>
+          <View style={styles.backButtonSpacer} />
+        </View>
+      ) : (
+        <View style={styles.filterButtonsContainer}>
+          <View style={styles.titleContainer}>
+            <MaterialCommunityIcons
+              name={'file-document-multiple-outline'}
+              size={36}
+              color={colors.secundaria}
+            />
+            <Text style={styles.textTitle}>Conteúdos</Text>
+          </View>
+          {!hasNoArticles && (
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setSelectedId(ALL)}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons
+                name="view-grid-outline"
+                size={22}
+                color={colors.secundaria}
+              />
+              <Text style={styles.filterButtonText}>{ALL_LABEL}</Text>
+            </TouchableOpacity>
+          )}
+          {!hasNoArticles &&
+            contentTypes.map((type) => {
+              const iconName = ICONS[normalize(type.name)];
+
+              return (
+                <TouchableOpacity
+                  key={type.id}
+                  style={styles.filterButton}
+                  onPress={() => setSelectedId(type.id)}
+                  activeOpacity={0.8}
+                >
+                  {iconName ? (
+                    <MaterialCommunityIcons
+                      name={iconName}
+                      size={22}
+                      color={colors.secundaria}
+                    />
+                  ) : null}
+                  <Text style={styles.filterButtonText}>{type.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
+        </View>
+      )}
 
       <FlatList
         style={styles.list}
@@ -127,17 +186,12 @@ export default function ArticleListScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>{translate('articleCard.empty')}</Text>
+          selectedId !== null || hasNoArticles ? (
+            <Text style={styles.emptyText}>
+              {translate('articleCard.empty')}
+            </Text>
+          ) : null
         }
-      />
-
-      <FilterDrawer
-        visible={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        contentTypes={contentTypes}
-        selectedFilters={selectedFilters}
-        onToggleFilter={toggleFilter}
-        onClearFilters={clearFilters}
       />
     </>
   );

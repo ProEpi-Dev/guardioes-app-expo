@@ -55,6 +55,8 @@ O aplicativo **Guardiões da Saúde** é uma ferramenta de vigilância participa
 
 Para entender melhor o sistema, consulte os arquivos abaixo na pasta `/docs` (ou crie-os seguindo a documentação detalhada):
 
-- [Estrutura e Arquitetura do Projeto](./docs/ESTRUTURA.md)
+- [Arquitetura de Validações e Estratégias](./docs/ARQUITETURA_VALIDACOES.md)
+- [Componentes e Lógicas Principais](./docs/COMPONENTES.md)
+- [Estrutura do Projeto](./docs/ESTRUTURA.md)
+- [Funcionalidades Implementadas](./docs/FUNCIONALIDADES.md)
 - [Sistema de Navegação](./docs/NAVEGACAO.md)
-- [Funcionalidades e Componentes Chave](./docs/COMPONENTES.md)

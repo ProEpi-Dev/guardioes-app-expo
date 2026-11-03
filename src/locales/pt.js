@@ -639,6 +639,6 @@ export default {
   },
   articleCard: {
     filter: 'Filtro',
-    empty: 'Nenhum artigo encontrado.',
+    empty: 'Nenhum conteúdo encontrado.',
   },
 };
