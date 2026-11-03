@@ -21,17 +21,25 @@ import translate from '../../../locales/i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-const ICONS: Record<string, keyof typeof Feather.glyphMap> = {
-  texto: 'file-text',
-  video: 'video',
-  audio: 'headphones',
+type MCIName = keyof typeof MaterialCommunityIcons.glyphMap;
+
+const ICONS: Record<string, MCIName> = {
+  'boletim epidemiologico': 'clipboard-pulse-outline',
+  noticia: 'newspaper-variant-outline',
+  artigos: 'file-document-outline',
 };
+
+const ALL = 'all' as const;
+const ALL_LABEL = 'Todos';
+
+type SelectedFilter = number | typeof ALL | null;
 
 const normalize = (text?: string) =>
   (text ?? '')
     .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase();
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim();
 
 export default function ArticleListScreen({ navigation }: Props) {
   const { user } = useAuth();
@@ -47,7 +55,7 @@ export default function ArticleListScreen({ navigation }: Props) {
   const insets = useSafeAreaInsets();
   const bottomBarHeight = 60 + insets.bottom;
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<SelectedFilter>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -55,16 +63,17 @@ export default function ArticleListScreen({ navigation }: Props) {
     }, [])
   );
 
-  const selectedType = useMemo(
-    () => contentTypes.find((type) => type.id === selectedId),
-    [contentTypes, selectedId]
-  );
+  const selectedName = useMemo(() => {
+    if (selectedId === null) return null;
+    if (selectedId === ALL) return ALL_LABEL;
+    return contentTypes.find((type) => type.id === selectedId)?.name ?? null;
+  }, [contentTypes, selectedId]);
 
-  // true quando a API não retornou nenhum artigo
   const hasNoArticles = !articles?.length;
 
   const filteredArticles = useMemo(() => {
     if (selectedId === null || !articles) return [];
+    if (selectedId === ALL) return articles;
     return articles.filter(
       (article) => article.content_type?.id === selectedId
     );
@@ -102,7 +111,7 @@ export default function ArticleListScreen({ navigation }: Props) {
     <>
       <CustomHeader userName={user?.name} />
 
-      {selectedType ? (
+      {selectedName ? (
         <View style={styles.selectedFilterContainer}>
           <TouchableOpacity
             style={styles.backButton}
@@ -111,7 +120,7 @@ export default function ArticleListScreen({ navigation }: Props) {
           >
             <Feather name="arrow-left" size={28} color={colors.secundaria} />
           </TouchableOpacity>
-          <Text style={styles.selectedFilterText}>{selectedType.name}</Text>
+          <Text style={styles.selectedFilterText}>{selectedName}</Text>
           <View style={styles.backButtonSpacer} />
         </View>
       ) : (
@@ -124,22 +133,42 @@ export default function ArticleListScreen({ navigation }: Props) {
             />
             <Text style={styles.textTitle}>Conteúdos</Text>
           </View>
+          {!hasNoArticles && (
+            <TouchableOpacity
+              style={styles.filterButton}
+              onPress={() => setSelectedId(ALL)}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons
+                name="view-grid-outline"
+                size={22}
+                color={colors.secundaria}
+              />
+              <Text style={styles.filterButtonText}>{ALL_LABEL}</Text>
+            </TouchableOpacity>
+          )}
           {!hasNoArticles &&
-            contentTypes.map((type) => (
-              <TouchableOpacity
-                key={type.id}
-                style={styles.filterButton}
-                onPress={() => setSelectedId(type.id)}
-                activeOpacity={0.8}
-              >
-                <Feather
-                  name={ICONS[normalize(type.name)] ?? 'file'}
-                  size={22}
-                  color={colors.secundaria}
-                />
-                <Text style={styles.filterButtonText}>{type.name}</Text>
-              </TouchableOpacity>
-            ))}
+            contentTypes.map((type) => {
+              const iconName = ICONS[normalize(type.name)];
+
+              return (
+                <TouchableOpacity
+                  key={type.id}
+                  style={styles.filterButton}
+                  onPress={() => setSelectedId(type.id)}
+                  activeOpacity={0.8}
+                >
+                  {iconName ? (
+                    <MaterialCommunityIcons
+                      name={iconName}
+                      size={22}
+                      color={colors.secundaria}
+                    />
+                  ) : null}
+                  <Text style={styles.filterButtonText}>{type.name}</Text>
+                </TouchableOpacity>
+              );
+            })}
         </View>
       )}
 
