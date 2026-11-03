@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
-import { Feather } from '@expo/vector-icons';
+import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import ArticleCard from '../../../components/ArticleCard';
 import { RootStackParamList, Article } from '../../../types/article';
 import { useArticles } from '../../../hooks/useArticles';
@@ -60,8 +60,11 @@ export default function ArticleListScreen({ navigation }: Props) {
     [contentTypes, selectedId]
   );
 
+  // true quando a API não retornou nenhum artigo
+  const hasNoArticles = !articles?.length;
+
   const filteredArticles = useMemo(() => {
-    if (selectedId === null) return [];
+    if (selectedId === null || !articles) return [];
     return articles.filter(
       (article) => article.content_type?.id === selectedId
     );
@@ -106,28 +109,37 @@ export default function ArticleListScreen({ navigation }: Props) {
             onPress={() => setSelectedId(null)}
             activeOpacity={0.8}
           >
-            <Feather name="arrow-left" size={28} color={colors.azulEscuro} />
+            <Feather name="arrow-left" size={28} color={colors.secundaria} />
           </TouchableOpacity>
           <Text style={styles.selectedFilterText}>{selectedType.name}</Text>
           <View style={styles.backButtonSpacer} />
         </View>
       ) : (
         <View style={styles.filterButtonsContainer}>
-          {contentTypes.map((type) => (
-            <TouchableOpacity
-              key={type.id}
-              style={styles.filterButton}
-              onPress={() => setSelectedId(type.id)}
-              activeOpacity={0.8}
-            >
-              <Feather
-                name={ICONS[normalize(type.name)] ?? 'file'}
-                size={22}
-                color={colors.azulEscuro}
-              />
-              <Text style={styles.filterButtonText}>{type.name}</Text>
-            </TouchableOpacity>
-          ))}
+          <View style={styles.titleContainer}>
+            <MaterialCommunityIcons
+              name={'file-document-multiple-outline'}
+              size={36}
+              color={colors.secundaria}
+            />
+            <Text style={styles.textTitle}>Conteúdos</Text>
+          </View>
+          {!hasNoArticles &&
+            contentTypes.map((type) => (
+              <TouchableOpacity
+                key={type.id}
+                style={styles.filterButton}
+                onPress={() => setSelectedId(type.id)}
+                activeOpacity={0.8}
+              >
+                <Feather
+                  name={ICONS[normalize(type.name)] ?? 'file'}
+                  size={22}
+                  color={colors.secundaria}
+                />
+                <Text style={styles.filterButtonText}>{type.name}</Text>
+              </TouchableOpacity>
+            ))}
         </View>
       )}
 
@@ -145,7 +157,7 @@ export default function ArticleListScreen({ navigation }: Props) {
         showsVerticalScrollIndicator={false}
         initialNumToRender={6}
         ListEmptyComponent={
-          selectedId !== null ? (
+          selectedId !== null || hasNoArticles ? (
             <Text style={styles.emptyText}>
               {translate('articleCard.empty')}
             </Text>
